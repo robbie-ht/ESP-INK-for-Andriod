@@ -9,6 +9,6 @@
 
 目标为 Windows 10/11 x64；本次不发布新 Android APK，Android 继续使用 [1.0.7](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/tag/v1.0.7)。设备固件请到独立 [ESP_INK B2.0.1](https://github.com/robbie-ht/ESP_INK/releases/tag/B2.0.1) 下载。
 
-Linux最终424项Flutter测试、Dart分析与55项Windows边界联合检查通过。Windows Release实际编译、完整运行库/AMD64 PE/1.0.8+9产品版本/独立解包SHA256验证，以及中文空格解压路径下的首帧窗口启动检查，必须以发布附件构建报告中的实际结果为准。
+Linux与Windows各424项Flutter测试及Dart分析通过，Windows Release实际编译118.3秒；30文件完整包、14项AMD64 PE32+、1.0.8+9产品版本、独立解包SHA256和中文空格路径的首帧窗口启动检查通过。成品61,507,582字节，SHA256：`fc5fed22035b0cf9173301cae1d2579cf6661a3c8a1106b9e98769540f62ccc4`。构建报告随包提供。
 
 CI 不提供实体蓝牙设备，本次没有实测真实 Windows 蓝牙、图库回读、屏幕传输或 OTA，也没有刷写硬件。源码归档和 SHA256SUMS 随发布提供。

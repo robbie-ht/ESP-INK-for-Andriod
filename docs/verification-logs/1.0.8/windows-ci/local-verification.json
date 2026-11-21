@@ -1,0 +1,29 @@
+{
+  "archive": "ESP-INK-1.0.8-windows-x64.zip",
+  "bytes": 61507582,
+  "sha256": "fc5fed22035b0cf9173301cae1d2579cf6661a3c8a1106b9e98769540f62ccc4",
+  "files": 30,
+  "manifest_files": 29,
+  "pe_amd64": [
+    "concrt140.dll",
+    "ESP-INK.exe",
+    "file_selector_windows_plugin.dll",
+    "flutter_windows.dll",
+    "msvcp140.dll",
+    "msvcp140_1.dll",
+    "msvcp140_2.dll",
+    "msvcp140_atomic_wait.dll",
+    "msvcp140_codecvt_ids.dll",
+    "universal_ble_plugin.dll",
+    "vccorlib140.dll",
+    "vcruntime140.dll",
+    "vcruntime140_1.dll",
+    "vcruntime140_threads.dll"
+  ],
+  "crc_ok": true,
+  "all_file_hashes_match": true,
+  "symlinks": 0,
+  "source_commit": "63119ff1b0b12d5e4c5b1cad37dc874f1fa6aaf8",
+  "actual_release_directory": "/home/descfly/桌面/ESP32/APP/build/windows/x64/runner/Release",
+  "ci_startup": "window_created_and_process_alive"
+}

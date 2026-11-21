@@ -46,3 +46,14 @@ ESP-IDF5.2.2 Docker实际编译/链接成功，app445136B，静态D/IRAM102162B�
 ## 1.0.8+9 Windows x64（2026-11-21）
 
 新增 Windows runner、系统选图、WinRT BLE 和 GitHub Actions Windows 编译；Android 原生桥保留。`universal_ble`固定3.4.0，Windows以真实MTU分片、EVT订阅完成才连接就绪，CTRL/DATA串行。Windows选图新增10项回归，PNG桌面保存3项、Windows BLE 22项（含真实接口委派）已进入最终套件。Windows不嵌JVM，跳过Android间接JNI的可选探测。Linux最终 **424项全部通过**（51秒），Dart分析No issues found；三个Windows边界文件55项联合通过。首轮399日志与中间分析记录保留，最终结果以linux-tests.log/analyze.log为准。Windows实际编译与首帧启动尚待云端结果，完成结果将另存构建报告并追加下文。
+
+
+### Windows最终构建和分发验证通过
+
+[GitHub Actions run44896748384](https://github.com/robbie-ht/ESP-INK-for-Andriod/actions/runs/44896748384) 成功，编译提交63119ff1b0b12d5e4c5b1cad37dc874f1fa6aaf8，Flutter3.47.8/Dart3.13.7、VS2022/x64。Windows最终424项全通过、Dart分析无问题，Release实际编译118.3秒生成ESP-INK.exe。构建报告、最终日志和前两次CI失败证据均保留在verification-logs/1.0.8/，初次bootstrap JSON和不支持target-platform的命令问题均已修正；后续不使用该参数，架构通过PE检查确认。
+
+完整ZIP为releases/windows/ESP-INK-1.0.8-windows-x64.zip，61507582字节，SHA256=fc5fed22035b0cf9173301cae1d2579cf6661a3c8a1106b9e98769540f62ccc4。30文件（29项内部SHA加清单本身）、14个AMD64 PE32+、嵌入1.0.8+9/ESP-INK产品版本、两插件/三字体/全10个MSVC CRT DLL检查通过；独立解包逐文件SHA、ZIP CRC通过。Windows CI从“解压 验证”中文空格路径启动了真正ZIP内的exe，首帧窗口ESP-INK出现后进程继续存活，再正常关闭。外部build.json记录启动和最终ZIP SHA，内置BUILD-INFO避免自引用。
+
+下载回Linux后独立复查外部/内部SHA、30文件CRC、14PE架构、版本/编译提交报告，全通过；实际Windows Release文件已复制到APP/build/windows/x64/runner/Release/，源码、成品及文档继续为APP内实文件。临时Windows插件软链接已清理，SDK/依赖缓存正常由工具链管理。发布时仅增加文档和验证记录；Dart/Windows/pubspec等构建输入SHA未改变，具体数量见input-check.json。
+
+本轮不构建新Android APK，已发布1.0.7 APK及旧源包保留。Windows实体蓝牙适配器、真实设备图库/传输/OTA、不同DPI/中文输入未实机验收；CI首帧启动不是这些功能的验收，没有刷写任何设备。

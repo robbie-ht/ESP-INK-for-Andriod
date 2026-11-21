@@ -45,7 +45,7 @@ Linux 可以分析、运行 Flutter 测试、打源码包；不能直接生成 W
 
 ## 验证边界
 
-本轮实际结果见 [VERIFICATION](VERIFICATION.md)。CI 窗口启动与包结构验证不等于实体 Windows 蓝牙、真实屏幕传输/图库/OTA、中文输入和不同 DPI 验收；没有连接或刷写设备。固件独立发布于 [ESP_INK B2.0.1](https://github.com/robbie-ht/ESP_INK/releases/tag/B2.0.1)。
+本轮Linux/Windows各424项、静态分析、实际Release编译、30文件/14PE/版本/独立解包SHA和中文空格路径首帧启动检查通过。详细证据见 [VERIFICATION](VERIFICATION.md)。CI 窗口启动与包结构验证不等于实体 Windows 蓝牙、真实屏幕传输/图库/OTA、中文输入和不同 DPI 验收；没有连接或刷写设备。固件独立发布于 [ESP_INK B2.0.1](https://github.com/robbie-ht/ESP_INK/releases/tag/B2.0.1)。
 
 ## 依赖与许可证
 

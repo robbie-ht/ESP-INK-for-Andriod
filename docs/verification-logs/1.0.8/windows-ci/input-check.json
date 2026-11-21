@@ -1,0 +1,6 @@
+{
+  "checked_source_inputs": 62,
+  "all_unchanged": true,
+  "windows_build_commit": "63119ff1b0b12d5e4c5b1cad37dc874f1fa6aaf8",
+  "scope": "Dart lib/tests, Windows C++/headers/CMake, pubspec and lockfile; final release adds documentation and verification only."
+}
