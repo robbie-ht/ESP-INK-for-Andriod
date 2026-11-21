@@ -2,22 +2,31 @@
 
 四彩墨水屏的 Android 伴侣应用。界面采用 Google Material 3：浅色、蓝色主色、柔和圆角和三栏导航。源码位于本仓库，设备通过B2协议连接；接口参考见 `docs/reference/B2/`。
 
-源码、实际编译目录、安装包、源码压缩包及文档均集中在本APP目录，目录内没有软链接。当前版本为 **1.0.4+5**，安装包为 `releases/ESP-INK-1.0.4-android.apk`。本版统一采用ESP-INK名称与独立应用ID，保留效果自动更新与固定预览调参、空闲自动高清、追加时高清缓存保留和有效电压读数标记，以及MTU517读取限长修复；实际构建与验证状态见 [验证记录](docs/VERIFICATION.md)，完整入口见 [交付说明](docs/交付说明.md)。
+源码、实际编译目录、安装包、源码压缩包及文档均集中在本APP目录，目录内没有软链接。当前版本为 **1.0.5+6**，安装包为 `releases/ESP-INK-1.0.5-android.apk`。本版将照片流程整理为主页选择、系统相册、集中调整、返回主页发送，保留固定预览与自动效果、空闲自动高清、追加时高清缓存保留、有效电压读数标记和MTU517读取限长修复；实际构建与验证状态见 [验证记录](docs/VERIFICATION.md)，完整入口见 [交付说明](docs/交付说明.md)。
 
 ## 下载与仓库
 
-- [最新安装包与源码归档](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/tag/v1.0.4)：ESP-INK 1.0.4，Android 7.0及以上；安装包为测试签名。
-- [直接下载APK](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.4/ESP-INK-1.0.4-android.apk)、[完整源码压缩包](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.4/ESP-INK-Flutter-source.tar.gz)、[成品SHA256](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.4/SHA256SUMS)。
+- [最新安装包与源码归档](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/tag/v1.0.5)：ESP-INK 1.0.5，Android 7.0及以上；安装包为测试签名。
+- [直接下载APK](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.5/ESP-INK-1.0.5-android.apk)、[完整源码压缩包](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.5/ESP-INK-Flutter-source.tar.gz)、[成品SHA256](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.5/SHA256SUMS)。
 - 克隆后可按下方Docker步骤构建。仓库包含源码、字体许可、文档、测试、Gradle wrapper及验证记录；`build/`和`releases/`在本地保留，由Git忽略。下载文件放入本地`releases/`后，交付文档中的成品相对链接即可使用。
 
-新版应用ID为 `io.github.robbieht.espink`，与旧版不同，安装后可与旧版并存；不会删除旧版，也不会自动迁移旧版草稿。请在旧版保留需要的内容，再在ESP-INK中重新选择照片或建立草稿。
+ESP-INK 1.0.5继续使用1.0.4的应用ID `io.github.robbieht.espink`，相同签名的安装包可覆盖更新，草稿参数与文字继续保留。独立安装的说明只适用于从旧 **MoInk 1.0.3及更早版本**迁移：旧MoInk的应用ID不同，可与ESP-INK并存，其草稿不会自动迁入；不要因此卸载旧MoInk或删除旧相册文件。
 
 ```bash
 git clone https://github.com/robbie-ht/ESP-INK-for-Andriod.git
 cd ESP-INK-for-Andriod
 ```
 
-![ESP-INK界面](docs/previews/1.0.4/esp-ink-desktop.jpg)
+![ESP-INK创作主页](docs/previews/1.0.5/a-home.jpg)
+
+## 照片使用流程
+
+1. **A · 主页**：只有一个照片选择／结果预览区，下方是“调整图片”和“发送图片”。轻点预览区，直接打开系统相册 B。
+2. **B · 系统相册**：选好照片后自动进入 C。取消选择或读取失败会留在 A，保留原照片和参数。
+3. **C · 调整图片**：默认查看墨水屏效果，边看边调整；可切回原图，使用裁切、旋转、文字、留白和完整滤镜参数。竖屏预览固定在上方，横屏与参数并排。“便签”入口也在这里，可在拍立得与便签之间切换。
+4. **回到 A**：点“完成”或系统返回均保留当前编辑，补齐最后一次效果后显示结果，再点“发送图片”。“调整图片”直接重进 C，不必重新选图。
+
+从 C 更换照片会继续留在当前调整页，不重复打开 C；等待系统选图期间暂时锁定 C 的退出操作，避免照片迟到后覆盖主页。Android选择照片时若应用被系统回收，成功恢复的照片只自动进入一次 C。普通重启仍不会恢复未持久保存的照片字节。
 
 ## 参考与致谢
 
@@ -27,8 +36,8 @@ cd ESP-INK-for-Andriod
 
 ## 已实现
 
-- **拍立得**：系统相册选图后默认直接显示实时彩色原图，不等待转换为墨水屏点阵。全屏裁切编辑器支持拖动、双指焦点缩放/旋转、固定比例四角裁切、左右90°旋转、镜像、±45°精细校正和1–8倍缩放；铺满模式自动约束边界，完整照片模式在1倍时保留全图与必要白边。编辑器使用局部草稿，“应用”后才修改主画面，“取消”不改草稿。另支持四边留白和多个文字对象，首次打开为空白选图状态。
-- **便签**：黑、白、黄、红四种底色；独立于拍立得保留文字对象，支持添加、修改、删除、拖动、缩放与旋转。
+- **拍立得**：主页选图后自动进入集中调整页，默认生成墨水屏效果；处理期间先显示原图。切到“原图”可立即查看彩色照片，不等待点阵转换。全屏裁切编辑器支持拖动、双指焦点缩放/旋转、固定比例四角裁切、左右90°旋转、镜像、±45°精细校正和1–8倍缩放；铺满模式自动约束边界，完整照片模式在1倍时保留全图与必要白边。裁切使用局部草稿，“应用”后才修改画面，“取消”不改草稿。另支持四边留白和多个文字对象，首次打开主页为空白选图状态。
+- **便签**：从“调整图片”页进入，提供黑、白、黄、红四种底色；独立于拍立得保留文字对象，支持添加、修改、删除、拖动、缩放与旋转。
 - **文字**：内置黑体、宋体、等宽三套字体；字号、加粗、换行宽度、四色文字/描边、透明或四色文字底色。文字在图片量化后叠加，不参与图像风格化与抖动。
 - **图像处理**：自然暖调、全面暖色、灰度、原色直出，8种抖动、3种色域、色阶和精细参数。在墨水屏效果模式或效果调整页中自动更新，连续修改合并处理；原图裁切继续直接显示彩色照片。效果调整页竖屏固定上方预览、下方独立滚动参数，横屏左右分栏，调到底部仍能看到效果。更新期间保留上一张效果并标明更新中；换照片不沿用上一张。
 - **连接**：Android 原生 BLE、按服务 UUID 发现设备、动态权限申请、服务/特征发现、EVT 订阅、MTU 协商、握手和主动状态查询。不需要 Wi-Fi 配网或系统配对。
@@ -81,7 +90,7 @@ flutter analyze
 
 ## 文件组织
 
-- `lib/ui/`：创作、图库、设备管理和连接/发送弹层。
+- `lib/ui/`：创作、图库、设备管理和连接/发送弹层；`composer_page.dart`为简洁主页A，`composition_editor.dart`为集中调整页C，`ink_effect_editor.dart`提供固定预览布局。
 - `lib/app/controller.dart`：连接和作业状态、页面动作、草稿持久化、日志及生命周期。
 - `lib/app/models.dart`：拍立得/便签草稿、独立文字列表、图像参数与设备视图模型。
 - `lib/ui/source_artwork_canvas.dart` / `photo_crop_editor.dart`：实时原图与使用局部草稿的全屏裁切。

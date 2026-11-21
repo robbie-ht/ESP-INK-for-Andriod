@@ -73,6 +73,18 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
   int _previewRevision = -1;
   final Map<int, Future<ProcessedArtwork>> _processing = {};
   bool _disposed = false;
+  bool _pickingPhoto = false;
+  int _photoSelectionGeneration = 0;
+  bool _recoveredPhotoNeedsAdjustment = false;
+  bool get pickingPhoto => _pickingPhoto;
+  bool get recoveredPhotoNeedsAdjustment => _recoveredPhotoNeedsAdjustment;
+
+  bool consumeRecoveredPhotoAdjustment() {
+    if (!_recoveredPhotoNeedsAdjustment) return false;
+    _recoveredPhotoNeedsAdjustment = false;
+    return true;
+  }
+
   bool _queued = false;
   bool _intentionalDisconnect = false;
   bool _otaSubmitted = false;
@@ -234,13 +246,15 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
         draft = ComposerDraft.fromJson(map);
       }
       if (!kIsWeb && _ble.supported) {
+        final recoveryGeneration = _photoSelectionGeneration;
         final lost = await ImagePicker().retrieveLostData();
         if (!lost.isEmpty && lost.files?.isNotEmpty == true) {
-          draft = draft.copyWith(
-            kind: CompositionKind.photo,
-            photoBytes: await lost.files!.first.readAsBytes(),
-          );
-          _say('已恢复刚才选择的照片');
+          final bytes = await lost.files!.first.readAsBytes();
+          if (!_disposed && recoveryGeneration == _photoSelectionGeneration) {
+            _acceptPhotoBytes(bytes);
+            _recoveredPhotoNeedsAdjustment = true;
+            _say('已恢复刚才选择的照片');
+          }
         }
       }
     } catch (e) {
@@ -423,7 +437,35 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  Future<void> pickPhoto() async {
+  void _acceptPhotoBytes(Uint8List bytes) {
+    if (bytes.isEmpty) throw const FormatException('图片文件为空');
+    if (bytes.length > 24 * 1024 * 1024) {
+      throw ArgumentError('图片过大，请选择小于24 MB的照片');
+    }
+    // A normal selection supersedes any unconsumed recovery request.
+    // The recovery path explicitly sets this again after accepting its photo.
+    _recoveredPhotoNeedsAdjustment = false;
+    updateDraft(
+      draft.copyWith(
+        kind: CompositionKind.photo,
+        photoBytes: bytes,
+        zoom: 1,
+        rotation: 0,
+        quarterTurns: 0,
+        mirror: false,
+        offsetX: 0,
+        offsetY: 0,
+      ),
+    );
+  }
+
+  /// True only after the system picker returned a photo that was read and
+  /// accepted. Cancellation/failure preserves the previous draft.
+  Future<bool> pickPhoto() async {
+    if (_disposed || _pickingPhoto) return false;
+    _photoSelectionGeneration++;
+    _pickingPhoto = true;
+    _notify();
     try {
       final file = await ImagePicker().pickImage(
         source: ImageSource.gallery,
@@ -431,26 +473,18 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
         maxHeight: 2048,
         imageQuality: 95,
       );
-      if (file == null) return;
+      if (file == null || _disposed) return false;
       final bytes = await file.readAsBytes();
-      if (bytes.length > 24 * 1024 * 1024) {
-        throw ArgumentError('图片过大，请选择小于24 MB的照片');
-      }
-      updateDraft(
-        draft.copyWith(
-          kind: CompositionKind.photo,
-          photoBytes: bytes,
-          zoom: 1,
-          rotation: 0,
-          quarterTurns: 0,
-          mirror: false,
-          offsetX: 0,
-          offsetY: 0,
-        ),
-      );
+      if (_disposed) return false;
+      _acceptPhotoBytes(bytes);
+      return true;
     } catch (e) {
       _log('$e');
       _say('无法打开这张照片：$e');
+      return false;
+    } finally {
+      _pickingPhoto = false;
+      _notify();
     }
   }
 

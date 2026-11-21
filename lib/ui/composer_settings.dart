@@ -257,13 +257,21 @@ Future<void> showPaddingSheet(BuildContext context, EspInkController c) =>
       ];
     });
 
-Future<void> showImageSettingsSheet(
-  BuildContext context,
-  EspInkController c,
-) => showInkEffectEditor(
-  context,
-  c,
-  controlsBuilder: (context) {
+Future<void> showImageSettingsSheet(BuildContext context, EspInkController c) =>
+    showInkEffectEditor(
+      context,
+      c,
+      controlsBuilder: (context) => ImageAdjustmentControls(controller: c),
+    );
+
+/// Shared adjustment content. The caller supplies scrolling and a live preview.
+class ImageAdjustmentControls extends StatelessWidget {
+  const ImageAdjustmentControls({super.key, required this.controller});
+  final EspInkController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = controller;
     final a = c.draft.adjustments;
     void update(ImageAdjustments value) =>
         c.updateDraft(c.draft.copyWith(adjustments: value));
@@ -302,6 +310,7 @@ Future<void> showImageSettingsSheet(
           ),
         const SizedBox(height: 20),
         DropdownButtonFormField<DitherMode>(
+          key: ValueKey('image-dither-${a.dither.name}'),
           initialValue: a.dither,
           decoration: const InputDecoration(labelText: '抖动算法'),
           items: DitherMode.values
@@ -323,6 +332,7 @@ Future<void> showImageSettingsSheet(
           onChanged: (v) => update(a.copyWith(ditherStrength: v)),
         ),
         DropdownButtonFormField<ColorSpaceMode>(
+          key: ValueKey('image-color-space-${a.colorSpace.name}'),
           initialValue: a.colorSpace,
           decoration: const InputDecoration(labelText: '色域'),
           items: const [
@@ -443,6 +453,7 @@ Future<void> showImageSettingsSheet(
             ),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
+              key: ValueKey('image-cast-ramp-${a.castRamp}'),
               initialValue: a.castRamp,
               decoration: const InputDecoration(labelText: '暖色映射'),
               items: const [
@@ -465,8 +476,8 @@ Future<void> showImageSettingsSheet(
         ),
       ],
     );
-  },
-);
+  }
+}
 
 Future<TextLayer?> showTextEditorSheet(
   BuildContext context,

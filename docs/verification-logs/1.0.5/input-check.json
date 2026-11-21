@@ -1,0 +1,10 @@
+{
+  "version": "1.0.5+6",
+  "unchanged_build_inputs": 87,
+  "changed": [],
+  "symlinks": [],
+  "applicationId": "io.github.robbieht.espink",
+  "same_applicationId_and_test_certificate_as_1_0_4": true,
+  "certificate_sha256": "6b487c9d967a408332050c6d2ad48f88b4b40612eb99b6712e5c2713feb06eaa",
+  "native_ble_and_export_sources_unchanged": true
+}

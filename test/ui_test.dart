@@ -10,7 +10,8 @@ import 'package:esp_ink/core/frame_codec.dart';
 import 'package:esp_ink/main.dart';
 
 class UiController extends EspInkController {
-  UiController({super.artworkProcessor});
+  UiController({ArtworkProcessor? artworkProcessor})
+    : super(artworkProcessor: artworkProcessor ?? _uiArtwork);
 
   int scans = 0, sends = 0, saves = 0;
   @override
@@ -19,7 +20,7 @@ class UiController extends EspInkController {
   }
 
   @override
-  Future<void> pickPhoto() async {
+  Future<bool> pickPhoto() async {
     updateDraft(
       draft.copyWith(
         photoBytes: Uint8List.fromList(
@@ -27,6 +28,7 @@ class UiController extends EspInkController {
         ),
       ),
     );
+    return true;
   }
 
   @override
@@ -53,6 +55,11 @@ class UiController extends EspInkController {
     notifyListeners();
   }
 }
+
+Future<ProcessedArtwork> _uiArtwork(ComposerDraft _) async => ProcessedArtwork(
+  solidFrame(color: 1),
+  Uint8List.fromList(img.encodePng(img.Image(width: 4, height: 4))),
+);
 
 void main() {
   Future<void> launch(WidgetTester tester, UiController c, Size size) async {
@@ -100,6 +107,11 @@ void main() {
       await launch(tester, c, const Size(1440, 1000));
       expect(find.byType(NavigationRail), findsOneWidget);
       expect(find.byType(NavigationBar), findsNothing);
+      expect(find.byKey(const ValueKey('preview-mode')), findsNothing);
+      await tester.ensureVisible(find.byKey(const ValueKey('adjust-photo')));
+      await tester.tap(find.byKey(const ValueKey('adjust-photo')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('composition-editor')), findsOneWidget);
       await tester.tap(find.text('便签').last);
       await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('添加文字'));
@@ -257,7 +269,12 @@ void main() {
 
       await c.pickPhoto();
       await launch(tester, c, const Size(1440, 1000));
-      await tester.tap(find.text('裁剪与位置'));
+      await tester.ensureVisible(find.byKey(const ValueKey('adjust-photo')));
+      await tester.tap(find.byKey(const ValueKey('adjust-photo')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('composition-editor')), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const ValueKey('open-photo-crop')));
+      await tester.tap(find.byKey(const ValueKey('open-photo-crop')));
       await tester.pump();
       await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 50)),
@@ -277,12 +294,13 @@ void main() {
       expect(c.draft.quarterTurns, 1);
       expect(c.draft.mirror, isTrue);
       expect(c.draft.zoom, greaterThan(1));
-      await tapAndSettleAutomaticEffect(find.text('图像调整'));
+      await tester.ensureVisible(find.text('Floyd–Steinberg'));
       await tester.tap(find.text('Floyd–Steinberg'));
       await tester.pumpAndSettle();
       expect(find.text('Bayer 8 × 8'), findsOneWidget);
       await tapAndSettleAutomaticEffect(find.text('Bayer 8 × 8'));
       expect(c.draft.adjustments.dither, DitherMode.bayer);
+      await tester.ensureVisible(find.text('自动色阶'));
       await tapAndSettleAutomaticEffect(find.text('自动色阶'));
       expect(c.draft.adjustments.autoLevels, isFalse);
       expect(previews.last.adjustments.dither, DitherMode.bayer);
@@ -290,6 +308,7 @@ void main() {
       expect(c.rendering, isFalse);
       await tester.tap(find.text('完成'));
       await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('composition-editor')), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );
@@ -298,6 +317,9 @@ void main() {
     final c = UiController();
     c.draft = const ComposerDraft(kind: CompositionKind.note);
     await launch(tester, c, const Size(390, 844));
+    await tester.ensureVisible(find.byKey(const ValueKey('adjust-photo')));
+    await tester.tap(find.byKey(const ValueKey('adjust-photo')));
+    await tester.pumpAndSettle();
     await tester.ensureVisible(find.byTooltip('添加文字'));
     await tester.tap(find.byTooltip('添加文字'));
     await tester.pumpAndSettle();

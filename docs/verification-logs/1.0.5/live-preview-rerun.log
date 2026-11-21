@@ -1,0 +1,117 @@
+00:00 +0: loading /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart
+00:00 +0: pending dot conversion keeps the decoded source photograph visible
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following StateError was thrown running a test:
+Bad state: Too many elements
+
+When the exception was thrown, this was the stack:
+#0      Iterable.single (dart:core/iterable.dart:696:24)
+#1      WidgetController.widget (package:flutter_test/src/controller.dart:828:30)
+#2      _livePainter (file:///home/descfly/%E6%A1%8C%E9%9D%A2/ESP32/APP/test/live_preview_test.dart:49:14)
+#3      main.launch (file:///home/descfly/%E6%A1%8C%E9%9D%A2/ESP32/APP/test/live_preview_test.dart:92:12)
+<asynchronous suspension>
+#4      main.<anonymous closure> (file:///home/descfly/%E6%A1%8C%E9%9D%A2/ESP32/APP/test/live_preview_test.dart:103:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  pending dot conversion keeps the decoded source photograph visible
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -1: pending dot conversion keeps the decoded source photograph visible [E]
+  Test failed. See exception logs above.
+  The test description was: pending dot conversion keeps the decoded source photograph visible
+  
+00:00 +0 -1: a completed dot result cannot switch the user back from source mode
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following StateError was thrown running a test:
+Bad state: Too many elements
+
+When the exception was thrown, this was the stack:
+#0      Iterable.single (dart:core/iterable.dart:696:24)
+#1      WidgetController.widget (package:flutter_test/src/controller.dart:828:30)
+#2      _livePainter (file:///home/descfly/%E6%A1%8C%E9%9D%A2/ESP32/APP/test/live_preview_test.dart:49:14)
+#3      main.launch (file:///home/descfly/%E6%A1%8C%E9%9D%A2/ESP32/APP/test/live_preview_test.dart:92:12)
+<asynchronous suspension>
+#4      main.<anonymous closure> (file:///home/descfly/%E6%A1%8C%E9%9D%A2/ESP32/APP/test/live_preview_test.dart:136:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  a completed dot result cannot switch the user back from source mode
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -2: a completed dot result cannot switch the user back from source mode [E]
+  Test failed. See exception logs above.
+  The test description was: a completed dot result cannot switch the user back from source mode
+  
+00:01 +0 -2: geometry edits paint immediately and reuse the decoded source
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following StateError was thrown running a test:
+Bad state: Too many elements
+
+When the exception was thrown, this was the stack:
+#0      Iterable.single (dart:core/iterable.dart:696:24)
+#1      WidgetController.widget (package:flutter_test/src/controller.dart:828:30)
+#2      _livePainter (file:///home/descfly/%E6%A1%8C%E9%9D%A2/ESP32/APP/test/live_preview_test.dart:49:14)
+#3      main.launch (file:///home/descfly/%E6%A1%8C%E9%9D%A2/ESP32/APP/test/live_preview_test.dart:92:12)
+<asynchronous suspension>
+#4      main.<anonymous closure> (file:///home/descfly/%E6%A1%8C%E9%9D%A2/ESP32/APP/test/live_preview_test.dart:169:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  geometry edits paint immediately and reuse the decoded source
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -3: geometry edits paint immediately and reuse the decoded source [E]
+  Test failed. See exception logs above.
+  The test description was: geometry edits paint immediately and reuse the decoded source
+  
+00:01 +0 -3: composition effect mode refreshes edits and keeps its last result visible
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following StateError was thrown running a test:
+Bad state: Too many elements
+
+When the exception was thrown, this was the stack:
+#0      Iterable.single (dart:core/iterable.dart:696:24)
+#1      WidgetController.widget (package:flutter_test/src/controller.dart:828:30)
+#2      _livePainter (file:///home/descfly/%E6%A1%8C%E9%9D%A2/ESP32/APP/test/live_preview_test.dart:49:14)
+#3      main.launch (file:///home/descfly/%E6%A1%8C%E9%9D%A2/ESP32/APP/test/live_preview_test.dart:92:12)
+<asynchronous suspension>
+#4      main.<anonymous closure> (file:///home/descfly/%E6%A1%8C%E9%9D%A2/ESP32/APP/test/live_preview_test.dart:203:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  composition effect mode refreshes edits and keeps its last result visible
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -4: composition effect mode refreshes edits and keeps its last result visible [E]
+  Test failed. See exception logs above.
+  The test description was: composition effect mode refreshes edits and keeps its last result visible
+  
+00:01 +0 -4: an invalid replacement removes the old photograph and offers reselect
+00:01 +1 -4: Some tests failed.
+
+Failing tests:
+  /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: a completed dot result cannot switch the user back from source mode
+  /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: composition effect mode refreshes edits and keeps its last result visible
+  /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: geometry edits paint immediately and reuse the decoded source
+  /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible

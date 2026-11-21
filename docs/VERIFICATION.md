@@ -1,44 +1,41 @@
-# ESP-INK 1.0.4 验证记录
+# ESP-INK 1.0.5 验证记录
 
-日期：2026-11-21。应用采用独立ESP-INK名称，参考项目为[atunverse/moink（墨印 · MoInk）](https://github.com/atunverse/moink)，引用见README、[参考说明](reference/README.md)、功能对照与图像滤镜注释。历史[1.0.3验证记录](verification-logs/1.0.3/VERIFICATION-1.0.3.txt)及原接口资料保留真实旧名称。
+日期：2026-11-21。源码版本1.0.5+6，Android包名仍为io.github.robbieht.espink。参考项目：[atunverse/moink](https://github.com/atunverse/moink)。历史[1.0.4验证记录](verification-logs/1.0.4/VERIFICATION-1.0.4.txt)保留，旧APK与归档不覆盖。
 
-## 身份与兼容边界
+## 本次行为
 
-- 显示名称ESP-INK，Dart包esp_ink，Android包/namespace为io.github.robbieht.espink，版本1.0.4+5。
-- Kotlin包、启动Activity和三个Dart/Android平台通道同步迁移；DEX已包含新包且不存在旧原生包。
-- 包ID改变后独立安装，可与旧版并存，不删除旧版，也不自动继承旧草稿或权限。新文件保存到Pictures/ESP-INK，旧相册文件不删除。
-- BLE服务、CTRL/DATA/EVT特征和CCCD UUID逐项与1.0.3比较不变；图像/OTA/B2报文字节契约保持，不强制改设备真实名称。原JS来源路径及金标fixture保留用于追溯。
+A主页保留一个选图/结果区，下面是“调整图片”“发送图片”。点击选图直接打开系统照片选择器B，成功后自动进入集中编辑页C；取消或读取失败留A，保留旧草稿。C默认墨水屏效果，固定预览，集中原图、裁切旋转、留白、文字、便签及全部滤镜。完成或返回保留编辑并回A，补齐最后一版效果；A的调整按钮直接重进C。
+
+A互斥覆盖B与C；C内换图不嵌套新C，等待选图期间禁止退出。恢复选图一次消费，正常新选图优先于迟到恢复。照片普通重启仍不持久保存；Android原生相册及活动回收场景仍需真机确认。
 
 ## 自动检查
 
-- 最终统一 **308项全部通过**：[tests.log](verification-logs/1.0.4/tests.log)。覆盖协议/MTU、图像金标与像素、实时裁切、预览流水线、空闲高清/缓存、电压、UI及新平台通道的mock对接。
-- `dart analyze lib test`：No issues found，[analyze.log](verification-logs/1.0.4/analyze.log)。
-- 84份改名后的源码/测试/构建输入在最终编译前捕获，编译后SHA256逐项不变：[build-inputs.json](verification-logs/1.0.4/build-inputs.json)与[identity-check.json](verification-logs/1.0.4/identity-check.json)。
+- 最终统一 **327项全部通过**：[tests.log](verification-logs/1.0.5/tests.log)，含原308项与新增19项。新增8项路由回归覆盖成功、空/有旧图取消、防重入、最后编辑回A、重进保留、无图便签入口及C选图退出锁；新增11项真实控制器加mock平台通道测试覆盖文件接受/异常/并发及恢复交错。
+- `dart analyze lib test`：No issues found，[analyze.log](verification-logs/1.0.5/analyze.log)。旧实时预览及UI测试迁到C，保留受控异步转换、文字、几何与滤镜断言；路由内查找限定C，避免把底层A预览误当C。
+- 87份源码/测试/构建输入冻结后统一测试并编译Android，SHA256逐项不变：[build-inputs.json](verification-logs/1.0.5/build-inputs.json)、[input-check.json](verification-logs/1.0.5/input-check.json)。Web的64份非测试输入与最终冻结版本一致：[web-inputs.json](verification-logs/1.0.5/web-inputs.json)。
+- 初次迁移测试曾因屏外按钮和A/C同名预览查找失败，保留原日志；最终统一结果以上述tests.log为准。
 
-## Web界面复核
+## Web实际操作
 
-实际Web Release构建 **18.7秒成功**，见[web-build.log](verification-logs/1.0.4/web-build.log)。在390×844、640×800、1280×720实看：页面标题与头部为ESP-INK；窄屏无重复中文品牌，640宽度头部不溢出，桌面显示ESP-INK与中性“四色墨水屏”描述。新名字较长，中等宽度采用紧凑品牌区。
+Web Release实际构建 **19.0秒成功**：[web-build.log](verification-logs/1.0.5/web-build.log)。390×844从A点击选图，实际浏览器file chooser选择本地测试PNG，自动进入C；滚到参数底部，预览仍固定可见，将对比度56改为-51后效果自动变化。完成返回A显示最新结果，点调整直接重进C并保留效果。844×390验证左右分区。
 
-- [手机](previews/1.0.4/esp-ink-phone.jpg)、[640宽度](previews/1.0.4/esp-ink-640.jpg)、[桌面](previews/1.0.4/esp-ink-desktop.jpg)。
-- [浏览器操作记录](verification-logs/1.0.4/browser-check.json)、[控制台](verification-logs/1.0.4/browser-console.json)：无error，仅CPU渲染fallback警告。本次实看重点为品牌/排版，不重新声称真机图像或蓝牙性能。
+- [A空白首页](previews/1.0.5/a-home.jpg)、[C初次进入](previews/1.0.5/c-editor.jpg)、[A最终结果](previews/1.0.5/a-result.jpg)、[C重新进入](previews/1.0.5/c-reopened.jpg)、[C横屏](previews/1.0.5/c-landscape.jpg)。
+- 固定预览调节[前](previews/1.0.5/c-fixed-before.jpg)/[后](previews/1.0.5/c-fixed-after.jpg)，[操作记录](verification-logs/1.0.5/browser-check.json)及[控制台](verification-logs/1.0.5/browser-console.json)。无error，仅CPU渲染fallback警告；不代表Android性能。浏览器选择器不等于Android原生相册验收，取消/恢复在自动测试中使用mock。
 
-## Android实际编译与成品
+## Android实际构建
 
-`ESP_INK_CACHE_DIR=/mnt/data/moink-flutter-work/docker-cache ./tool/build_android.sh apk`，Docker镜像flutter-android:3.47.8（Flutter3.47.8 / Dart3.13.7 / JDK17 / SDK36）。实际assembleRelease **58.2秒成功**，[android-build.log](verification-logs/1.0.4/android-build.log)。SDK XML3/4兼容警告保留，插件自动安装SDK35；未关闭TLS。宿主pub环境已恢复。
+`ESP_INK_CACHE_DIR=/mnt/data/moink-flutter-work/docker-cache ./tool/build_android.sh apk`，Docker flutter-android:3.47.8，Flutter3.47.8 / Dart3.13.7 / JDK17 / SDK36。实际assembleRelease **48.8秒成功**：[android-build.log](verification-logs/1.0.5/android-build.log)。保留SDK XML3/4警告及插件安装SDK35记录，未关闭TLS，宿主pub环境已恢复。
 
-- [ESP-INK-1.0.4-android.apk](../releases/ESP-INK-1.0.4-android.apk)，与build实际副本SHA相同。
-- aapt确认application-label=ESP-INK、applicationId=io.github.robbieht.espink、启动Activity同namespace、versionName1.0.4/code5，min24/target36，三ABI。见[apk-badging.log](verification-logs/1.0.4/apk-badging.log)。
-- 379个ZIP条目CRC全部通过，DEX新包存在且旧包不存在；见[apk-integrity.json](verification-logs/1.0.4/apk-integrity.json)及身份检查。
-- apksigner确认v2签名有效、与旧版使用相同测试证书，SHA256为6b487c9d967a408332050c6d2ad48f88b4b40612eb99b6712e5c2713feb06eaa；见[apk-signature.log](verification-logs/1.0.4/apk-signature.log)。同证书不改变包ID不同导致独立安装的事实，也不等于商店正式发行签名。
+- [ESP-INK-1.0.5-android.apk](../releases/ESP-INK-1.0.5-android.apk)与实际build副本SHA一致，105112681 bytes，SHA256 `d32343f3822a9759841611ff01faa4171d5bdd3ea4ec0a50218acb4970e606a0`。
+- [aapt](verification-logs/1.0.5/apk-badging.log)：label=ESP-INK，io.github.robbieht.espink，versionName1.0.5/code6，min24/target36，三ABI。[ZIP完整性](verification-logs/1.0.5/apk-integrity.json)：379条CRC通过。
+- [验签](verification-logs/1.0.5/apk-signature.log)：v2有效，测试证书SHA256为6b487c9d967a408332050c6d2ad48f88b4b40612eb99b6712e5c2713feb06eaa，与1.0.4一致。相同包名与证书支持覆盖更新1.0.4；尚未在真实手机执行升级。仍为测试签名，非商店发行签名。
 
-APK大小：105112577 bytes；SHA256：`407a4807c6217a422d6d10bae6cdaf96c50e6dfa1d11f195935a336c10b0965f`。
+## 归档与发布入口
 
-## 源码归档与GitHub
+完整源码[ESP-INK-Flutter-source.tar.gz](../releases/ESP-INK-Flutter-source.tar.gz)由打包工具独立解包逐文件核对SHA；文件数、包SHA与大小见[生成报告](../releases/source-package.json)。源清单为根SOURCE_SHA256SUMS，成品清单为releases/SHA256SUMS。APP本地真实build保留，包不包含build、SDK缓存或签名材料，目录无软链接；1.0.4原通用归档另保留为ESP-INK-1.0.4-source.tar.gz。
 
-新通用包为[ESP-INK-Flutter-source.tar.gz](../releases/ESP-INK-Flutter-source.tar.gz)，打包脚本独立解包后核对每个文件SHA，具体文件数/大小/校验见[生成报告](../releases/source-package.json)和releases/SHA256SUMS。源码包不含完整build、SDK/缓存或签名凭据；APP本地实际build仍保留，整个目录无软链接。
+[GitHub v1.0.5](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/tag/v1.0.5)发布APK、源码包和SHA256SUMS；远端commit/tag/tree与附件digest核对证据保留于本地releases/github-v1.0.5。另保存数据盘独立源码备份，旧v1.0.4附件保留。
 
-首次品牌迁移前，原MoInk-Flutter-source.tar.gz保留原字节，并另存MoInk-1.0.3-source.tar.gz及source-package-1.0.3.json。旧verified归档、原APK及v1.0.3发布不覆盖。新源码及文档推送main，并发布[v1.0.4](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/tag/v1.0.4)的APK、源码包和SHA256SUMS；远端核对记录留在本地releases/github-v1.0.4/。
+## 验收边界
 
-## 实物边界
-
-本次未安装到真实手机、未连接或刷写ESP设备，BLE吞吐/ADC稳定/新相册目录实际落盘仍需[真机检查](hardware-check.md)。编译、模拟、文件校验及Web实看与实机验收分别记录。改名没有修改原设备协议或自动更改固件/广播名称。
+本次完成自动测试、Web操作、Android构建/结构/签名与文件归档检查，未安装到真实手机，未连接或刷写ESP设备。Android系统相册、活动回收恢复、BLE吞吐、ADC及相册落盘仍按[真机步骤](hardware-check.md)执行。设备协议、原生BLE/导出桥与固件未因本次导航调整而修改。

@@ -1,0 +1,7 @@
+00:00 +0: loading /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart
+00:00 +0: pending dot conversion keeps the decoded source photograph visible
+00:00 +1: a completed dot result cannot switch the user back from source mode
+00:00 +2: geometry edits paint immediately and reuse the decoded source
+00:01 +3: composition effect mode refreshes edits and keeps its last result visible
+00:01 +4: an invalid replacement removes the old photograph and offers reselect
+00:01 +5: All tests passed!

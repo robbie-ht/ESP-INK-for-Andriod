@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-21",
+  "version": "1.0.5+6",
+  "url": "http://127.0.0.1:8787/",
+  "platform": "Flutter Web release, CUA browser UI",
+  "phone_viewport": [
+    390,
+    844
+  ],
+  "landscape_viewport": [
+    844,
+    390
+  ],
+  "selected_fixture": "docs/previews/1.0.3/test-landscape.png",
+  "observations": [
+    "A has one selection/result region with Adjust and Send below; no inline filter or note controls",
+    "A selection opened actual browser file chooser; selecting local PNG automatically entered C once",
+    "C starts with effect mode; original/effect switch and all controls available",
+    "Scrolled C to bottom; fixed preview remained visible",
+    "Changed contrast from 56 to -51; preview visibly changed and completed without refresh",
+    "Done returned to A; final effect visible",
+    "Adjust reopened C directly with the same effect; no new chooser",
+    "Landscape C shows preview and independently scrolling parameters side by side"
+  ],
+  "screenshots": {
+    "a-home.jpg": "4a06d6cb75b7c7b9f7ba328b53c8b9b5e062312f53b5b4e426fafd843eb25e78",
+    "a-result.jpg": "0c2885b35ac31c148204bfc46a6e23c7f95da24ba1d8c5740e88b364923d0985",
+    "c-editor.jpg": "c8358093f26cdfe251c4701a1689505716f9b68f8ff16dcaa5179e7325e5df93",
+    "c-fixed-after.jpg": "fdc4c32a1ad4e9e767ba2e94b662445c43caff9b8ab8d8a8cd383e72db7abfe1",
+    "c-fixed-before.jpg": "eb85191b68e9c5aba08e6f1a3b60b669698b343d1012d8a0f4c41f8d47b0c020",
+    "c-landscape.jpg": "aea976ce02ff63b7b3ac2d5d757eb6b55c5647de9cc6b87f1ca6090359b9dda7",
+    "c-reopened.jpg": "2ffdc8f290aa7b779ca8b7b8944d04f27830bc1d169b13428dc2700e095a913e"
+  },
+  "boundaries": [
+    "Browser picker is not Android native picker acceptance",
+    "Cancellation/recovery/concurrency separately tested with mocks",
+    "No physical phone or ESP connected",
+    "CPU fallback warning is not Android performance evidence"
+  ]
+}

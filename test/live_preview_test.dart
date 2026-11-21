@@ -44,10 +44,19 @@ class _ControlledProcessor {
   }
 }
 
-PaperArtPainter _livePainter(WidgetTester tester) =>
+Finder _inEditor(Finder finder) => find.descendant(
+  of: find.byKey(const ValueKey('composition-editor')),
+  matching: finder,
+);
+
+Finder _editorKey(String value) => _inEditor(find.byKey(ValueKey(value)));
+
+PaperArtPainter _livePainter(WidgetTester tester, {bool standalone = false}) =>
     tester
             .widget<CustomPaint>(
-              find.byKey(const ValueKey('live-source-paint')),
+              standalone
+                  ? find.byKey(const ValueKey('live-source-paint'))
+                  : _editorKey('live-source-paint'),
             )
             .painter!
         as PaperArtPainter;
@@ -79,8 +88,17 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(controller.dispose);
     await tester.pumpWidget(EspInkApp(controller: controller));
-    await _waitFor(tester, find.byKey(const ValueKey('live-source-paint')));
-    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('preview-mode')), findsNothing);
+    await tester.ensureVisible(find.byKey(const ValueKey('adjust-photo')));
+    await tester.tap(find.byKey(const ValueKey('adjust-photo')));
+    // Start the route's first frame before advancing its transition clock.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump();
+    expect(find.byKey(const ValueKey('composition-editor')), findsOneWidget);
+    await _waitFor(tester, _editorKey('live-source-paint'));
+    // C starts in effect mode. Its controlled conversion remains pending while
+    // the decoded original stays visible, so do not settle the busy spinner.
     expect(_livePainter(tester).photo, isNotNull);
   }
 
@@ -93,22 +111,15 @@ void main() {
       // An older device preview must never replace the source while editing.
       controller.previewPng = _deviceArtwork().png;
       await launch(tester, controller);
-      expect(processor.drafts, isEmpty);
-      expect(find.byKey(const ValueKey('device-preview-image')), findsNothing);
-
-      await tester.tap(find.text('墨水屏效果'));
-      await _flush(tester);
 
       expect(controller.rendering, isTrue);
       expect(processor.drafts, hasLength(1));
       expect(_livePainter(tester).photo, isNotNull);
-      expect(find.byKey(const ValueKey('device-preview-image')), findsNothing);
-      expect(find.text('正在生成效果，当前仍显示原图'), findsOneWidget);
+      expect(_editorKey('device-preview-image'), findsNothing);
+      expect(_inEditor(find.text('正在自动更新效果')), findsOneWidget);
       expect(
         tester
-            .widget<SegmentedButton<bool>>(
-              find.byKey(const ValueKey('preview-mode')),
-            )
+            .widget<SegmentedButton<bool>>(_editorKey('preview-mode'))
             .selected,
         {true},
       );
@@ -116,10 +127,7 @@ void main() {
       processor.results.single.complete(_deviceArtwork());
       await _flush(tester);
       await tester.pumpAndSettle();
-      expect(
-        find.byKey(const ValueKey('device-preview-image')),
-        findsOneWidget,
-      );
+      expect(_editorKey('device-preview-image'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -131,26 +139,22 @@ void main() {
       final controller = EspInkController(artworkProcessor: processor.call);
       controller.updateDraft(ComposerDraft(photoBytes: _sourcePng()));
       await launch(tester, controller);
-      await tester.tap(find.text('墨水屏效果'));
-      await _flush(tester);
       expect(processor.results, hasLength(1));
 
-      await tester.tap(find.text('原图'));
+      await tester.tap(_inEditor(find.text('原图')));
       await _flush(tester);
       expect(controller.rendering, isTrue);
       processor.results.single.complete(_deviceArtwork());
       await _flush(tester);
-      await _waitFor(tester, find.byKey(const ValueKey('live-source-paint')));
+      await _waitFor(tester, _editorKey('live-source-paint'));
       await tester.pumpAndSettle();
 
       expect(controller.previewReady, isTrue);
       expect(_livePainter(tester).photo, isNotNull);
-      expect(find.byKey(const ValueKey('device-preview-image')), findsNothing);
+      expect(_editorKey('device-preview-image'), findsNothing);
       expect(
         tester
-            .widget<SegmentedButton<bool>>(
-              find.byKey(const ValueKey('preview-mode')),
-            )
+            .widget<SegmentedButton<bool>>(_editorKey('preview-mode'))
             .selected,
         {false},
       );
@@ -166,6 +170,11 @@ void main() {
     final controller = EspInkController(artworkProcessor: processor.call);
     controller.updateDraft(ComposerDraft(photoBytes: _sourcePng()));
     await launch(tester, controller);
+    await tester.tap(_inEditor(find.text('原图')));
+    processor.results.single.complete(_deviceArtwork());
+    await _flush(tester);
+    await _waitFor(tester, _editorKey('live-source-paint'));
+    await tester.pumpAndSettle();
     final decodedPhoto = _livePainter(tester).photo;
     final edited = controller.draft.copyWith(
       zoom: 2.3,
@@ -181,29 +190,25 @@ void main() {
     expect(_livePainter(tester).draft, same(edited));
     expect(_livePainter(tester).photo, same(decodedPhoto));
     expect(controller.rendering, isFalse);
-    expect(processor.drafts, isEmpty);
+    expect(processor.drafts, hasLength(1));
     await tester.pump(const Duration(seconds: 1));
-    expect(processor.drafts, isEmpty);
-    expect(find.byKey(const ValueKey('device-preview-image')), findsNothing);
+    expect(processor.drafts, hasLength(1));
+    expect(_editorKey('device-preview-image'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
   testWidgets(
-    'main effect mode refreshes edits and keeps its last result visible',
+    'composition effect mode refreshes edits and keeps its last result visible',
     (tester) async {
       final processor = _ControlledProcessor();
       final controller = EspInkController(artworkProcessor: processor.call);
       controller.updateDraft(ComposerDraft(photoBytes: _sourcePng()));
       await launch(tester, controller);
-      await tester.tap(find.text('墨水屏效果'));
       await _flush(tester);
       processor.results.first.complete(_deviceArtwork());
       await _flush(tester);
       await tester.pumpAndSettle();
-      expect(
-        find.byKey(const ValueKey('device-preview-image')),
-        findsOneWidget,
-      );
+      expect(_editorKey('device-preview-image'), findsOneWidget);
 
       controller.updateDraft(
         controller.draft.copyWith(
@@ -213,22 +218,19 @@ void main() {
       await tester.pump(const Duration(milliseconds: 280));
       await _flush(tester);
       expect(processor.drafts, hasLength(2));
-      expect(
-        find.byKey(const ValueKey('device-preview-image')),
-        findsOneWidget,
-      );
-      expect(find.byKey(const ValueKey('live-source-paint')), findsNothing);
-      expect(find.text('更新预览'), findsNothing);
+      expect(_editorKey('device-preview-image'), findsOneWidget);
+      expect(_editorKey('live-source-paint'), findsNothing);
+      expect(_inEditor(find.text('更新预览')), findsNothing);
       processor.results.last.complete(_deviceArtwork());
       await _flush(tester);
       await tester.pumpAndSettle();
       expect(controller.previewReady, isTrue);
 
-      await tester.tap(find.text('原图'));
+      await tester.tap(_inEditor(find.text('原图')));
       controller.updateDraft(controller.draft.copyWith(rotation: 13));
       await tester.pump(const Duration(milliseconds: 500));
       expect(processor.drafts, hasLength(2));
-      expect(find.byKey(const ValueKey('device-preview-image')), findsNothing);
+      expect(_editorKey('device-preview-image'), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );
@@ -260,7 +262,7 @@ void main() {
       );
       await _waitFor(tester, find.byKey(const ValueKey('live-source-paint')));
       await tester.pumpAndSettle();
-      expect(_livePainter(tester).photo, isNotNull);
+      expect(_livePainter(tester, standalone: true).photo, isNotNull);
 
       draft.value = draft.value.copyWith(
         photoBytes: Uint8List.fromList([0, 1, 2, 3, 4]),

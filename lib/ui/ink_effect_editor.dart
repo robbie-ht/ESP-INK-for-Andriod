@@ -11,6 +11,8 @@ Future<void> showInkEffectEditor(
   BuildContext context,
   EspInkController controller, {
   required WidgetBuilder controlsBuilder,
+  WidgetBuilder? previewBuilder,
+  String title = '墨水屏效果',
 }) async {
   final previous = controller.inkPreviewActive;
   controller.setInkPreviewActive(true);
@@ -18,9 +20,11 @@ Future<void> showInkEffectEditor(
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
         fullscreenDialog: true,
-        builder: (_) => _InkEffectEditor(
+        builder: (_) => InkEffectEditor(
           controller: controller,
           controlsBuilder: controlsBuilder,
+          previewBuilder: previewBuilder,
+          title: title,
         ),
       ),
     );
@@ -29,70 +33,81 @@ Future<void> showInkEffectEditor(
   }
 }
 
-class _InkEffectEditor extends StatelessWidget {
-  const _InkEffectEditor({
+class InkEffectEditor extends StatelessWidget {
+  const InkEffectEditor({
+    super.key,
     required this.controller,
     required this.controlsBuilder,
+    this.previewBuilder,
+    this.title = '墨水屏效果',
+    this.canExit = true,
   });
 
   final EspInkController controller;
   final WidgetBuilder controlsBuilder;
+  final WidgetBuilder? previewBuilder;
+  final String title;
+  final bool canExit;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: const Text('墨水屏效果'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('完成'),
-        ),
-        const SizedBox(width: 8),
-      ],
-    ),
-    body: SafeArea(
-      top: false,
-      child: AnimatedBuilder(
-        animation: controller,
-        builder: (context, _) => LayoutBuilder(
-          builder: (context, box) {
-            final controls = SingleChildScrollView(
-              key: const PageStorageKey('ink-effect-controls'),
-              padding: const EdgeInsets.fromLTRB(22, 16, 22, 32),
-              child: controlsBuilder(context),
-            );
-            if (box.maxWidth >= 720) {
-              return Row(
-                key: const ValueKey('ink-effect-side-layout'),
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+  Widget build(BuildContext context) => PopScope(
+    canPop: canExit,
+    child: Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+        actions: [
+          TextButton(
+            onPressed: canExit ? () => Navigator.of(context).pop() : null,
+            child: const Text('完成'),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: SafeArea(
+        top: false,
+        child: AnimatedBuilder(
+          animation: controller,
+          builder: (context, _) => LayoutBuilder(
+            builder: (context, box) {
+              final controls = SingleChildScrollView(
+                key: const PageStorageKey('ink-effect-controls'),
+                padding: const EdgeInsets.fromLTRB(22, 16, 22, 32),
+                child: controlsBuilder(context),
+              );
+              if (box.maxWidth >= 720) {
+                return Row(
+                  key: const ValueKey('ink-effect-side-layout'),
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: _preview(context)),
+                    const VerticalDivider(width: 1),
+                    SizedBox(
+                      width: math.min(420, box.maxWidth * .46),
+                      child: controls,
+                    ),
+                  ],
+                );
+              }
+              return Column(
+                key: const ValueKey('ink-effect-stacked-layout'),
                 children: [
-                  Expanded(child: _preview(context)),
-                  const VerticalDivider(width: 1),
                   SizedBox(
-                    width: math.min(420, box.maxWidth * .46),
-                    child: controls,
+                    height: math.min(330, box.maxHeight * .42),
+                    child: _preview(context),
                   ),
+                  const Divider(height: 1),
+                  Expanded(child: controls),
                 ],
               );
-            }
-            return Column(
-              key: const ValueKey('ink-effect-stacked-layout'),
-              children: [
-                SizedBox(
-                  height: math.min(330, box.maxHeight * .42),
-                  child: _preview(context),
-                ),
-                const Divider(height: 1),
-                Expanded(child: controls),
-              ],
-            );
-          },
+            },
+          ),
         ),
       ),
     ),
   );
 
   Widget _preview(BuildContext context) {
+    if (previewBuilder != null) return previewBuilder!(context);
     final c = controller;
     final empty =
         c.draft.kind == CompositionKind.photo && c.draft.photoBytes == null;
