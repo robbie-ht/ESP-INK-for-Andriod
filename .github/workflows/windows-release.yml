@@ -49,7 +49,11 @@ jobs:
 
       - name: Verify SDK and Windows toolchain
         run: |
-          $versionJson = & flutter --version --machine
+          # The first flutter invocation bootstraps its tool and can print pub
+          # output to stdout even with --machine. Warm up before parsing JSON.
+          & flutter --version 2>&1 | Tee-Object build/windows-ci-logs/flutter-bootstrap.log
+          if ($LASTEXITCODE -ne 0) { throw 'Flutter bootstrap failed.' }
+          $versionJson = (& flutter --version --machine) -join "`n"
           if ($LASTEXITCODE -ne 0) { throw 'flutter --version failed.' }
           $versionJson | Set-Content build/windows-ci-logs/flutter-version.json -Encoding utf8NoBOM
           $version = $versionJson | ConvertFrom-Json

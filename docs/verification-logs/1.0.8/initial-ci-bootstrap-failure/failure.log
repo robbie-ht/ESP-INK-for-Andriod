@@ -1,0 +1,27 @@
+windows	Verify SDK and Windows toolchain	﻿2026-11-21T10:49:45.1352345Z ##[group]Run $versionJson = & flutter --version --machine
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:45.1352770Z ^[[36;1m$versionJson = & flutter --version --machine^[[0m
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:45.1353134Z ^[[36;1mif ($LASTEXITCODE -ne 0) { throw 'flutter --version failed.' }^[[0m
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:45.1353820Z ^[[36;1m$versionJson | Set-Content build/windows-ci-logs/flutter-version.json -Encoding utf8NoBOM^[[0m
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:45.1354222Z ^[[36;1m$version = $versionJson | ConvertFrom-Json^[[0m
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:45.1354639Z ^[[36;1mif ($version.frameworkVersion -ne $env:ESP_INK_FLUTTER_VERSION) { throw 'Unexpected Flutter SDK version.' }^[[0m
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:45.1355238Z ^[[36;1m& flutter config --enable-windows-desktop^[[0m
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:45.1355560Z ^[[36;1mif ($LASTEXITCODE -ne 0) { throw 'Could not enable the Windows target.' }^[[0m
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:45.1355950Z ^[[36;1m& flutter doctor -v 2>&1 | Tee-Object build/windows-ci-logs/flutter-doctor.log^[[0m
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:45.1356509Z ^[[36;1m# Other platform toolchains are not required by this Windows job.^[[0m
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:45.1356823Z ^[[36;1mexit 0^[[0m
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:45.1387390Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:45.1387672Z env:
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:45.1387827Z   ESP_INK_FLUTTER_VERSION: 3.47.8
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:45.1388012Z   CI: true
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:45.1388241Z   FLUTTER_ROOT: C:\hostedtoolcache\windows\flutter\stable-3.47.8-x64/flutter
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:45.1388572Z   PUB_CACHE: C:\Users\runneradmin\AppData\Local\Pub\Cache
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:45.1388811Z ##[endgroup]
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:48.3448333Z Building flutter tool... 
+windows	Verify SDK and Windows toolchain	2026-11-21T10:49:48.3474176Z Running pub upgrade... 
+windows	Verify SDK and Windows toolchain	2026-11-21T10:50:17.1347957Z ^[[31;1mConvertFrom-Json: ^[[0mD:\a\_temp\92031304-c9fd-4cf7-865d-24c395203242.ps1:5^[[0m
+windows	Verify SDK and Windows toolchain	2026-11-21T10:50:17.1348632Z ^[[31;1m^[[0m^[[36;1mLine |^[[0m
+windows	Verify SDK and Windows toolchain	2026-11-21T10:50:17.1348974Z ^[[31;1m^[[0m^[[36;1m^[[36;1m   5 | ^[[0m $version = $versionJson | ^[[36;1mConvertFrom-Json^[[0m
+windows	Verify SDK and Windows toolchain	2026-11-21T10:50:17.1349719Z ^[[31;1m^[[0m^[[36;1m^[[36;1m^[[0m^[[36;1m^[[0m^[[36;1m     | ^[[31;1m                           ~~~~~~~~~~~~~~~~^[[0m
+windows	Verify SDK and Windows toolchain	2026-11-21T10:50:17.1350405Z ^[[31;1m^[[0m^[[36;1m^[[36;1m^[[0m^[[36;1m^[[0m^[[36;1m^[[31;1m^[[31;1m^[[36;1m     | ^[[31;1mConversion from JSON failed with error: Unexpected character encountered while parsing value: R. Path '', line^[[0m
+windows	Verify SDK and Windows toolchain	2026-11-21T10:50:17.1351061Z ^[[31;1m^[[0m^[[36;1m^[[36;1m^[[0m^[[36;1m^[[0m^[[36;1m^[[31;1m^[[31;1m^[[36;1m^[[31;1m^[[36;1m     | ^[[31;1m0, position 0.^[[0m
+windows	Verify SDK and Windows toolchain	2026-11-21T10:50:17.1502084Z ##[error]Process completed with exit code 1.
