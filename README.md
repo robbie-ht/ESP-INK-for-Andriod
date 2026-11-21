@@ -2,15 +2,16 @@
 
 四彩墨水屏的 Android 伴侣应用。界面采用 Google Material 3：浅色、蓝色主色、柔和圆角和三栏导航。源码位于本仓库，设备通过B2协议连接；接口参考见 `docs/reference/B2/`。
 
-源码、实际编译目录、安装包、源码压缩包及文档均集中在本APP目录，目录内没有软链接。当前版本为 **1.0.6+7**，安装包为 `releases/ESP-INK-1.0.6-android.apk`。本版点击主页预览后先从底部选择拍立得或便签，分别进入照片编辑C1与便签编辑C2；同时修复删除图库图片后其他预览被清空并重新下载的问题，确认本APP单次删除成功后保留未删缓存并随编号前移迁移。保留固定预览与自动效果、空闲自动高清、追加缓存保留、有效电压读数标记和MTU517读取限长修复；实际构建与验证状态见 [验证记录](docs/VERIFICATION.md)，完整入口见 [交付说明](docs/交付说明.md)。
+源码、实际编译目录、安装包、设备固件及文档均集中在本APP目录，不使用软链接。当前版本为 **1.0.7+8**，安装包为 `releases/ESP-INK-1.0.7-android.apk`。本版配合 **ESP_INK B2.0.1**，在物理刷屏期间继续读取图库缩略图和高清，读图进度不覆盖刷屏状态；存并显示时严格验证追加身份并保留旧高清缓存。旧B2.0.0继续兼容，但需等刷屏结束再读取新图。模式选择、C1/C2、自动效果、删图缓存保留及MTU517限长修复继续保留。见[交付说明](docs/交付说明.md)、[刷屏期间读取图库](docs/刷屏期间读取图库.md)和[验证记录](docs/VERIFICATION.md)。
 
 ## 下载与仓库
 
-- [最新安装包与源码归档](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/tag/v1.0.6)：ESP-INK 1.0.6，Android 7.0及以上；安装包为测试签名。
-- [直接下载APK](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.6/ESP-INK-1.0.6-android.apk)、[完整源码压缩包](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.6/ESP-INK-Flutter-source.tar.gz)、[成品SHA256](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.6/SHA256SUMS)。
+- [最新安装包与源码归档](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/tag/v1.0.7)：ESP-INK 1.0.7，Android 7.0及以上；安装包为测试签名。
+- [直接下载APK](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.7/ESP-INK-1.0.7-android.apk)、[完整源码压缩包](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.7/ESP-INK-Flutter-source.tar.gz)、[成品SHA256](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.7/SHA256SUMS)。
+- [B2.0.1 OTA应用镜像](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.7/ESP_INK-B2.0.1-app.bin)：已有B2分区使用，完整源码与构建脚本在firmware/B2.0.1/source。
 - 克隆后可按下方Docker步骤构建。仓库包含源码、字体许可、文档、测试、Gradle wrapper及验证记录；`build/`和`releases/`在本地保留，由Git忽略。下载文件放入本地`releases/`后，交付文档中的成品相对链接即可使用。
 
-ESP-INK 1.0.6继续使用1.0.4、1.0.5的应用ID `io.github.robbieht.espink`，相同签名的安装包可覆盖更新，草稿参数与文字继续保留。独立安装的说明只适用于从旧 **MoInk 1.0.3及更早版本**迁移：旧MoInk的应用ID不同，可与ESP-INK并存，其草稿不会自动迁入；不要因此卸载旧MoInk或删除旧相册文件。
+ESP-INK 1.0.7继续使用1.0.4至1.0.6的应用ID `io.github.robbieht.espink`，相同签名的安装包可覆盖更新，草稿参数与文字继续保留。独立安装的说明只适用于从旧 **MoInk 1.0.3及更早版本**迁移：旧MoInk的应用ID不同，可与ESP-INK并存，其草稿不会自动迁入；不要因此卸载旧MoInk或删除旧相册文件。
 
 ```bash
 git clone https://github.com/robbie-ht/ESP-INK-for-Andriod.git
@@ -44,13 +45,13 @@ C1、C2均采用竖屏上方固定预览、下方滚动参数，横屏左右并�
 - **图像处理**：自然暖调、全面暖色、灰度、原色直出，8种抖动、3种色域、色阶和精细参数。在墨水屏效果模式或效果调整页中自动更新，连续修改合并处理；原图裁切继续直接显示彩色照片。效果调整页竖屏固定上方预览、下方独立滚动参数，横屏左右分栏，调到底部仍能看到效果。更新期间保留上一张效果并标明更新中；换照片不沿用上一张。
 - **连接**：Android 原生 BLE、按服务 UUID 发现设备、动态权限申请、服务/特征发现、EVT 订阅、MTU 协商、握手和主动状态查询。不需要 Wi-Fi 配网或系统配对。
 - **传输**：768×552 / 105984 bytes；按设备返回的 chunk 分片，u16序号上限、末片长度、CRC、GAP/INCOMPLETE有限恢复；接收阶段可取消；排队后分别等待 STORE_DONE / DISPLAY_DONE。
-- **设备图库**：先逐卡读取缩略图，设备和APP空闲时自动补读768×552完整画面。前台查看、发送、删除、设置等操作可取消后台后续分片并优先执行；离页、后台和断线停止自动读取，失败不会无限重试。确认APP单次追加或删除成功、完整元数据映射与单步revision符合时保留未变图片的缩略图和高清缓存；删除前方图片后，缓存随逻辑编号前移。外部删除、覆盖、异常版本变化、清空和换设备继续失效保护。
+- **设备图库**：先逐卡读取缩略图，设备和APP空闲，或B2.0.1提供安全刷屏窗口时，自动补读768×552完整画面。前台查看、发送、删除、设置等操作可取消后台后续分片并优先执行；离页、后台和断线停止自动读取，失败不会无限重试。确认APP单次追加或删除成功、完整元数据映射与单步revision符合时保留未变图片的缩略图和高清缓存；删除前方图片后，缓存随逻辑编号前移。外部删除、覆盖、异常版本变化、清空和换设备继续失效保护。
 - **保存图库图片**：先读取CRC通过的768×552完整帧，再导出PNG，绝不把缩略图当完整图保存。Android 10及以上保存到相册 `Pictures/ESP-INK`，不申请读取图库权限；Android 7–9只在保存时请求旧存储写权限，拒绝与保存错误均明确提示。网页发起浏览器下载，是否完成需检查下载列表；桌面运行环境调用系统另存文件。真实BLE回读与手机相册保存仍待真机验证。
 - **设备管理**：电池电压、固件/MTU/状态、名称、屏型、休眠/唤醒/换图、GPIO、缓存、清残影和重启。偶发无效电压不会清空当前连接的最近真实值；空闲定期读取状态，断线清除旧值，不使用虚构默认电压。
 - **OTA**：选择应用 `.bin`，检查 ESP32-C3 头、镜像容量、CRC32和协商片数；传输/校验与重启确认分开呈现。R/B1→B2首次分区迁移仍需USB完整刷入。
 - **本地演示**：可在没有设备时体验创作和模拟图库，界面明确标为“本地演示”；不会把演示操作发送到设备。
 
-图片和文字功能参考旧page，原参考HTML副本此次未找到（不影响编译和已有图像金标测试），功能对应与差异见 [页面功能对照](docs/page-feature-map.md)。设备接口文档也已收进本目录：[API](docs/reference/B2/API.md)、[APP接入指南](docs/reference/B2/APP-INTEGRATION.md)，当前目标 B2.0.0 / api=1。当前固件出厂接线为整合板 `gpio_preset=2`，已有有效NVS配置会保留；GPIO档位与A0/A1屏型独立。没有实体设备的离线测试不等于真实蓝牙与墨水屏验收。完整记录在 [docs/VERIFICATION.md](docs/VERIFICATION.md)。实时原图、全屏裁切与最终图像处理共用同一套几何变换和解码逻辑，最终持有的彩色代理图最长边2400且不放大小图；Web引擎探测尺寸时可能临时完整解码，这一上限不代表所有平台的解码峰值内存；异步解码与处理结果通过代次/草稿版本号保护，旧照片或旧效果不会覆盖新编辑。
+图片和文字功能参考旧page，原参考HTML副本此次未找到（不影响编译和已有图像金标测试），功能对应与差异见 [页面功能对照](docs/page-feature-map.md)。设备接口文档也已收进本目录：[API](docs/reference/B2/API.md)、[APP接入指南](docs/reference/B2/APP-INTEGRATION.md)，以上为保留的B2.0.0/api=1参考副本；当前B2.0.1窗口协议见[随附固件API](firmware/B2.0.1/source/docs/API.md)。当前固件出厂接线为整合板 `gpio_preset=2`，已有有效NVS配置会保留；GPIO档位与A0/A1屏型独立。没有实体设备的离线测试不等于真实蓝牙与墨水屏验收。完整记录在 [docs/VERIFICATION.md](docs/VERIFICATION.md)。实时原图、全屏裁切与最终图像处理共用同一套几何变换和解码逻辑，最终持有的彩色代理图最长边2400且不放大小图；Web引擎探测尺寸时可能临时完整解码，这一上限不代表所有平台的解码峰值内存；异步解码与处理结果通过代次/草稿版本号保护，旧照片或旧效果不会覆盖新编辑。
 
 ## 构建 Android APK
 

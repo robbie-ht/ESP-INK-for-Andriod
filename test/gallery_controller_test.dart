@@ -57,13 +57,24 @@ class _GalleryBle extends NativeBle {
   bool _connected = false;
   Completer<void>? holdNextRead;
   Completer<void>? holdNextShow;
+  Completer<void>? holdNextDisplay;
+  Completer<void>? holdNextStore;
+  Completer<void>? holdNextDisplayStore;
+  Completer<void>? holdNextData;
   bool failNextRead = false;
+  bool corruptNextReadBlock = false;
   int failedReadStatus = StatusCode.busy;
   int activeReads = 0, maxActiveReads = 0;
   final readBlocks = <(int, int, int)>[];
   int batteryValue = 4000, stateCode = 0;
+  int? statusFlags;
+  String version = 'B2';
+  int completedDisplays = 0;
   int _uploadFlags = 0;
   bool displayFails = false;
+  int appendDisplayFlags = 3;
+  int appendEventStatus = StatusCode.ok;
+  int? appendEventSlot, appendEventCount, appendEventCurrent;
   void Function(_Device)? afterAppend;
   void Function(_Device)? afterDelete;
   int? deleteEventSlot, deleteEventCount, deleteEventCurrent;
@@ -100,6 +111,50 @@ class _GalleryBle extends NativeBle {
   void _reply(Uint8List request, List<int> bytes, {int status = 0}) =>
       _events.add(Uint8List.fromList([1, request[1], status, ...bytes]));
 
+  void emitState(int state, {int? flags}) {
+    stateCode = state;
+    statusFlags = flags;
+    _events.add(Uint8List.fromList([0x81, EventId.state, state, ?flags]));
+  }
+
+  void emitDisplayDone(int result) {
+    stateCode = 0;
+    statusFlags = statusFlags == null ? null : 1;
+    completedDisplays++;
+    _events.add(Uint8List.fromList([0x81, EventId.displayDone, result]));
+  }
+
+  void _display(
+    Uint8List request,
+    int result, {
+    List<int> response = const [],
+    int windowFlags = 3,
+  }) {
+    final device = _device;
+    final gate = holdNextDisplay;
+    holdNextDisplay = null;
+    final supported = statusFlags != null && (statusFlags! & 1) != 0;
+    emitState(
+      result == 2 ? 4 : 3,
+      flags: supported ? windowFlags : statusFlags,
+    );
+    _reply(request, response);
+    void complete() {
+      if (!_connected || !identical(device, _device)) return;
+      completedDisplays++;
+      emitState(0, flags: supported ? 1 : statusFlags);
+      _events.add(Uint8List.fromList([0x81, EventId.displayDone, result]));
+    }
+
+    if (gate == null) {
+      complete();
+    } else {
+      // A GATT write acknowledgement must not wait for panel completion. Other
+      // CTRL requests may proceed while DISPLAY_DONE is deliberately withheld.
+      unawaited(gate.future.then((_) => complete()));
+    }
+  }
+
   @override
   Future<void> writeCtrl(Uint8List p) async {
     if (!_connected) throw StateError('Disconnected');
@@ -108,12 +163,12 @@ class _GalleryBle extends NativeBle {
     final d = _device!;
     switch (p[0]) {
       case Op.ping:
-        _reply(p, [1, 2, ...ascii.encode('B2')]);
+        _reply(p, [1, version.length, ...ascii.encode(version)]);
       case Op.getStatus:
         _reply(p, [
           1,
-          0,
           stateCode,
+          0,
           ..._le16(batteryValue),
           ..._le32(1),
           ..._le32(100000),
@@ -123,8 +178,9 @@ class _GalleryBle extends NativeBle {
           0,
           ..._le32(0),
           1,
-          2,
-          ...ascii.encode('B2'),
+          version.length,
+          ...ascii.encode(version),
+          ?statusFlags,
         ]);
       case Op.getSettings:
         _reply(p, [
@@ -194,6 +250,11 @@ class _GalleryBle extends NativeBle {
           final data = kind == 1 ? picture.thumbnail : picture.frame;
           final crc = kind == 1 ? crc16(data) : picture.frameCrc;
           final end = math.min(offset + _u16(p, 8), data.length);
+          final block = data.sublist(offset, end);
+          if (corruptNextReadBlock) {
+            corruptNextReadBlock = false;
+            block[0] ^= 1;
+          }
           _reply(p, [
             slot,
             kind,
@@ -201,7 +262,7 @@ class _GalleryBle extends NativeBle {
             ..._le32(data.length),
             ..._le16(crc),
             kind == 1 ? picture.format : 1,
-            ...data.sublist(offset, end),
+            ...block,
           ]);
         } finally {
           activeReads--;
@@ -213,8 +274,13 @@ class _GalleryBle extends NativeBle {
         d.current = p[2] == 255
             ? (d.current == 255 ? 0 : (d.current + 1) % d.pictures.length)
             : p[2];
-        _events.add(Uint8List.fromList([0x81, EventId.displayDone, 4]));
-        _reply(p, []);
+        _display(p, 4);
+      case Op.cacheShow:
+        d.current = 255;
+        _display(p, 3);
+      case Op.ghostClear:
+        d.current = 255;
+        _display(p, 2);
       case Op.galleryDelete:
         if (deleteCompletionStatus == StatusCode.ok || mutateOnDeleteFailure) {
           d.pictures.removeAt(p[2]);
@@ -250,6 +316,7 @@ class _GalleryBle extends NativeBle {
         _uploadFlags = p[2];
         _uploadSequence = 0;
         _uploadCrc = _u16(p, 11);
+        if (statusFlags != null) emitState(1, flags: 1);
         _reply(p, [..._le16(_u16(p, 13)), ..._le16(512)]);
       case Op.frameEnd:
         final frame = uploaded.toBytes();
@@ -263,27 +330,57 @@ class _GalleryBle extends NativeBle {
           d.pictures.add(picture);
           d.revision = d.revision == 0xffffffff ? 1 : d.revision + 1;
           afterAppend?.call(d);
-          _events.add(
-            Uint8List.fromList([
-              0x81,
-              EventId.storeDone,
-              0,
-              d.pictures.length - 1,
-              d.pictures.length,
-              255,
-            ]),
-          );
+          final storeEvent = Uint8List.fromList([
+            0x81,
+            EventId.storeDone,
+            appendEventStatus,
+            appendEventSlot ?? d.pictures.length - 1,
+            appendEventCount ?? d.pictures.length,
+            appendEventCurrent ?? 255,
+          ]);
+          final storeGate = holdNextStore;
+          holdNextStore = null;
+          if (storeGate != null) {
+            assert(
+              _uploadFlags & 4 != 0,
+              'This gate models a store-only operation',
+            );
+            emitState(3, flags: statusFlags == null ? null : 1);
+            _reply(p, [1]);
+            unawaited(
+              storeGate.future.then((_) {
+                if (!_connected || !identical(d, _device)) return;
+                _events.add(storeEvent);
+                emitState(0, flags: statusFlags == null ? null : 1);
+              }),
+            );
+            return;
+          }
+          final displayStoreGate = holdNextDisplayStore;
+          holdNextDisplayStore = null;
+          if (displayStoreGate == null) {
+            _events.add(storeEvent);
+          } else {
+            assert(_uploadFlags & 4 == 0);
+            unawaited(
+              displayStoreGate.future.then((_) {
+                if (!_connected || !identical(d, _device)) return;
+                _events.add(storeEvent);
+              }),
+            );
+          }
         }
         if (_uploadFlags & 4 == 0) {
-          _events.add(
-            Uint8List.fromList([
-              0x81,
-              EventId.displayDone,
-              displayFails ? 1 : 0,
-            ]),
+          _display(
+            p,
+            displayFails ? 1 : 0,
+            response: [1],
+            windowFlags: _uploadFlags & 2 != 0 ? appendDisplayFlags : 3,
           );
+        } else {
+          if (statusFlags != null) emitState(0, flags: 1);
+          _reply(p, [1]);
         }
-        _reply(p, [1]);
       default:
         throw StateError('Unexpected operation ${p[0]}');
     }
@@ -291,6 +388,9 @@ class _GalleryBle extends NativeBle {
 
   @override
   Future<void> writeData(Uint8List value) async {
+    final gate = holdNextData;
+    holdNextData = null;
+    if (gate != null) await gate.future;
     if (_u16(value, 0) != _uploadSequence++) {
       throw StateError('Upload packet sequence is invalid');
     }
@@ -1173,4 +1273,562 @@ void main() {
       controller.removeListener(interleave);
     },
   );
+
+  Future<void> enableDisplayReadSupport() async {
+    ble.version = 'B2.0.1';
+    ble.statusFlags = 1;
+    await controller.refresh();
+  }
+
+  Future<void> waitForGalleryCondition(bool Function() condition) async {
+    final deadline = DateTime.now().add(const Duration(seconds: 2));
+    while (!condition() && DateTime.now().isBefore(deadline)) {
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+    }
+    expect(condition(), isTrue, reason: controller.message);
+  }
+
+  test('committed append window retains old HD and reads old and new frames before DISPLAY_DONE', () async {
+    await enableDisplayReadSupport();
+    final full = await controller.readGalleryPreview(0, fullFrame: true);
+    final previousIdentity = controller.galleryItemIdentity(0);
+    final displayGate = Completer<void>(), storeGate = Completer<void>();
+    ble.holdNextDisplay = displayGate;
+    ble.holdNextDisplayStore = storeGate;
+    ble.appendDisplayFlags = 7;
+    var preservedNotifications = 0;
+    void verifyRetainedImage() {
+      preservedNotifications++;
+      expect(controller.gallery.first.png, same(full.png));
+      expect(controller.galleryPreviewStatus(0).fullFrame, isTrue);
+    }
+
+    controller.addListener(verifyRetainedImage);
+    controller.updateDraft(const ComposerDraft(kind: CompositionKind.note));
+    final job = controller.send(saveGallery: true);
+    var jobFinished = false;
+    final observedJob = job.then((_) => jobFinished = true);
+    try {
+      await waitForGalleryCondition(() => controller.gallery.length == 3);
+      expect(controller.galleryItemIdentity(0), isNot(previousIdentity));
+      expect(controller.gallery.first.png, same(full.png));
+      expect(controller.busy, isTrue);
+      expect(jobFinished, isFalse);
+      final phase = controller.phase, progress = controller.progress;
+      final snapshots = <(bool, String, double?)>[];
+      void captureForeground() => snapshots.add((
+        controller.busy,
+        controller.phase,
+        controller.progress,
+      ));
+
+      controller.addListener(captureForeground);
+      try {
+        final old = await controller
+            .readGalleryPreview(1, fullFrame: true)
+            .timeout(const Duration(seconds: 2));
+        final added = await controller
+            .readGalleryPreview(2, fullFrame: true)
+            .timeout(const Duration(seconds: 2));
+        expect(old.ok, isTrue, reason: old.error);
+        expect(added.ok, isTrue, reason: added.error);
+        expect(old.fullFrame && added.fullFrame, isTrue);
+        final oldPixel = img.decodePng(old.png!)!.getPixel(0, 0);
+        expect((oldPixel.r, oldPixel.g, oldPixel.b), (255, 255, 0));
+        expect(added.png, orderedEquals(full.png!));
+        expect(controller.galleryItemIdentity(1), old.identity);
+        expect(controller.galleryItemIdentity(2), added.identity);
+        expect(ble.reads, [(0, 0), (1, 0), (2, 0)]);
+        expect(ble.completedDisplays, 0);
+        expect(jobFinished, isFalse);
+        expect(snapshots, isNotEmpty);
+        expect(snapshots, everyElement((true, phase, progress)));
+      } finally {
+        controller.removeListener(captureForeground);
+      }
+    } finally {
+      storeGate.complete();
+      displayGate.complete();
+      await observedJob;
+      controller.removeListener(verifyRetainedImage);
+    }
+    expect(preservedNotifications, greaterThan(0));
+    expect(controller.gallery.first.png, same(full.png));
+    expect(controller.galleryPreviewStatus(0).fullFrame, isTrue);
+    expect(controller.galleryPreviewStatus(1).fullFrame, isTrue);
+    expect(controller.galleryPreviewStatus(2).fullFrame, isTrue);
+    expect(ble.reads, [(0, 0), (1, 0), (2, 0)]);
+  });
+
+  test(
+    'read-only flags do not authorize provisional append cache migration',
+    () async {
+      await enableDisplayReadSupport();
+      final full = await controller.readGalleryPreview(0, fullFrame: true);
+      final previousIdentity = controller.galleryItemIdentity(0);
+      final listRequests = ble.commands
+          .where((op) => op == Op.galleryList)
+          .length;
+      final displayGate = Completer<void>(), storeGate = Completer<void>();
+      ble.holdNextDisplay = displayGate;
+      ble.holdNextDisplayStore = storeGate;
+      controller.updateDraft(const ComposerDraft(kind: CompositionKind.note));
+      final job = controller.send(saveGallery: true);
+      try {
+        await waitForGalleryCondition(() => ble.stateCode == 3);
+        await _flush();
+        expect(ble.statusFlags, 3);
+        expect(a.pictures, hasLength(3));
+        expect(controller.gallery, hasLength(2));
+        expect(controller.galleryItemIdentity(0), previousIdentity);
+        expect(controller.gallery.first.png, same(full.png));
+        expect(controller.galleryPreviewStatus(0).fullFrame, isTrue);
+        expect(
+          ble.commands.where((op) => op == Op.galleryList).length,
+          listRequests,
+        );
+        expect(ble.completedDisplays, 0);
+      } finally {
+        storeGate.complete();
+        displayGate.complete();
+        await job;
+      }
+      expect(controller.gallery, hasLength(3));
+      expect(controller.galleryItemIdentity(0), isNot(previousIdentity));
+      expect(controller.gallery.first.png, same(full.png));
+    },
+  );
+
+  for (final receipt in ['failed store', 'wrong slot', 'wrong count']) {
+    test(
+      'a $receipt final receipt revokes provisional append cache and synchronizes metadata',
+      () async {
+        await enableDisplayReadSupport();
+        final full = await controller.readGalleryPreview(0, fullFrame: true);
+        final displayGate = Completer<void>(), storeGate = Completer<void>();
+        ble.holdNextDisplay = displayGate;
+        ble.holdNextDisplayStore = storeGate;
+        ble.appendDisplayFlags = 7;
+        switch (receipt) {
+          case 'failed store':
+            ble.appendEventStatus = StatusCode.flashError;
+          case 'wrong slot':
+            ble.appendEventSlot = 0;
+          case 'wrong count':
+            ble.appendEventCount = 2;
+        }
+        controller.updateDraft(const ComposerDraft(kind: CompositionKind.note));
+        final job = controller.send(saveGallery: true);
+        var synchronizedLists = 0;
+        try {
+          await waitForGalleryCondition(() => controller.gallery.length == 3);
+          expect(controller.gallery.first.png, same(full.png));
+          expect(controller.galleryPreviewStatus(0).fullFrame, isTrue);
+          final read = await controller
+              .readGalleryPreview(1, fullFrame: true)
+              .timeout(const Duration(seconds: 2));
+          expect(read.ok, isTrue, reason: read.error);
+          expect(ble.completedDisplays, 0);
+          synchronizedLists = ble.commands
+              .where((op) => op == Op.galleryList)
+              .length;
+        } finally {
+          storeGate.complete();
+          displayGate.complete();
+          await job;
+        }
+        expect(controller.gallery, hasLength(3));
+        expect(controller.gallery.first.png, isNull);
+        expect(controller.gallery[1].png, isNull);
+        expect(controller.galleryPreviewStatus(0).fullFrame, isFalse);
+        expect(controller.galleryPreviewStatus(1).fullFrame, isFalse);
+        expect(
+          ble.commands.where((op) => op == Op.galleryList).length,
+          greaterThan(synchronizedLists),
+          reason: 'A contradictory receipt needs a fresh device snapshot',
+        );
+        final fresh = await controller.readGalleryPreview(0, fullFrame: true);
+        expect(fresh.ok, isTrue, reason: fresh.error);
+        expect(fresh.png, isNot(same(full.png)));
+        expect(fresh.png, orderedEquals(full.png!));
+      },
+    );
+  }
+
+  for (final operation in ['show', 'cache', 'ghost', 'send']) {
+    test(
+      'B2.0.1 $operation display wait permits a verified read without replacing foreground status',
+      () async {
+        await enableDisplayReadSupport();
+        final displayGate = Completer<void>();
+        ble.holdNextDisplay = displayGate;
+        controller.updateDraft(const ComposerDraft(kind: CompositionKind.note));
+        final job = switch (operation) {
+          'show' => controller.showGallery(0),
+          'cache' => controller.showCache(),
+          'ghost' => controller.clearGhost(),
+          _ => controller.send(),
+        };
+        var jobCompleted = false;
+        final observedJob = job.then((_) => jobCompleted = true);
+        await waitForGalleryCondition(
+          () =>
+              ble.holdNextDisplay == null &&
+              ble.stateCode == (operation == 'ghost' ? 4 : 3) &&
+              (operation != 'send' ||
+                  (ble.commands.contains(Op.frameEnd) &&
+                      controller.phase == '设备处理中，请耐心等待')),
+        );
+        await _flush();
+        final phase = controller.phase;
+        final progress = controller.progress;
+        expect(controller.busy, isTrue);
+        expect(jobCompleted, isFalse);
+        expect(ble.completedDisplays, 0);
+        final snapshots = <(bool, String, double?)>[];
+        void captureForeground() => snapshots.add((
+          controller.busy,
+          controller.phase,
+          controller.progress,
+        ));
+        controller.addListener(captureForeground);
+        try {
+          final result = await controller
+              .readGalleryPreview(1, fullFrame: true)
+              .timeout(const Duration(seconds: 2));
+          expect(result.ok, isTrue, reason: result.error);
+          expect(result.fullFrame, isTrue);
+          expect(img.decodePng(result.png!)?.width, 768);
+          expect(controller.gallery[1].png, same(result.png));
+          expect(controller.galleryItemIdentity(1), result.identity);
+          expect(ble.reads, [(1, 0)]);
+          expect(ble.completedDisplays, 0);
+          expect(jobCompleted, isFalse);
+          expect(snapshots, isNotEmpty);
+          expect(
+            snapshots,
+            everyElement((true, phase, progress)),
+            reason: 'A display-window read may update its card only',
+          );
+        } finally {
+          controller.removeListener(captureForeground);
+          displayGate.complete();
+          await observedJob;
+        }
+        expect(jobCompleted, isTrue);
+        expect(controller.busy, isFalse);
+        expect(ble.completedDisplays, 1);
+      },
+    );
+  }
+
+  test(
+    'legacy firmware display wait cannot read until the display finishes',
+    () async {
+      final displayGate = Completer<void>();
+      ble.holdNextDisplay = displayGate;
+      final job = controller.showGallery(0);
+      await _flush();
+      expect(ble.statusFlags, isNull);
+      var readCompleted = false;
+      final read = controller.readGalleryPreview(1, fullFrame: true).then((
+        result,
+      ) {
+        readCompleted = true;
+        return result;
+      });
+      await _flush();
+      expect(ble.reads, isEmpty);
+      expect(readCompleted, isFalse);
+      expect(controller.busy, isTrue);
+      displayGate.complete();
+      await job;
+      expect((await read).fullFrame, isTrue);
+      expect(ble.completedDisplays, 1);
+      expect(ble.reads, [(1, 0)]);
+    },
+  );
+
+  test('gallery reads wait through upload and store-only work despite supported firmware', () async {
+    await enableDisplayReadSupport();
+    final uploadGate = Completer<void>(), storeGate = Completer<void>();
+    ble.holdNextData = uploadGate;
+    ble.holdNextStore = storeGate;
+    controller.updateDraft(const ComposerDraft(kind: CompositionKind.note));
+    final storing = controller.send(saveGallery: true, storeOnly: true);
+    await waitForGalleryCondition(
+      () => ble.stateCode == 1 && ble.holdNextData == null,
+    );
+    expect(ble.stateCode, 1);
+    var readCompleted = false;
+    final read = controller.readGalleryPreview(0, fullFrame: true).then((
+      result,
+    ) {
+      readCompleted = true;
+      return result;
+    });
+    await _flush();
+    expect(ble.reads, isEmpty);
+    expect(readCompleted, isFalse);
+    uploadGate.complete();
+    await waitForGalleryCondition(
+      () =>
+          ble.commands.contains(Op.frameEnd) &&
+          ble.holdNextStore == null &&
+          ble.stateCode == 3 &&
+          controller.phase == '设备处理中，请耐心等待',
+    );
+    expect(ble.stateCode, 3);
+    expect(
+      ble.statusFlags,
+      1,
+      reason: 'Store work is not a display read window',
+    );
+    expect(ble.reads, isEmpty);
+    expect(readCompleted, isFalse);
+    storeGate.complete();
+    await storing;
+    // The waiting request captured the previous revision before the append.
+    // It must not silently substitute a new identity after the storage job.
+    final previousRequest = await read;
+    expect(previousRequest.changed, isTrue);
+    expect(previousRequest.png, isNull);
+    expect(ble.reads, isEmpty);
+    expect(
+      (await controller.readGalleryPreview(0, fullFrame: true)).fullFrame,
+      isTrue,
+    );
+    expect(ble.reads, [(0, 0)]);
+    expect(ble.completedDisplays, 0);
+  });
+
+  for (final state in [1, 2]) {
+    test(
+      'external ${state == 1 ? 'upload' : 'OTA'} state does not open a gallery read window',
+      () async {
+        await enableDisplayReadSupport();
+        ble.emitState(state, flags: 3);
+        await _flush();
+        var readCompleted = false;
+        final read = controller.readGalleryPreview(0, fullFrame: true).then((
+          result,
+        ) {
+          readCompleted = true;
+          return result;
+        });
+        await _flush();
+        expect(readCompleted, isFalse);
+        expect(ble.reads, isEmpty);
+        ble.emitState(0, flags: 1);
+        expect((await read).fullFrame, isTrue);
+        expect(ble.reads, [(0, 0)]);
+      },
+    );
+  }
+
+  test('GET_STATUS and STATE open external refresh reads only for the advertised window', () async {
+    await enableDisplayReadSupport();
+    ble.stateCode = 3;
+    ble.statusFlags = 3;
+    await controller.refresh();
+    final first = await controller
+        .readGalleryPreview(0, fullFrame: true)
+        .timeout(const Duration(seconds: 2));
+    expect(first.fullFrame, isTrue, reason: first.error);
+    expect(ble.completedDisplays, 0);
+    ble.emitState(4, flags: 3);
+    await _flush();
+    final second = await controller
+        .readGalleryPreview(1, fullFrame: true)
+        .timeout(const Duration(seconds: 2));
+    expect(second.fullFrame, isTrue, reason: second.error);
+    expect(ble.completedDisplays, 0);
+    expect(controller.busy, isFalse);
+    expect(ble.reads, [(0, 0), (1, 0)]);
+    ble.emitState(0, flags: 1);
+  });
+
+  for (final resume in ['reopened window', 'DISPLAY_DONE']) {
+    test(
+      'closing a background display window drains its block and resumes on $resume',
+      () async {
+        await enableDisplayReadSupport();
+        await controller.readGalleryPreview(0);
+        await controller.readGalleryPreview(1);
+        final originalIdentities = [
+          controller.galleryItemIdentity(0),
+          controller.galleryItemIdentity(1),
+        ];
+        final readGate = Completer<void>();
+        ble.holdNextRead = readGate;
+        ble.emitState(3, flags: 3);
+        controller.setTab(1);
+        await Future<void>.delayed(const Duration(milliseconds: 650));
+        expect(ble.activeReads, 1);
+        final blocks = ble.readBlocks.length;
+        ble.emitState(3, flags: 1);
+        await _flush();
+        readGate.complete();
+        await _flush();
+        expect(ble.readBlocks.length, blocks + 1);
+        expect(controller.galleryPreviewStatus(0).error, isNull);
+        expect(controller.galleryPreviewStatus(0).fullFrame, isFalse);
+        expect(controller.galleryPreviewStatus(0).loading, isFalse);
+        expect(controller.galleryReading, isFalse);
+        final pausedBlocks = ble.readBlocks.length;
+        await Future<void>.delayed(const Duration(milliseconds: 650));
+        expect(ble.readBlocks.length, pausedBlocks);
+        final polls = ble.commands.where((op) => op == Op.getStatus).length;
+        if (resume == 'DISPLAY_DONE') {
+          // Production closes with STATE3/flags1; completion does not send STATE0.
+          ble.emitDisplayDone(4);
+        } else {
+          ble.emitState(3, flags: 3);
+        }
+        await waitForGalleryCondition(
+          () =>
+              controller.galleryPreviewStatus(0).fullFrame &&
+              controller.galleryPreviewStatus(1).fullFrame,
+        );
+        expect(controller.galleryPreviewStatus(0).fullFrame, isTrue);
+        expect(controller.galleryPreviewStatus(1).fullFrame, isTrue);
+        expect([
+          controller.galleryItemIdentity(0),
+          controller.galleryItemIdentity(1),
+        ], originalIdentities);
+        final first = img.decodePng(controller.gallery[0].png!)!;
+        final second = img.decodePng(controller.gallery[1].png!)!;
+        expect((first.width, first.height), (768, 552));
+        final yellow = second.getPixel(0, 0);
+        expect((yellow.r, yellow.g, yellow.b), (255, 255, 0));
+        expect(
+          ble.commands.where((op) => op == Op.getStatus).length,
+          polls,
+          reason:
+              'Completion must resume reads without a 15-second status poll',
+        );
+        expect(ble.maxActiveReads, 1);
+        controller.setTab(0);
+        ble.emitState(0, flags: 1);
+      },
+    );
+  }
+
+  test('a delayed BUSY reply cannot hide a newer DISPLAY_DONE readiness update', () async {
+    await enableDisplayReadSupport();
+    ble.emitState(3, flags: 3);
+    await _flush();
+    final originalIdentity = controller.galleryItemIdentity(0);
+    final polls = ble.commands.where((op) => op == Op.getStatus).length;
+    final readGate = Completer<void>();
+    ble.holdNextRead = readGate;
+    ble.failNextRead = true;
+    ble.failedReadStatus = StatusCode.busy;
+    final reading = controller.readGalleryPreview(0, fullFrame: true);
+    try {
+      await waitForGalleryCondition(() => ble.activeReads == 1);
+      // Close and completion are newer evidence than this deferred READ error.
+      ble.emitState(3, flags: 1);
+      ble.emitDisplayDone(4);
+      readGate.complete();
+      final result = await reading.timeout(const Duration(seconds: 2));
+      expect(result.ok, isTrue, reason: result.error);
+      expect(result.fullFrame, isTrue);
+      expect(result.identity, originalIdentity);
+      expect(controller.galleryItemIdentity(0), originalIdentity);
+      expect(controller.gallery.first.png, same(result.png));
+      expect(controller.galleryPreviewStatus(0).error, isNull);
+      expect(ble.reads, [(0, 0)]);
+      expect(
+        ble.commands.where((op) => op == Op.galleryRead).length,
+        (frameLength + 495) ~/ 496 + 1,
+        reason:
+            'Only the deferred BUSY block and one verified download are needed',
+      );
+      expect(
+        ble.commands.where((op) => op == Op.getStatus).length,
+        polls,
+        reason: 'Newer completion evidence must avoid the 15-second poll wait',
+      );
+      expect(ble.maxActiveReads, 1);
+    } finally {
+      if (!readGate.isCompleted) readGate.complete();
+    }
+  });
+
+  test('display completion and a following deletion drain the pending background reply first', () async {
+    await enableDisplayReadSupport();
+    await controller.readGalleryPreview(0);
+    await controller.readGalleryPreview(1);
+    final displayGate = Completer<void>(), readGate = Completer<void>();
+    ble.holdNextDisplay = displayGate;
+    ble.holdNextRead = readGate;
+    controller.setTab(1);
+    final showing = controller.showGallery(0);
+    await Future<void>.delayed(const Duration(milliseconds: 650));
+    expect(ble.activeReads, 1);
+    final blocks = ble.readBlocks.length;
+    displayGate.complete();
+    await showing;
+    expect(ble.activeReads, 1);
+    final beforeDelete = ble.commands.length;
+    final deleting = controller.deleteGallery(1);
+    await _flush();
+    expect(ble.commands.skip(beforeDelete), isNot(contains(Op.galleryDelete)));
+    readGate.complete();
+    await deleting;
+    await _flush();
+    expect(ble.readBlocks.length, blocks + 1);
+    expect(ble.commands.skip(beforeDelete), contains(Op.galleryDelete));
+    expect(ble.commands, isNot(contains(Op.frameAbort)));
+    expect(ble.commands, isNot(contains(Op.otaAbort)));
+    expect(ble.maxActiveReads, 1);
+    expect(controller.gallery, hasLength(1));
+    expect(controller.galleryPreviewStatus(0).error, isNull);
+    controller.setTab(0);
+  });
+
+  test('a parallel display-window download still rejects a corrupted full-frame CRC', () async {
+    await enableDisplayReadSupport();
+    ble.emitState(3, flags: 3);
+    await _flush();
+    ble.corruptNextReadBlock = true;
+    final result = await controller
+        .readGalleryPreview(0, fullFrame: true)
+        .timeout(const Duration(seconds: 2));
+    expect(result.ok, isFalse);
+    expect(result.error, contains('校验'));
+    expect(controller.gallery.first.png, isNull);
+    expect(controller.galleryPreviewStatus(0).fullFrame, isFalse);
+    ble.emitState(0, flags: 1);
+  });
+
+  test('a revision change while a parallel read is in flight cannot publish the wrong image', () async {
+    await enableDisplayReadSupport();
+    ble.emitState(3, flags: 3);
+    await _flush();
+    final gate = Completer<void>();
+    ble.holdNextRead = gate;
+    final originalIdentity = controller.galleryItemIdentity(0);
+    final reading = controller.readGalleryPreview(0, fullFrame: true);
+    await _flush();
+    expect(ble.activeReads, 1);
+    a.pictures[0] = _Picture(color: 2);
+    a.revision++;
+    gate.complete();
+    final result = await reading;
+    expect(result.ok, isFalse);
+    expect(result.changed, isTrue);
+    expect(result.error, isNotEmpty);
+    expect(result.png, isNull);
+    expect(controller.gallery.first.png, isNull);
+    expect(controller.galleryItemIdentity(0), originalIdentity);
+    expect(controller.galleryPreviewStatus(0).fullFrame, isFalse);
+    ble.emitState(0, flags: 1);
+    await controller.refreshGallery();
+    expect(controller.galleryItemIdentity(0), isNot(originalIdentity));
+    final verified = await controller.readGalleryPreview(0, fullFrame: true);
+    expect(verified.fullFrame, isTrue);
+    expect(verified.identity, controller.galleryItemIdentity(0));
+  });
 }

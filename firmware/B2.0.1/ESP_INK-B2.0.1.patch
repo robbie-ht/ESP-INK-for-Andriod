@@ -1,0 +1,1288 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 801118f..b269020 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -15,6 +15,6 @@
+ 
+ cmake_minimum_required(VERSION 3.16)
+ 
+-set(PROJECT_VER "B2.0.0")
++set(PROJECT_VER "B2.0.1")
+ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+-project(moink_ble)
+\ No newline at end of file
++project(moink_ble)
+diff --git a/README.md b/README.md
+index 31e046e..75b30d9 100644
+--- a/README.md
++++ b/README.md
+@@ -1,9 +1,16 @@
+-# MoInk · APP / BLE 固件 B2.0.0
++# MoInk · APP / BLE 固件 B2.0.1
+ 
+ 本工程是 **ESP32-C3 上供手机 APP 连接的 BLE 固件**，附 Python / TypeScript 接入 SDK。使用 **ESP-IDF 5.2.2**，以同级 `moink-R1.3.4` 为只读功能参考；不是 Android/iOS 界面工程。
+ 
+ B2.0.0 补齐设备内图库与离线轮播。控制通道仍为 BLE，图像合成留在手机端。
+ 
++B2.0.1新增物理刷屏期间的图库安全只读窗口：保存/加载完成后开放，刷屏及面板深睡结束后、
++任何图库current/NVS/cache写入前关闭并排空在途读取。GET_STATUS尾字段与STATE事件报告
++支持位、当前窗口及本窗口前已成功追加标志（flags1/3/7），状态码、
++STORE_DONE/DISPLAY_DONE时序、分区和已有NVS均不改变。
++所有修改操作仍互斥，READ数据最多496字节，通知属性值最多512字节。客户端也需配合新的
++读取调度；该源码修改和离线验证不代表已刷入设备或通过真实BLE与刷屏并发验收。
++
+ | 项目 | 当前实现 |
+ |---|---|
+ | 芯片 / Flash | ESP32-C3、无 PSRAM、4 MiB Flash |
+@@ -97,7 +104,7 @@ await cli.gallery_delete(0)
+ 
+ ## 验证与硬件边界
+ 
+-本轮 ESP-IDF 5.2.2 已编译成功；最终构建和测试记录见 [validation/RESULTS.md](validation/RESULTS.md)。存储、设置、协议与 SDK 使用主机模拟进行错误注入和离线检查，**不等于真机验收**。
++本轮B2.0.1 ESP-IDF 5.2.2已编译、打包成功，见[本版记录](validation/B2.0.1/RESULTS.md)及[固件清单](firmware/B2.0.1/manifest.json)；[validation/RESULTS.md](validation/RESULTS.md)保留历史记录。存储、设置、协议与SDK使用主机模拟进行错误注入和离线检查，**不等于真机验收**。
+ 
+ 未验证：真实 BLE 连接/吞吐/断连重连，A0/A1 面板、GPIO 自锁、深睡电流与定时唤醒、实际 Flash 掉电、OTA 回滚。第一次上机应依次检查扫描连接、单色帧、图库/按键/定时轮播、断连恢复、OTA，不把旧 R1.3.4 的硬件结果当作新 BLE 版验收。
+ 
+diff --git a/docs/API.md b/docs/API.md
+index b84cce8..81fd4c6 100644
+--- a/docs/API.md
++++ b/docs/API.md
+@@ -2,7 +2,7 @@
+ 
+ > 本文档是 **APP 与固件之间的唯一权威接口定义**。固件实现见 `src/ble_api.c`，
+ > 参考客户端见 `sdk/moink_ble.py`（Python）与 `sdk/moink_ble.ts`（TypeScript）。
+-> 当前固件 B2.0.0，ESP-IDF 5.2.2。不兼容的字节布局变更才增加 `MOINK_API_VERSION`；
++> 当前固件 B2.0.1，ESP-IDF 5.2.2。不兼容的字节布局变更才增加 `MOINK_API_VERSION`；
+ > 本次新增命令、TLV 和可选末尾字段，api 保持 1。分区变化需要首次完整串口刷入，见 README。
+ 
+ ---
+@@ -145,6 +145,18 @@ RSP payload：
+ | 25 | u8 | cache_valid | 1 = fcache 里有可用帧 |
+ | 26 | u8 | fw_len | |
+ | 27 | u8[] | fw | ASCII |
++| 27 + fw_len | u8 | gallery_read_flags | B2.0.1兼容尾字段：bit0=支持刷屏只读窗口，bit1=窗口当前开放，bit2=本窗口前已成功追加；旧固件缺省0 |
++
++状态码保持原定义。state=3/4本身不代表可以读图；仅idle或flags bit0/bit1均为1时允许
++CAROUSEL_INFO/LIST/READ。窗口在保存/加载完成后、调用屏驱动前开放，覆盖刷新重试和面板深睡；
++任何后续current/NVS/cache写入前先关闭，并等待正在处理的读取响应退出。新上传、删除、清空、
++设置、OTA等修改操作仍只能在idle开始。客户端需兼容缺失尾字段及没有payload的旧STATE事件。
++
++bit2只在FRAME的save_store成功后、进入实际刷屏窗口时置1（flags=7）；图库显示、缓存重刷、
++清残影窗口flags=3，关闭窗口或作业完成后清除bit1/bit2（flags=1）。该位不替代STORE_DONE，
++也不携带slot、count或current。APP只有确认是自己同会话正在等待的追加，并逐项验证旧列表
++前缀、count+1与单步revision后，才能在窗口中迁移旧图片缓存；最终仍核对STORE_DONE，异常
++必须撤销推定。仅存图库不打开刷屏窗口。
+ 
+ ### 6.3 `0x03` GET_SETTINGS
+ 
+@@ -362,11 +374,14 @@ RSP 载荷：
+ | 12 | u8 | format：1 packed2bpp / 2 JPEG（整帧固定为 1） |
+ | 13 | u8[] | data |
+ 
+-单片 data 最多 `MTU-19` 字节，由设备裁决（MTU=23 时 4 字节）。
++单片 data 最多 `min(MTU-19,496)` 字节，由设备裁决（MTU=23 时 4 字节）；
++RSP含3字节头与13字节元数据，整个属性值不超过512字节，即使MTU=517。
+ **数据通过 EVT 的 RSP 返回，DATA 特征仍然只写入，不支持 Notify。**
+ 客户端逐片检查 slot/kind/offset/total/CRC/format，直到 offset=total，再校验整个载荷 CRC16。
+ 相同偏移可安全重读；版本变化返回 `STALE`，应丢弃部分下载，刷新列表后从头读取，
+-不可拼接新旧图库内容。READ 不持有跨命令锁。图库命令在上传/刷屏/存储/OTA 忙时返回 BUSY。
++不可拼接新旧图库内容。READ不持有跨命令锁。INFO/LIST/READ仅在idle或明确开放的物理刷屏
++只读窗口可用；上传、存储、OTA及关闭窗口的刷新阶段返回BUSY。窗口在分片之间关闭时，
++客户端暂停后续读取，等待重新开放或idle后继续，并继续检查revision，不把BUSY当成损坏。
+ 
+ ## 7. 状态码
+ 
+@@ -397,7 +412,7 @@ RSP 载荷：
+ | `0x01` | DISPLAY_DONE | result | — | 0 刷屏成功 / 1 刷屏失败 / 2 清理完成 / 3 缓存重刷成功 / 4 图库显示成功 |
+ | `0x02` | BUTTON | action | — | 1 单击 / 2 双击 / 3 长按预警（距恢复出厂 3 s） |
+ | `0x03` | LOW_BATTERY | 0 | `i16 mv` | 电量低于阈值（约 3400 mV，每次唤醒最多一次） |
+-| `0x04` | STATE | state | — | 状态变化（可与 `GET_STATUS` 交叉验证） |
++| `0x04` | STATE | state | 可选 `u8 gallery_read_flags` | B2.0.1窗口开关通知，arg仍为原3/4状态；也可与GET_STATUS交叉验证，旧事件可无payload |
+ | `0x05` | TRANSFER_GAP | 0 | `u16 expected_seq` | 收到乱序 DATA，需回退重发 |
+ | `0x06` | STORE_DONE | status | `slot u8, count u8, current u8` | 保存/删除/清空的结果；0 成功，失败用 §7 状态码；清空 slot=255，current=255 表示无当前项 |
+ 
+diff --git a/docs/APP-INTEGRATION.md b/docs/APP-INTEGRATION.md
+index 047a55a..6570731 100644
+--- a/docs/APP-INTEGRATION.md
++++ b/docs/APP-INTEGRATION.md
+@@ -1,7 +1,7 @@
+ # APP 接入指南
+ 
+ 目标读者：要做 Android / iOS / uni-app / React Native 客户端的同学。
+-协议字节级定义在 [API.md](API.md)。当前为 ESP-IDF 5.2.2 的 B2.0.0 设备固件和参考 SDK；
++协议字节级定义在 [API.md](API.md)。当前为 ESP-IDF 5.2.2 的 B2.0.1 设备固件和参考 SDK；
+ 本仓库没有完整 Android/iOS 手机界面工程。本文说明如何把这些能力接入手机客户端。
+ 
+ ---
+@@ -180,7 +180,7 @@ React Native 用 `react-native-ble-plx`，传输层写法同构
+ | `0x01` | DISPLAY_DONE | 0 成功 / 1 失败 / 2 清理完成 / 3 缓存重刷完成 / 4 图库显示完成 | — |
+ | `0x02` | BUTTON | 1 单击 / 2 双击 / 3 长按 3 s 预警（20 s 恢复出厂） | — |
+ | `0x03` | LOW_BATTERY | — | `i16 mv` |
+-| `0x04` | STATE | 新状态 | — |
++| `0x04` | STATE | 原状态 | B2.0.1可选u8图库只读flags；旧事件无payload |
+ | `0x05` | TRANSFER_GAP | — | `u16 expected_seq` |
+ | `0x06` | STORE_DONE | status，0 成功 | `slot u8, count u8, current u8`；255 表示无当前项/清空槽 |
+ 
+@@ -275,6 +275,19 @@ B2.0.0 增加独立 1 MiB 的 8 槽图库。每项为 768×552 整帧和缩略
+ 需同时启用 waitDisplay。仅存时没有 DISPLAY_DONE。删除/清空不改变屏幕像素，也不删 fcache。
+ 同时调用两个修改类操作会遇到 BUSY；UI 在一次操作完成前应禁用新的写入。
+ 
++B2.0.1在GET_STATUS版本字符串后兼容追加`gallery_read_flags`：bit0表示支持安全只读窗口，
++bit1表示当前窗口开放，bit2表示本窗口前已成功追加（仅FRAME save_store成功后置位）；
++STATE窗口开关事件也附同一字节，arg仍为3/4。只有idle或bit0/bit1均为1
++时发起INFO/LIST/READ，state=3不能单独作为依据。保存/加载及刷新后的current/cache写入
++不在窗口内；STORE_DONE与DISPLAY_DONE仍在原来的作业完成位置，不提前通知保存结果。
++关闭窗口会排空当前固件读取回调；客户端暂停后续分片，遇BUSY稍后继续，revision变化则丢弃
++旧部分数据。保持修改作业互斥和逐命令CTRL顺序，下载使用独立小响应缓冲，不写上传/显示帧。
++通知属性值上限512字节，READ数据上限`min(MTU-19,496)`。SDK解析新增flags，旧固件默认0；
++参考SDK仍保留原有修改作业串行机制，新增尾字段本身不代表所有客户端已开放并行调度。
++flags=7不是提前的STORE_DONE：客户端若要在自己“存并显示”的窗口中保留旧缓存，需要同会话
++pending追加、count+1、单步revision与全部旧prefix元数据一致的证据，最终回执仍须核对。
++其他显示窗口flags=3；窗口关闭/complete同时清bit1/bit2，只有支持位保留为1。
++
+ ```python
+ # 整帧先由 pack_2bpp() 编码；自动生成缩略图，无需 JPEG 依赖。
+ await cli.send_frame(frame, save_gallery=True, store_only=True)
+diff --git a/firmware/B2.0.1/README.txt b/firmware/B2.0.1/README.txt
+new file mode 100644
+index 0000000..7b69b58
+--- /dev/null
++++ b/firmware/B2.0.1/README.txt
+@@ -0,0 +1,16 @@
++MoInk APP/BLE B2.0.1 - ESP-IDF 5.2.2 - ESP32-C3 4 MB
++
++本目录是设备固件，不是手机 APK。尚未进行真机验证。
++R 系列/B1.0.0 首次迁移必须 USB 全量刷入；先备份旧图片和设置。
++merged.bin 写入起始地址 0x0。请手动替换 PORT 为实际串口：
++
++python -m esptool --chip esp32c3 --port PORT erase_flash
++python -m esptool --chip esp32c3 --port PORT write_flash 0x0 moink_B2.0.1_merged.bin
++
++erase_flash 会清除设备设置、图库和缓存。助手未执行以上硬件命令。
++app.bin 仅用于已经采用 B2 分区表的设备后续 BLE OTA；不用于 B1/R 在线迁移。
++默认整合板preset2：[ADC,WAKE,SCK,MOSI,CS,DC,RST,BUSY]=[0,1,4,3,5,6,7,10]。
++已有有效NVS配置优先；升级不强制改接线，也不要求清空图库或缓存。
++本版新增显式刷屏图库只读窗口flags；需配合支持该扩展的客户端。
++其余 bin 是合并镜像中的独立构件，地址见工程 README 与分区表。
++SHA256SUMS/manifest.json 可核对文件完整性，验证边界见 ../../validation/RESULTS.md。
+diff --git a/firmware/B2.0.1/SHA256SUMS b/firmware/B2.0.1/SHA256SUMS
+new file mode 100644
+index 0000000..2d0d23b
+--- /dev/null
++++ b/firmware/B2.0.1/SHA256SUMS
+@@ -0,0 +1,5 @@
++307bf21e9326f67588873d42b4c863d8270032bd62d11ee9a7d740eb6737443e  bootloader.bin
++1cadab640ee3e09e268f604f1614dbbeeda9d9321b31d647a3fa25036bad2f26  moink_B2.0.1_app.bin
++b70146d2c589049884001289db6da8c8a2d3febf0c46fe7cd5d9f9a8d1b97db2  moink_B2.0.1_merged.bin
++7d2c7ac4888bfd75cd5f56e8d61f69595121183afc81556c876732fd3782c62f  ota_data_initial.bin
++4649f9d9d079fbb38ea157467a0ed813e8d0581a898b4ab901cbb40d3568988e  partition-table.bin
+diff --git a/firmware/B2.0.1/manifest.json b/firmware/B2.0.1/manifest.json
+new file mode 100644
+index 0000000..4077e34
+--- /dev/null
++++ b/firmware/B2.0.1/manifest.json
+@@ -0,0 +1,40 @@
++{
++  "firmware": "B2.0.1",
++  "api": 1,
++  "idf": "5.2.2",
++  "target": "esp32c3",
++  "variant": "integrated-board",
++  "default_gpio_preset": 2,
++  "default_pins": {
++    "ADC": 0,
++    "WAKE": 1,
++    "SCK": 4,
++    "MOSI": 3,
++    "CS": 5,
++    "DC": 6,
++    "RST": 7,
++    "BUSY": 10
++  },
++  "existing_valid_nvs_preserved_on_app_ota": true,
++  "full_erase_or_merged_flash_preserves_data": false,
++  "gallery_read_flags": {
++    "supported": 1,
++    "window_open": 2,
++    "append_committed": 4
++  },
++  "flash_bytes": 4194304,
++  "ota_slot_bytes": 1441792,
++  "app_bytes": 445136,
++  "usb_migration_required_from": [
++    "R series",
++    "B1.0.0"
++  ],
++  "hardware_tested": false,
++  "sha256": {
++    "bootloader.bin": "307bf21e9326f67588873d42b4c863d8270032bd62d11ee9a7d740eb6737443e",
++    "moink_B2.0.1_app.bin": "1cadab640ee3e09e268f604f1614dbbeeda9d9321b31d647a3fa25036bad2f26",
++    "moink_B2.0.1_merged.bin": "b70146d2c589049884001289db6da8c8a2d3febf0c46fe7cd5d9f9a8d1b97db2",
++    "ota_data_initial.bin": "7d2c7ac4888bfd75cd5f56e8d61f69595121183afc81556c876732fd3782c62f",
++    "partition-table.bin": "4649f9d9d079fbb38ea157467a0ed813e8d0581a898b4ab901cbb40d3568988e"
++  }
++}
+diff --git a/sdk/moink_ble.py b/sdk/moink_ble.py
+index 55debb8..02f82d2 100644
+--- a/sdk/moink_ble.py
++++ b/sdk/moink_ble.py
+@@ -315,6 +315,11 @@ class MoinkClient:
+         out["auto_wake_s"] = struct.unpack_from("<I", pl, o)[0]; o += 4
+         out["cache_valid"] = bool(pl[o]); o += 1
+         out["version"] = pl[o + 1:o + 1 + pl[o]].decode("utf-8", "replace")
++        end = o + 1 + pl[o]
++        out["gallery_read_flags"] = pl[end] if len(pl) > end else 0
++        out["gallery_read_supported"] = bool(out["gallery_read_flags"] & 1)
++        out["gallery_read_window"] = bool(out["gallery_read_flags"] & 2)
++        out["gallery_append_committed"] = bool(out["gallery_read_flags"] & 4)
+         return out
+ 
+     async def get_settings(self) -> dict:
+@@ -552,7 +557,7 @@ class MoinkClient:
+         kind = int(thumbnail)
+         data = bytearray()
+         while len(data) < total:
+-            requested = min(max(1, self.mtu - 19), total - len(data), 65535)
++            requested = min(max(1, self.mtu - 19), 496, total - len(data))
+             args = struct.pack("<BBIHI", slot, kind, len(data), requested, item["revision"])
+             p = await self._call(OP_CAROUSEL_READ, args)
+             if len(p) < 14:
+diff --git a/sdk/moink_ble.ts b/sdk/moink_ble.ts
+index 8f6d5e9..26b0789 100644
+--- a/sdk/moink_ble.ts
++++ b/sdk/moink_ble.ts
+@@ -304,6 +304,10 @@ export interface StatusInfo {
+   autoWakeS: number;
+   cacheValid: boolean;
+   version: string;
++  galleryReadFlags: number;
++  galleryReadSupported: boolean;
++  galleryReadWindow: boolean;
++  galleryAppendCommitted: boolean;
+ }
+ 
+ export interface SettingsInfo {
+@@ -495,6 +499,7 @@ export class MoinkBle {
+     const dv = new DataView(p.buffer, p.byteOffset, p.byteLength);
+     const battery = dv.getInt16(3, true);
+     const vl = p[26];
++    const galleryReadFlags = p[27 + vl] ?? 0;
+     return {
+       api: p[0],
+       state: STATE_NAME[p[1]] ?? String(p[1]),
+@@ -509,6 +514,10 @@ export class MoinkBle {
+       autoWakeS: dv.getUint32(21, true),
+       cacheValid: p[25] === 1,
+       version: new TextDecoder().decode(p.slice(27, 27 + vl)),
++      galleryReadFlags,
++      galleryReadSupported: (galleryReadFlags & 1) !== 0,
++      galleryReadWindow: (galleryReadFlags & 2) !== 0,
++      galleryAppendCommitted: (galleryReadFlags & 4) !== 0,
+     };
+   }
+ 
+@@ -712,7 +721,7 @@ export class MoinkBle {
+     const kind = thumbnail ? 1 : 0, data = new Uint8Array(total);
+     let offset = 0;
+     while (offset < total) {
+-      const requested = Math.min(Math.max(1, this.mtu - 19), total - offset, 65535);
++      const requested = Math.min(Math.max(1, this.mtu - 19), 496, total - offset);
+       const args = new Uint8Array(12), ad = new DataView(args.buffer);
+       args[0] = slot; args[1] = kind; ad.setUint32(2, offset, true);
+       ad.setUint16(6, requested, true); ad.setUint32(8, item.revision, true);
+@@ -820,4 +829,4 @@ export class MoinkBle {
+   }
+ }
+ 
+-export default MoinkBle;
+\ No newline at end of file
++export default MoinkBle;
+diff --git a/sdk/test_ble.py b/sdk/test_ble.py
+index 1bb8c17..ef9828e 100644
+--- a/sdk/test_ble.py
++++ b/sdk/test_ble.py
+@@ -21,6 +21,7 @@ class MockBle:
+         self.abort_count = 0
+         self.old_settings = False
+         self.sleep_busy = False
++        self.status_flags = None
+ 
+     def rsp(self, seq, payload=b'', status=ST_OK):
+         self.cli._on_notify(0, bytearray([1, seq, status]) + payload)
+@@ -89,6 +90,15 @@ class MockBle:
+         elif op == OP_CAROUSEL_SHOW:
+             self.event(EVT_DISPLAY_DONE, 4)
+             self.rsp(seq)
++        elif op == OP_GET_STATUS:
++            payload = bytearray(27)
++            payload[0] = 1
++            payload[1] = 3
++            payload[26] = len(b'B2.0.1')
++            payload.extend(b'B2.0.1')
++            if self.status_flags is not None:
++                payload.append(self.status_flags)
++            self.rsp(seq, payload)
+         elif op == OP_GET_SETTINGS:
+             name = '墨印'.encode()
+             payload = struct.pack('<BIBIB8sBB', 0, 180, 0, 3600, 0, bytes(range(8)), 1, len(name)) + name
+@@ -106,6 +116,28 @@ class ProtocolTests(unittest.IsolatedAsyncioTestCase):
+         self.mock = MockBle()
+         self.cli = self.mock.cli
+ 
++    async def test_status_optional_gallery_window_flags(self):
++        old = await self.cli.get_status()
++        self.assertEqual(old['version'], 'B2.0.1')
++        self.assertEqual(old['gallery_read_flags'], 0)
++        self.assertFalse(old['gallery_read_supported'])
++        for flags in (1, 3, 7):
++            self.mock.status_flags = flags
++            status = await self.cli.get_status()
++            self.assertEqual(status['gallery_read_flags'], flags)
++            self.assertTrue(status['gallery_read_supported'])
++            self.assertEqual(status['gallery_read_window'], bool(flags & 2))
++            self.assertEqual(status['gallery_append_committed'], bool(flags & 4))
++
++    async def test_gallery_read_496_cap_with_mtu_517(self):
++        self.cli.mtu = 517
++        self.mock.frame = bytes(range(256)) * 4
++        self.assertEqual(await self.cli.gallery_download(0), self.mock.frame)
++        requests = [struct.unpack_from('<H', args, 6)[0]
++                    for op, args in self.mock.commands if op == OP_CAROUSEL_READ]
++        self.assertEqual(max(requests), 496)
++        self.assertTrue(all(0 < n <= 496 for n in requests))
++
+     async def test_upload_legacy_wire_and_retry(self):
+         self.mock.end_statuses = [ST_INCOMPLETE, ST_CRC, ST_OK]
+         await self.cli.send_frame(self.mock.frame, 16, 8, wait_display=True)
+diff --git a/sdk/test_ble.ts b/sdk/test_ble.ts
+index 79c4e1a..8032386 100644
+--- a/sdk/test_ble.ts
++++ b/sdk/test_ble.ts
+@@ -18,6 +18,7 @@ class MockTransport implements BleTransport {
+   oldSettings = false;
+   sleepBusy = false;
+   flags = 0;
++  statusFlags: number | undefined;
+   async connect() {}
+   async disconnect() {}
+   onNotify(cb: (data: Uint8Array) => void) { this.callback = cb; }
+@@ -76,6 +77,12 @@ class MockTransport implements BleTransport {
+       this.event(EVT.DISPLAY_DONE, 4); this.rsp(seq);
+     } else if ([OP.CAROUSEL_DELETE, OP.CAROUSEL_CLEAR].includes(op as any)) {
+       this.event(EVT.STORE_DONE, this.storeError, new Uint8Array([a[0] ?? 255, 1, 0])); this.rsp(seq);
++    } else if (op === OP.GET_STATUS) {
++      const version = new TextEncoder().encode('B2.0.1');
++      const p = new Uint8Array(27 + version.length + (this.statusFlags === undefined ? 0 : 1));
++      p[0] = 1; p[1] = 3; p[26] = version.length; p.set(version, 27);
++      if (this.statusFlags !== undefined) p[p.length - 1] = this.statusFlags;
++      this.rsp(seq, p);
+     } else if (op === OP.GET_SETTINGS) {
+       const name = new TextEncoder().encode('墨印');
+       const p = new Uint8Array(21 + name.length + (this.oldSettings ? 0 : 1));
+@@ -92,6 +99,28 @@ class MockTransport implements BleTransport {
+ 
+ function setup() { const t = new MockTransport(); return { t, cli: new MoinkBle(t) }; }
+ 
++test('GET_STATUS optional gallery window flags preserve old response compatibility', async () => {
++  const { t, cli } = setup();
++  const old = await cli.getStatus();
++  assert.equal(old.version, 'B2.0.1'); assert.equal(old.galleryReadFlags, 0);
++  assert.equal(old.galleryReadSupported, false);
++  for (const flags of [1, 3, 7]) {
++    t.statusFlags = flags; const status = await cli.getStatus();
++    assert.equal(status.galleryReadFlags, flags); assert.equal(status.galleryReadSupported, true);
++    assert.equal(status.galleryReadWindow, (flags & 2) !== 0);
++    assert.equal(status.galleryAppendCommitted, (flags & 4) !== 0);
++  }
++});
++
++test('gallery download caps payload at 496 even with MTU 517', async () => {
++  const { t, cli } = setup(); t.mtu = 517;
++  t.frame = Uint8Array.from({ length: 1024 }, (_, i) => i & 255);
++  assert.deepEqual(await cli.galleryDownload(0), t.frame);
++  const requests = t.commands.filter(([op]) => op === OP.CAROUSEL_READ)
++    .map(([, a]) => new DataView(a.buffer, a.byteOffset, a.byteLength).getUint16(6, true));
++  assert.equal(Math.max(...requests), 496); assert.ok(requests.every((n) => n > 0 && n <= 496));
++});
++
+ test('legacy frame wire, CRC/incomplete recovery and event before response', async () => {
+   const { t, cli } = setup(); t.endStatuses = [ST.INCOMPLETE, ST.CRC, ST.OK];
+   await cli.sendFrame(t.frame, 16, 8, { waitDisplay: true });
+diff --git a/src/ble_api.c b/src/ble_api.c
+index 17cf3b4..e335be5 100644
+--- a/src/ble_api.c
++++ b/src/ble_api.c
+@@ -1,8 +1,8 @@
+ /*
+  * BLE 协议栈实现 —— GATT 服务 / 帧传输状态机 / 命令分发 / OTA。
+  *
+- * 协议权威定义：docs/API.md（改字节布局必须同步该文档与 sdk/ 两个客户端，
+- * 并把 version.h 的 MOINK_API_VERSION +1）。
++ * 协议权威定义：docs/API.md（兼容尾字段同步文档与 sdk/ 两个客户端；
++ * 不兼容字节布局才把 version.h 的 MOINK_API_VERSION +1）。
+  *
+  * 三条特征：
+  *   CTRL 6D6F496E-4B00-4000-8000-000000000001  Write/WriteNR  命令
+@@ -118,6 +118,8 @@ static const char *TAG = "ble";
+ #define MAX_CHUNK             512     /* = 517 MTU - 5 */
+ #define MIN_CHUNK             16
+ #define MAX_ATT_MTU           517
++#define MAX_ATTRIBUTE_VALUE   512
++#define MAX_GALLERY_READ      (MAX_ATTRIBUTE_VALUE - 3 - 13)
+ 
+ /* ---------------- UUID ---------------- */
+ 
+@@ -143,6 +145,9 @@ static uint8_t        *s_thumb;
+ /* Serializes host commands, button claims, completion and timeout resets. */
+ static SemaphoreHandle_t s_lock;
+ static volatile uint8_t s_state = BLE_ST_IDLE;
++/* Protected by s_lock; no Flash/gallery mutation is allowed while true. */
++static bool           s_display_read_window;
++static bool           s_display_append_committed;
+ static uint16_t        s_conn = BLE_HS_CONN_HANDLE_NONE;
+ static uint16_t        s_ctl_handle, s_dat_handle, s_evt_handle;
+ static QueueHandle_t   s_job_q;
+@@ -213,7 +218,7 @@ static uint16_t cur_mtu(void);
+ /* RSP: [0x01][seq][status][payload] */
+ static void respond(uint8_t seq, uint8_t status, const void *payload, uint16_t len)
+ {
+-    uint8_t b[MAX_ATT_MTU - 3];
++    uint8_t b[MAX_ATTRIBUTE_VALUE];
+     /* Never hand NimBLE an oversized notification: return an actionable short
+      * error for fixed replies that require a negotiated MTU. */
+     if (len > cur_mtu() - 6 || len > sizeof(b) - 3) {
+@@ -276,10 +281,47 @@ static void transfer_reset(void)
+ uint8_t *ble_api_frame_buf(void) { return s_fb; }
+ const uint8_t *ble_api_thumb_buf(void) { return s_thumb; }
+ uint8_t  ble_api_state(void) { return s_state; }
++/* Caller holds s_lock, also held for the whole host INFO/LIST/READ callback. */
++static uint8_t gallery_read_flags(void)
++{
++    bool active = s_display_read_window &&
++        (s_state == BLE_ST_REFRESHING || s_state == BLE_ST_CLEARING);
++    return MOINK_GALLERY_READ_SUPPORTED |
++        (active ? MOINK_GALLERY_READ_WINDOW |
++            (s_display_append_committed ? MOINK_GALLERY_APPEND_COMMITTED : 0) : 0);
++}
++
++static bool gallery_read_allowed(void)
++{
++    return s_state == BLE_ST_IDLE ||
++        (gallery_read_flags() & MOINK_GALLERY_READ_WINDOW);
++}
++
++void ble_api_set_display_read_window(bool open, bool append_committed)
++{
++    if (!s_lock) return;
++    xSemaphoreTake(s_lock, portMAX_DELAY);
++    bool next = open && (s_state == BLE_ST_REFRESHING || s_state == BLE_ST_CLEARING);
++    bool committed = next && append_committed;
++    bool changed = next != s_display_read_window || committed != s_display_append_committed;
++    s_display_read_window = next;
++    s_display_append_committed = committed;
++    uint8_t state = s_state;
++    uint8_t flags = gallery_read_flags();
++    xSemaphoreGive(s_lock);
++    /* Avoid nesting the NimBLE notification lock under the command mutex.
++     * display_task is the sole window owner, so open/close events stay ordered. */
++    if (changed) ble_api_notify_event(MOINK_EVT_STATE, state, &flags, 1);
++}
++
+ void ble_api_set_state(uint8_t st)
+ {
+     if (s_lock) xSemaphoreTake(s_lock, portMAX_DELAY);
+     s_state = st;
++    if (st != BLE_ST_REFRESHING && st != BLE_ST_CLEARING) {
++        s_display_read_window = false;
++        s_display_append_committed = false;
++    }
+     if (s_lock) xSemaphoreGive(s_lock);
+ }
+ bool     ble_api_connected(void) { return s_conn != BLE_HS_CONN_HANDLE_NONE; }
+@@ -658,7 +700,7 @@ static bool queue_carousel(uint8_t slot)
+ 
+ static void handle_store_list(uint8_t seq, const uint8_t *a, uint16_t n)
+ {
+-    if (s_state != BLE_ST_IDLE) { respond(seq, ST_BUSY, NULL, 0); return; }
++    if (!gallery_read_allowed()) { respond(seq, ST_BUSY, NULL, 0); return; }
+     if (n != 2 || !a[1]) { respond(seq, ST_BAD_ARG, NULL, 0); return; }
+     if (!store_slots()) { respond(seq, ST_NOT_READY, NULL, 0); return; }
+     int count = 0;
+@@ -693,7 +735,7 @@ static void handle_store_list(uint8_t seq, const uint8_t *a, uint16_t n)
+ 
+ static void handle_store_read(uint8_t seq, const uint8_t *a, uint16_t n)
+ {
+-    if (s_state != BLE_ST_IDLE) { respond(seq, ST_BUSY, NULL, 0); return; }
++    if (!gallery_read_allowed()) { respond(seq, ST_BUSY, NULL, 0); return; }
+     if (n != 12 || a[1] > 1 || !rd16(a + 6)) {
+         respond(seq, ST_BAD_ARG, NULL, 0); return;
+     }
+@@ -709,6 +751,7 @@ static void handle_store_read(uint8_t seq, const uint8_t *a, uint16_t n)
+     if (!total) { respond(seq, ST_NOT_READY, NULL, 0); return; }
+     if (off > total) { respond(seq, ST_BAD_ARG, NULL, 0); return; }
+     uint16_t cap = cur_mtu() - 19; /* ATT 3 + RSP 3 + metadata 13 */
++    if (cap > MAX_GALLERY_READ) cap = MAX_GALLERY_READ;
+     if (requested > cap) requested = cap;
+     if (requested > total - off) requested = total - off;
+     uint8_t r[MAX_ATT_MTU - 6];
+@@ -769,6 +812,7 @@ static void on_ctrl(const uint8_t *p, uint16_t n)
+         r[i++] = cache_has() ? 1 : 0;
+         r[i++] = vl;
+         memcpy(r + i, v, vl); i += vl;
++        r[i++] = gallery_read_flags();
+         respond(seq, ST_OK, r, (uint8_t)i);
+         break;
+     }
+@@ -825,7 +869,7 @@ static void on_ctrl(const uint8_t *p, uint16_t n)
+     }
+ 
+     case OP_STORE_INFO: {
+-        if (s_state != BLE_ST_IDLE) { respond(seq, ST_BUSY, NULL, 0); break; }
++        if (!gallery_read_allowed()) { respond(seq, ST_BUSY, NULL, 0); break; }
+         int count = 0, cur = -1;
+         store_meta_get(&count, &cur);
+         uint8_t r[7] = { count, cur < 0 ? 255 : cur, store_slots() };
+@@ -1307,6 +1351,8 @@ bool ble_api_job_wait(ble_job_t *job, uint32_t timeout_ms)
+ void ble_api_job_complete(void)
+ {
+     xSemaphoreTake(s_lock, portMAX_DELAY);
++    s_display_read_window = false;
++    s_display_append_committed = false;
+     transfer_reset();
+     power_activity();
+     s_state = BLE_ST_IDLE;
+diff --git a/src/ble_api.h b/src/ble_api.h
+index 704c26d..56c3be4 100644
+--- a/src/ble_api.h
++++ b/src/ble_api.h
+@@ -19,7 +19,7 @@
+ #define MOINK_EVT_DISPLAY_DONE 0x01   /* arg: 0 成功 / 1 失败 / 2 清理完 / 3 缓存重刷 / 4 图库 */
+ #define MOINK_EVT_BUTTON       0x02   /* arg: 1 单击 / 2 双击 / 3 长按预警 */
+ #define MOINK_EVT_LOW_BATTERY  0x03   /* payload: i16 mv */
+-#define MOINK_EVT_STATE        0x04   /* arg: 新状态 */
++#define MOINK_EVT_STATE        0x04   /* arg: 状态；payload: u8 gallery read flags */
+ #define MOINK_EVT_TRANSFER_GAP 0x05   /* payload: u16 expected_seq */
+ #define MOINK_EVT_STORE_DONE   0x06   /* arg: status; payload: slot,count,current */
+ 
+@@ -33,6 +33,11 @@ typedef enum {
+     BLE_ST_SLEEPING    = 6,
+ } ble_state_t;
+ 
++/* B2.0.1: appended to GET_STATUS and display-window STATE events. */
++#define MOINK_GALLERY_READ_SUPPORTED 0x01u
++#define MOINK_GALLERY_READ_WINDOW    0x02u
++#define MOINK_GALLERY_APPEND_COMMITTED 0x04u
++
+ /* 显示作业类型 */
+ typedef enum {
+     BLE_JOB_FRAME = 1,   /* 刷 ble_api_frame_buf() 里的整帧 */
+@@ -71,6 +76,13 @@ bool    ble_api_connected(void);
+ uint8_t ble_api_state(void);
+ void    ble_api_set_state(uint8_t st);
+ 
++/* display_task only: open after loading/saving, around the EPD operation only.
++ * Closing takes the host command mutex, draining any in-flight gallery read
++ * before the caller changes gallery metadata or writes the recent-frame cache.
++ * The existing refreshing/clearing state and completion events are unchanged.
++ */
++void ble_api_set_display_read_window(bool open, bool append_committed);
++
+ /* 帧缓冲（长度 EPD_MAX_BUF_LEN）。上传写入它，display_task 读它。 */
+ uint8_t *ble_api_frame_buf(void);
+ const uint8_t *ble_api_thumb_buf(void);
+@@ -98,4 +110,4 @@ bool ble_api_request_carousel_show(uint8_t slot);
+ /* 改名后重启广播（广播包里带设备名）。 */
+ void ble_api_restart_adv(void);
+ 
+-#endif /* MOINK_BLE_API_H */
+\ No newline at end of file
++#endif /* MOINK_BLE_API_H */
+diff --git a/src/main.c b/src/main.c
+index c24a4c8..12d0c3f 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -97,6 +97,28 @@ static uint8_t storage_status(esp_err_t err)
+     return 0x0b;
+ }
+ 
++/* The shared upload/display frame remains immutable for this whole operation.
++ * Gallery reads use their own small response buffer. Close the window before
++ * any post-display NVS/current/cache writes, including all failure paths. */
++static int display_with_gallery_reads(const uint8_t *buf, uint16_t w, uint16_t h,
++                                     bool append_committed)
++{
++    ble_api_set_display_read_window(true, append_committed);
++    int result = epd_display_2bpp_wh(buf, w, h);
++    if (result == 0) epd_panel_deep_sleep();
++    ble_api_set_display_read_window(false, false);
++    return result;
++}
++
++static int clear_with_gallery_reads(int cycles)
++{
++    ble_api_set_display_read_window(true, false);
++    int result = epd_clear_cycles(cycles);
++    if (result == 0) epd_panel_deep_sleep();
++    ble_api_set_display_read_window(false, false);
++    return result;
++}
++
+ static void display_task(void *arg)
+ {
+     (void)arg;
+@@ -121,8 +143,7 @@ static void display_task(void *arg)
+             }
+             display_event = !job.no_show;
+             if (!job.no_show && store_err == ESP_OK &&
+-                epd_display_2bpp_wh(buf, job.w, job.h) == 0) {
+-                epd_panel_deep_sleep();
++                display_with_gallery_reads(buf, job.w, job.h, job.save_store != 0) == 0) {
+                 result = 0;
+                 if (job.save_store) store_err = store_set_current(slot);
+                 else if (store_slots() && store_set_current(-1) != ESP_OK) {
+@@ -143,8 +164,7 @@ static void display_task(void *arg)
+                 slot = count ? (current + 1) % count : -1;
+             }
+             if (store_load_frame(slot, buf, EPD_MAX_BUF_LEN, &w, &h) == ESP_OK &&
+-                epd_display_2bpp_wh(buf, w, h) == 0) {
+-                epd_panel_deep_sleep();
++                display_with_gallery_reads(buf, w, h, false) == 0) {
+                 if (store_set_current(slot) == ESP_OK) result = 4;
+                 if (settings_get()->cache_on &&
+                     cache_save(buf, w, h, crc16_of(buf, (uint32_t)(w / 4) * h)) != ESP_OK)
+@@ -158,8 +178,7 @@ static void display_task(void *arg)
+         } else if (job.type == BLE_JOB_CACHE) {
+             uint16_t w = 0, h = 0, crc = 0;
+             if (cache_load(buf, EPD_MAX_BUF_LEN, &w, &h, &crc) == ESP_OK &&
+-                epd_display_2bpp_wh(buf, w, h) == 0) {
+-                epd_panel_deep_sleep();
++                display_with_gallery_reads(buf, w, h, false) == 0) {
+                 result = 3;
+                 if (store_slots() && store_set_current(-1) != ESP_OK) {
+                     result = 1;
+@@ -167,8 +186,7 @@ static void display_task(void *arg)
+                 }
+             }
+         } else if (job.type == BLE_JOB_CLEAR) {
+-            if (epd_clear_cycles(job.cycles) == 0) {
+-                epd_panel_deep_sleep();
++            if (clear_with_gallery_reads(job.cycles) == 0) {
+                 result = 2;
+                 if (store_slots() && store_set_current(-1) != ESP_OK) {
+                     result = 1;
+@@ -420,4 +438,4 @@ void app_main(void)
+     ESP_LOGI(TAG, "ready: BLE '%s', heap %" PRIu32,
+              settings_get()->name[0] ? settings_get()->name : "MoInk-XXXX",
+              esp_get_free_heap_size());
+-}
+\ No newline at end of file
++}
+diff --git a/src/version.h b/src/version.h
+index 2594d7a..9f89c3b 100644
+--- a/src/version.h
++++ b/src/version.h
+@@ -14,6 +14,7 @@
+  *   第三位 +1 —— 修复批（协议不变）
+  *
+  * ────────────────────────────────────────────────────────────────
++ * B2.0.1：刷屏阶段图库只读窗口；兼容尾flags与512字节通知限长。
+  * B2.0.0：ESP-IDF 5.2.2；恢复 8 槽图库、双击/定时切图、图库 BLE API。
+  * 分区表改变，需 USB 迁移；api=1 的旧命令字节布局保持兼容。
+  *
+@@ -36,6 +37,6 @@
+  * ────────────────────────────────────────────────────────────────
+  */
+ #define MOINK_API_VERSION   1
+-#define MOINK_VERSION       "B2.0.0"
++#define MOINK_VERSION       "B2.0.1"
+ 
+-#endif /* MOINK_VERSION_H */
+\ No newline at end of file
++#endif /* MOINK_VERSION_H */
+diff --git a/tests/test_ble_protocol.py b/tests/test_ble_protocol.py
+index 90db4d4..7ffe8b3 100644
+--- a/tests/test_ble_protocol.py
++++ b/tests/test_ble_protocol.py
+@@ -39,6 +39,8 @@ static uint16_t s_fw,s_fh,s_expect,s_chunk,s_crc_calc,s_crc_want,s_thumb_w,s_thu
+ static uint32_t s_framelen,s_recv,s_thumb_len,s_ota_total,s_ota_written,s_ota_erased,s_ota_crc_calc;
+ static uint8_t s_begin_flags,s_thumb_format,s_ota_err;
+ static bool s_gap_notified;
++static bool s_display_read_window;
++static bool s_display_append_committed;
+ static void *s_ota_part,*s_job_q;
+ static void *s_lock=(void*)1;
+ static bool idle_expired;
+@@ -77,8 +79,8 @@ esp_err_t settings_apply(const moink_settings_t*p){applied++;if(apply_error==ESP
+ static void epd_set_panel(epd_panel_t panel){(void)panel;}
+ void ble_api_restart_adv(void){}
+ '''
+-defines='\n'.join(x for x in src.splitlines() if re.match(r'#define (?:ST_|TLV_|MAX_ATT_MTU|MIN_CHUNK|EVT_TRANSFER_GAP)',x))
+-body='\n\n'.join(fn(n) for n in ['rd16','rd32','wr16','wr32','transfer_reset','handle_frame_begin','handle_frame_end','handle_set_settings','store_status','handle_store_list','handle_store_read','on_data','ble_api_prepare_idle_sleep'])
++defines='\n'.join(x for x in src.splitlines() if re.match(r'#define (?:ST_|TLV_|MAX_ATT_MTU|MAX_ATTRIBUTE_VALUE|MAX_GALLERY_READ|MIN_CHUNK|EVT_TRANSFER_GAP)',x))
++body='\n\n'.join(fn(n) for n in ['rd16','rd32','wr16','wr32','gallery_read_flags','gallery_read_allowed','transfer_reset','handle_frame_begin','handle_frame_end','handle_set_settings','store_status','handle_store_list','handle_store_read','on_data','ble_api_prepare_idle_sleep'])
+ main=r'''
+ int main(void){
+  uint8_t image[32],thumb[4]={0,1,2,3},begin[24]={6},data[20]={0};
+diff --git a/tests/test_display_read_window.py b/tests/test_display_read_window.py
+new file mode 100644
+index 0000000..fc200f4
+--- /dev/null
++++ b/tests/test_display_read_window.py
+@@ -0,0 +1,314 @@
++#!/usr/bin/env python3
++"""Compile actual BLE/display functions; model peripherals, not their scheduling.
++
++The close-vs-read test uses a real pthread mutex and a blocked read callback.
++No BLE radio, physical Flash, or screen is exercised by these host checks.
++"""
++from pathlib import Path
++import os
++import re
++import subprocess
++import tempfile
++
++ROOT = Path(__file__).resolve().parents[1]
++ble = (ROOT / "src/ble_api.c").read_text()
++main_source = (ROOT / "src/main.c").read_text()
++
++
++def function(source, name):
++    match = re.search(r'^(?:static )?(?:inline )?[\w *]+\b' + name +
++                      r'\([^\n]*(?:\n[^\{]*)?\)\s*\{', source, re.M)
++    if not match:
++        raise RuntimeError(name)
++    end = source.index('{', match.start())
++    depth, pos = 1, end + 1
++    while depth:
++        depth += (source[pos] == '{') - (source[pos] == '}')
++        pos += 1
++    return source[match.start():pos]
++
++
++def command_case(label):
++    source = function(ble, "on_ctrl")
++    start = source.index("    case " + label + ":")
++    end = source.index("{", start)
++    depth, pos = 1, end + 1
++    while depth:
++        depth += (source[pos] == '{') - (source[pos] == '}')
++        pos += 1
++    return source[start:pos]
++
++
++prefix = r'''
++#define _POSIX_C_SOURCE 200809L
++#include <assert.h>
++#include <pthread.h>
++#include <stdatomic.h>
++#include <setjmp.h>
++#include <stdio.h>
++#include <string.h>
++#include <time.h>
++#include "ble_api.h"
++#include "version.h"
++#include "settings.h"
++#include "store.h"
++#include "crc_util.h"
++#define ESP_LOGE(...) ((void)0)
++#define ESP_LOGW(...) ((void)0)
++#define pdTRUE 1
++#define portMAX_DELAY 0xffffffffu
++#define EPD_MAX_BUF_LEN 120000
++static pthread_mutex_t host_mutex = PTHREAD_MUTEX_INITIALIZER;
++static void *s_lock = &host_mutex;
++static _Thread_local int lock_depth;
++static uint8_t s_state;
++static bool s_display_read_window;
++static bool s_display_append_committed;
++static void *s_job_q = (void *)1;
++static int xSemaphoreTake(void *lock, unsigned wait) {
++    (void)wait; assert(pthread_mutex_lock(lock) == 0); ++lock_depth; return pdTRUE;
++}
++static void xSemaphoreGive(void *lock) {
++    assert(lock_depth == 1); --lock_depth; assert(pthread_mutex_unlock(lock) == 0);
++}
++static uint8_t wire[600];
++static uint16_t wire_len, mtu = 517;
++static uint16_t cur_mtu(void) { return mtu; }
++static void notify_raw(const uint8_t *p, uint16_t n) {
++    assert(n <= 512 && n <= mtu - 3); memcpy(wire, p, n); wire_len = n;
++}
++static int state_events, store_events, display_events;
++static uint8_t event_arg, event_flags;
++static uint8_t opening_flags;
++void ble_api_notify_event(uint8_t e, uint8_t a, const void *p, uint8_t n) {
++    assert(lock_depth == 0);
++    if (e == MOINK_EVT_STATE) {
++        assert(n == 1); state_events++; event_arg = a; event_flags = *(const uint8_t *)p;
++        if (event_flags & MOINK_GALLERY_READ_WINDOW) opening_flags = event_flags;
++    } else if (e == MOINK_EVT_STORE_DONE) {
++        assert(!s_display_read_window); store_events++;
++    } else if (e == MOINK_EVT_DISPLAY_DONE) {
++        assert(!s_display_read_window); display_events++;
++    }
++}
++static moink_settings_t cfg;
++const moink_settings_t *settings_get(void) { return &cfg; }
++static int power_battery_mv(void) { return 3870; }
++static int64_t esp_timer_get_time(void) { return 2000000; }
++static uint32_t esp_get_free_heap_size(void) { return 40000; }
++static uint8_t s_wake_reason;
++static void power_activity(void) {}
++static void transfer_reset(void) {}
++static void power_set_busy(bool busy) { if (!busy) assert(!s_display_read_window); }
++static bool cache_has(void) { return true; }
++static int count = 3, reads, queued, current_writes, cache_writes;
++static uint32_t revision = 9;
++static atomic_bool block_read, read_entered, release_read, close_started, close_done;
++static void pause_ms(void) { struct timespec t = {0, 1000000}; nanosleep(&t, NULL); }
++static void wait_true(atomic_bool *flag) {
++    for (int i = 0; i < 3000 && !atomic_load(flag); ++i) pause_ms();
++    assert(atomic_load(flag));
++}
++int store_slots(void) { return 8; }
++void store_meta_get(int *c, int *cur) { if (c) *c=count; if (cur) *cur=0; }
++uint32_t store_revision(void) { return revision; }
++esp_err_t store_info(int slot, store_info_t *i) {
++    if (slot < 0 || slot >= count) return ESP_ERR_NOT_FOUND;
++    *i=(store_info_t){768,552,0x1234,105984,1,192,138,6624,0x5678}; return ESP_OK;
++}
++esp_err_t store_read(int slot, bool thumb, uint32_t off, void *out, size_t n) {
++    (void)slot; (void)thumb; (void)off; assert(lock_depth == 1); reads++;
++    if (atomic_load(&block_read)) {
++        atomic_store(&read_entered, true); wait_true(&release_read);
++    }
++    memset(out, 0xa5, n); return ESP_OK;
++}
++static int xQueueSend(void *q, const ble_job_t *job, int wait) {
++    (void)q; (void)job; (void)wait; assert(!s_display_read_window); queued++; return pdTRUE;
++}
++static bool fail_store, fail_load, fail_display;
++static uint8_t frame[32];
++uint8_t *ble_api_frame_buf(void) { return frame; }
++const uint8_t *ble_api_thumb_buf(void) { return NULL; }
++esp_err_t store_save_frame(const uint8_t *data, uint16_t w, uint16_t h,
++    uint16_t crc, const uint8_t *thumb, uint32_t len, uint8_t format,
++    uint16_t tw, uint16_t th, int *slot) {
++    (void)data; (void)w; (void)h; (void)crc; (void)thumb;
++    (void)len; (void)format; (void)tw; (void)th;
++    assert(!s_display_read_window); *slot=0; return fail_store ? ESP_FAIL : ESP_OK;
++}
++esp_err_t store_load_frame(int slot, uint8_t *out, size_t cap, uint16_t *w, uint16_t *h) {
++    (void)slot; (void)out; (void)cap; assert(!s_display_read_window);
++    *w=16; *h=8; return fail_load ? ESP_FAIL : ESP_OK;
++}
++static esp_err_t cache_load(uint8_t *out, uint32_t cap, uint16_t *w, uint16_t *h, uint16_t *crc) {
++    *crc=0; return store_load_frame(0, out, cap, w, h);
++}
++esp_err_t store_set_current(int slot) {
++    (void)slot; assert(!s_display_read_window); current_writes++; return ESP_OK;
++}
++static esp_err_t cache_save(const uint8_t *data, uint16_t w, uint16_t h, uint16_t crc) {
++    (void)data; (void)w; (void)h; (void)crc;
++    assert(!s_display_read_window); cache_writes++; return ESP_OK;
++}
++esp_err_t store_delete(int slot) { (void)slot; assert(!s_display_read_window); return ESP_OK; }
++esp_err_t store_clear(void) { assert(!s_display_read_window); return ESP_OK; }
++static int display_calls, sleep_calls;
++static int epd_display_2bpp_wh(const uint8_t *data, uint16_t w, uint16_t h) {
++    (void)data; (void)w; (void)h; assert(s_display_read_window);
++    display_calls++; return fail_display ? -1 : 0;
++}
++static int epd_clear_cycles(int cycles) { return epd_display_2bpp_wh(frame, cycles, 0); }
++static void epd_panel_deep_sleep(void) { assert(s_display_read_window); sleep_calls++; }
++static ble_job_t pending_job;
++static bool job_taken;
++static jmp_buf display_exit;
++bool ble_api_job_wait(ble_job_t *job, uint32_t timeout) {
++    (void)timeout; if (job_taken) longjmp(display_exit, 1);
++    job_taken=true; *job=pending_job; return true;
++}
++'''
++defines = '\n'.join(line for line in ble.splitlines() if re.match(
++    r'#define (?:OP_|ST_|EVT_|MAX_ATT_MTU|MAX_ATTRIBUTE_VALUE|MAX_GALLERY_READ)', line))
++functions = '\n\n'.join(function(ble, n) for n in [
++    'rd16', 'rd32', 'wr16', 'wr32', 'respond', 'gallery_read_flags',
++    'gallery_read_allowed', 'ble_api_set_display_read_window', 'store_status',
++    'queue_job', 'queue_carousel', 'handle_store_list', 'handle_store_read', 'ble_api_job_complete'])
++commands = r'''
++static void command(uint8_t op, const uint8_t *a, uint16_t alen) {
++    uint8_t seq=7; switch (op) {
++'''+ '\n'.join(command_case(label) for label in [
++    'OP_GET_STATUS', 'OP_STORE_INFO', 'OP_CACHE_SHOW', 'OP_STORE_SHOW',
++    'OP_STORE_DELETE', 'OP_GHOST_CLEAR']) + r'''
++    case OP_STORE_LIST: handle_store_list(seq, a, alen); break;
++    case OP_STORE_READ: handle_store_read(seq, a, alen); break;
++    default: assert(0);
++    }
++}
++static void host_command(uint8_t op, const uint8_t *a, uint16_t n) {
++    xSemaphoreTake(s_lock, portMAX_DELAY); command(op,a,n); xSemaphoreGive(s_lock);
++}
++'''
++display = '\n\n'.join(function(main_source, n) for n in [
++    'storage_status', 'display_with_gallery_reads', 'clear_with_gallery_reads', 'display_task'])
++checks = r'''
++static uint8_t request[12];
++static void *reader(void *arg) {
++    (void)arg; host_command(OP_STORE_READ,request,12); return NULL;
++}
++static void *closer(void *arg) {
++    (void)arg; atomic_store(&close_started,true);
++    ble_api_set_display_read_window(false,false); atomic_store(&close_done,true); return NULL;
++}
++static void run_job(uint8_t type, bool save, bool only, bool error_store, bool error_load, bool error_display) {
++    s_state = type==BLE_JOB_CLEAR ? BLE_ST_CLEARING : BLE_ST_REFRESHING;
++    pending_job=(ble_job_t){.type=type,.w=16,.h=8,.save_store=save,.save_cache=1,.no_show=only,.cycles=2};
++    fail_store=error_store; fail_load=error_load; fail_display=error_display;
++    display_calls=sleep_calls=current_writes=cache_writes=0;
++    state_events=store_events=display_events=0; job_taken=false;
++    if (setjmp(display_exit)==0) display_task(NULL);
++    assert(s_state==BLE_ST_IDLE && !s_display_read_window && !s_display_append_committed && lock_depth==0);
++    bool shown=type!=BLE_JOB_STORE_DELETE && type!=BLE_JOB_STORE_CLEAR &&
++        !only && !error_store && !error_load;
++    assert(display_calls==(shown?1:0));
++    assert(state_events==(shown?2:0));
++    if (shown) assert(opening_flags==((type==BLE_JOB_FRAME&&save)?7:3));
++    assert(sleep_calls==(shown&&!error_display?1:0));
++    if (shown&&!error_display) assert(current_writes==1);
++    else assert(current_writes==0 && cache_writes==0);
++    assert(store_events==((save||type==BLE_JOB_STORE_DELETE||type==BLE_JOB_STORE_CLEAR)?1:0));
++    assert(display_events==((only||type==BLE_JOB_STORE_DELETE||type==BLE_JOB_STORE_CLEAR)?0:1));
++}
++int main(void) {
++    uint8_t list[2]={0,1}, slot=0;
++    wr16(request+6,65535); wr32(request+8,revision);
++    const uint8_t states[]={0,1,2,3,4,6};
++    for (unsigned i=0;i<sizeof(states);i++) {
++        s_state=states[i]; s_display_read_window=false; state_events=0;
++        host_command(OP_STORE_INFO,NULL,0); assert(wire[2]==(s_state==0?ST_OK:ST_BUSY));
++        host_command(OP_STORE_LIST,list,2); assert(wire[2]==(s_state==0?ST_OK:ST_BUSY));
++        host_command(OP_STORE_READ,request,12); assert(wire[2]==(s_state==0?ST_OK:ST_BUSY));
++        ble_api_set_display_read_window(true,false);
++        bool active=s_state==3||s_state==4;
++        assert(s_display_read_window==active && state_events==(active?1:0));
++        host_command(OP_GET_STATUS,NULL,0);
++        assert(wire[2]==ST_OK && wire_len==3+27+strlen(MOINK_VERSION)+1);
++        assert(!memcmp(wire+3+27,MOINK_VERSION,strlen(MOINK_VERSION)));
++        assert(wire[wire_len-1]==(active?3:1));
++        if (active) {
++            assert(event_arg==s_state && event_flags==3);
++            ble_api_set_display_read_window(true,false); assert(state_events==1);
++            host_command(OP_STORE_INFO,NULL,0); assert(wire[2]==ST_OK);
++            host_command(OP_STORE_LIST,list,2); assert(wire[2]==ST_OK);
++            host_command(OP_STORE_READ,request,12); assert(wire[2]==ST_OK);
++            const uint8_t writes[]={OP_CACHE_SHOW,OP_STORE_SHOW,OP_STORE_DELETE,OP_STORE_CLEAR,OP_GHOST_CLEAR};
++            int before=queued;
++            for (unsigned k=0;k<sizeof(writes);k++) {
++                host_command(writes[k],&slot,1); assert(wire[2]==ST_BUSY);
++            }
++            assert(queued==before);
++            ble_api_set_display_read_window(true,true);
++            assert(state_events==2 && event_flags==7 && event_arg==s_state);
++            host_command(OP_GET_STATUS,NULL,0); assert(wire[wire_len-1]==7);
++            ble_api_set_display_read_window(false,false);
++            assert(state_events==3 && event_flags==1 && event_arg==s_state);
++            assert(!s_display_append_committed);
++            host_command(OP_STORE_READ,request,12); assert(wire[2]==ST_BUSY);
++        }
++    }
++    puts("PASS: production INFO/LIST/READ gates, status flags, window events, modifying-job BUSY");
++    s_state=BLE_ST_IDLE;
++    const uint16_t mtus[]={23,34,64,185,247,515,516,517};
++    for (unsigned k=0;k<sizeof(mtus)/sizeof(mtus[0]);k++) {
++        mtu=mtus[k];
++        for (int thumb=0;thumb<2;thumb++) {
++            request[1]=thumb; host_command(OP_STORE_READ,request,12);
++            unsigned cap=mtu-19; if(cap>496)cap=496;
++            assert(wire[2]==ST_OK && wire_len==3+13+cap && wire_len<=512);
++        }
++    }
++    uint8_t payload[510]={0}; mtu=517;
++    respond(1,ST_OK,payload,509); assert(wire_len==512&&wire[2]==ST_OK);
++    respond(1,ST_OK,payload,510); assert(wire_len==3&&wire[2]==ST_UNSUPPORTED);
++    puts("PASS: production READ caps and real RSP encoding at 8 MTUs / 512-byte boundary");
++    s_state=BLE_ST_REFRESHING; ble_api_set_display_read_window(true,true);
++    atomic_store(&block_read,true); pthread_t r,c;
++    assert(pthread_create(&r,NULL,reader,NULL)==0); wait_true(&read_entered);
++    assert(pthread_create(&c,NULL,closer,NULL)==0); wait_true(&close_started);
++    for(int i=0;i<20;i++) pause_ms();
++    assert(!atomic_load(&close_done));
++    atomic_store(&release_read,true); assert(pthread_join(r,NULL)==0); assert(pthread_join(c,NULL)==0);
++    assert(atomic_load(&close_done)&&!s_display_read_window&&!s_display_append_committed); atomic_store(&block_read,false);
++    puts("PASS: real pthread host mutex drains an in-flight read before window close returns");
++    ble_api_set_display_read_window(true,true);
++    assert(s_display_read_window&&s_display_append_committed);
++    ble_api_job_complete();
++    assert(s_state==BLE_ST_IDLE&&!s_display_read_window&&!s_display_append_committed);
++    cfg.cache_on=1;
++    run_job(BLE_JOB_FRAME,true,false,false,false,false);
++    run_job(BLE_JOB_FRAME,false,false,false,false,false);
++    run_job(BLE_JOB_FRAME,true,true,false,false,false);
++    run_job(BLE_JOB_FRAME,true,false,true,false,false);
++    run_job(BLE_JOB_FRAME,true,false,false,false,true);
++    run_job(BLE_JOB_STORE_SHOW,false,false,false,false,false);
++    run_job(BLE_JOB_STORE_SHOW,false,false,false,true,false);
++    run_job(BLE_JOB_STORE_SHOW,false,false,false,false,true);
++    run_job(BLE_JOB_CACHE,false,false,false,false,false);
++    run_job(BLE_JOB_CACHE,false,false,false,true,false);
++    run_job(BLE_JOB_CACHE,false,false,false,false,true);
++    run_job(BLE_JOB_CLEAR,false,false,false,false,false);
++    run_job(BLE_JOB_CLEAR,false,false,false,false,true);
++    run_job(BLE_JOB_STORE_DELETE,false,false,false,false,false);
++    run_job(BLE_JOB_STORE_CLEAR,false,false,false,false,false);
++    puts("PASS: 15 actual display_task paths keep load/save/current/cache writes outside the EPD window");
++    return 0;
++}
++'''
++with tempfile.TemporaryDirectory(prefix="moink-display-read-") as temp:
++    test = Path(temp) / "display_read.c"
++    binary = Path(temp) / "display_read"
++    test.write_text(prefix + defines + '\n' + functions + commands + display + checks)
++    subprocess.run([os.environ.get("CC", "cc"), "-std=c11", "-Wall", "-Wextra", "-Werror",
++                    "-pthread", "-I", str(ROOT / "src"), "-I", str(ROOT / "tests/store_stubs"),
++                    str(test), "-o", str(binary)], check=True)
++    subprocess.run([str(binary)], check=True, timeout=20)
+diff --git a/tools/package_firmware.py b/tools/package_firmware.py
+index 41cbe87..70581c3 100644
+--- a/tools/package_firmware.py
++++ b/tools/package_firmware.py
+@@ -13,44 +13,57 @@ build = root / "build-idf522"
+ project = json.loads((build / "project_description.json").read_text())
+ idf_version = re.search(r'^CONFIG_IDF_INIT_VERSION="([^"]+)"$', (build / "sdkconfig").read_text(), re.MULTILINE).group(1)
+ assert idf_version == "5.2.2", idf_version
+-assert project["project_version"] == "B2.0.0", project["project_version"]
+-out = root / "firmware" / "B2.0.0"
++version = re.search(r'^#define MOINK_VERSION\s+"(B\d+\.\d+\.\d+)"$',
++                    (root / "src/version.h").read_text(), re.MULTILINE).group(1)
++assert project["project_version"] == version, project["project_version"]
++app_name = f"moink_{version}_app.bin"
++merged_name = f"moink_{version}_merged.bin"
++out = root / "firmware" / version
+ out.mkdir(parents=True, exist_ok=True)
+ files = {
+     "bootloader.bin": build / "bootloader/bootloader.bin",
+     "partition-table.bin": build / "partition_table/partition-table.bin",
+     "ota_data_initial.bin": build / "ota_data_initial.bin",
+-    "moink_B2.0.0_app.bin": build / "moink_ble.bin",
++    app_name: build / "moink_ble.bin",
+ }
+ for name, source in files.items():
+     shutil.copy2(source, out / name)
+ subprocess.run([
+     sys.executable, "-m", "esptool", "--chip", "esp32c3", "merge_bin",
+-    "-o", str(out / "moink_B2.0.0_merged.bin"), "--flash_mode", "dio",
++    "-o", str(out / merged_name), "--flash_mode", "dio",
+     "--flash_freq", "40m", "--flash_size", "4MB", "--fill-flash-size", "4MB",
+     "0x0", str(out / "bootloader.bin"), "0x8000", str(out / "partition-table.bin"),
+-    "0xd000", str(out / "ota_data_initial.bin"), "0x10000", str(out / "moink_B2.0.0_app.bin")
++    "0xd000", str(out / "ota_data_initial.bin"), "0x10000", str(out / app_name)
+ ], check=True)
+ hashes = {f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted(out.glob("*.bin"))}
+ (out / "SHA256SUMS").write_text("".join(f"{sha}  {name}\n" for name, sha in hashes.items()))
+ (out / "manifest.json").write_text(json.dumps({
+-    "firmware": "B2.0.0", "api": 1, "idf": idf_version, "target": project["target"],
++    "firmware": version, "api": 1, "idf": idf_version, "target": project["target"],
++    "variant": "integrated-board", "default_gpio_preset": 2,
++    "default_pins": {"ADC": 0, "WAKE": 1, "SCK": 4, "MOSI": 3,
++                     "CS": 5, "DC": 6, "RST": 7, "BUSY": 10},
++    "existing_valid_nvs_preserved_on_app_ota": True,
++    "full_erase_or_merged_flash_preserves_data": False,
++    "gallery_read_flags": {"supported": 1, "window_open": 2, "append_committed": 4},
+     "flash_bytes": 0x400000, "ota_slot_bytes": 0x160000,
+-    "app_bytes": (out / "moink_B2.0.0_app.bin").stat().st_size,
++    "app_bytes": (out / app_name).stat().st_size,
+     "usb_migration_required_from": ["R series", "B1.0.0"], "hardware_tested": False,
+     "sha256": hashes
+ }, ensure_ascii=False, indent=2) + "\n")
+-(out / "README.txt").write_text("""MoInk APP/BLE B2.0.0 - ESP-IDF 5.2.2 - ESP32-C3 4 MB
++(out / "README.txt").write_text(f"""MoInk APP/BLE {version} - ESP-IDF 5.2.2 - ESP32-C3 4 MB
+ 
+ 本目录是设备固件，不是手机 APK。尚未进行真机验证。
+ R 系列/B1.0.0 首次迁移必须 USB 全量刷入；先备份旧图片和设置。
+ merged.bin 写入起始地址 0x0。请手动替换 PORT 为实际串口：
+ 
+ python -m esptool --chip esp32c3 --port PORT erase_flash
+-python -m esptool --chip esp32c3 --port PORT write_flash 0x0 moink_B2.0.0_merged.bin
++python -m esptool --chip esp32c3 --port PORT write_flash 0x0 {merged_name}
+ 
+ erase_flash 会清除设备设置、图库和缓存。助手未执行以上硬件命令。
+ app.bin 仅用于已经采用 B2 分区表的设备后续 BLE OTA；不用于 B1/R 在线迁移。
++默认整合板preset2：[ADC,WAKE,SCK,MOSI,CS,DC,RST,BUSY]=[0,1,4,3,5,6,7,10]。
++已有有效NVS配置优先；升级不强制改接线，也不要求清空图库或缓存。
++本版新增显式刷屏图库只读窗口flags；需配合支持该扩展的客户端。
+ 其余 bin 是合并镜像中的独立构件，地址见工程 README 与分区表。
+ SHA256SUMS/manifest.json 可核对文件完整性，验证边界见 ../../validation/RESULTS.md。
+ """)
+diff --git a/tools/test_offline.sh b/tools/test_offline.sh
+index 6c51939..c062395 100644
+--- a/tools/test_offline.sh
++++ b/tools/test_offline.sh
+@@ -5,6 +5,7 @@ sh tests/test_store.sh
+ sh tests/test_settings.sh
+ sh tests/test_cache.sh
+ python3 tests/test_ble_protocol.py
++python3 tests/test_display_read_window.py
+ python3 sdk/test_frame.py
+ python3 sdk/test_ble.py
+ node --experimental-transform-types --test sdk/test_ble.ts
+diff --git a/validation/B2.0.1/RESULTS.md b/validation/B2.0.1/RESULTS.md
+new file mode 100644
+index 0000000..1add2dd
+--- /dev/null
++++ b/validation/B2.0.1/RESULTS.md
+@@ -0,0 +1,42 @@
++# B2.0.1 刷屏图库只读窗口验证
++
++日期：2026-11-21。权威基线为用户指定`robbie-ht/ESP_INK`的
++`4909e4c36172daa1d54a21ae4d4f0d6998eac007`；最新仓库中的ble_api.c/main.c与修改前备份逐字节一致，store.c/epd_drv.c与未修改恢复源码一致。没有把此前中断中的草稿当作已验证固件。
++
++## 实现与边界
++
++- 固件及CMake版本均为B2.0.1，api=1；GET_STATUS版本字符串后兼容追加一字节flags，旧字段不移动。bit0支持、bit1当前只读窗口、bit2本窗口前已成功追加；flags分别为1、3、7。STATE窗口通知保留原arg=3/4并附同样flags，旧客户端可忽略尾字段。
++- main仅在保存/加载完成后，在实际EPD操作及面板deep_sleep周围开放窗口。普通立即显示、图库显示、缓存重刷、清残影为flags3；FRAME保存成功再刷屏为flags7；仅存、存储失败和加载失败不打开。STORE_DONE仍在完整作业末尾，不因bit2提前发成功回执。
++- INFO/LIST/READ仅允许idle或明确窗口。关闭窗口使用与host回调相同的s_lock，等待在途读取结束，再允许current/NVS/cache后处理。窗口关闭与complete均清bit1/bit2。所有修改操作继续要求idle；未放开上传、设置、删除、清空或OTA。
++- 下载使用独立小响应缓冲，不改共享上传/显示帧；store_read保留存储互斥、偏移与CRC检查。READ数据最多min(MTU-19,496)，RSP属性值最多512字节。
++- bit2不包含slot/count/current，不等于最终STORE_DONE。APP若在自己存并显示的窗口迁移旧缓存，仍须同连接/会话、pending追加、count+1、单步revision与全部旧prefix元数据一致，最终回执异常必须撤销推定。参考SDK只增加可选flags解析及496限长，未声称它们已具备APP的并行调度。
++
++## 已通过的离线检查
++
++最终[统一离线日志](offline-tests.log)：
++
++- 实际store.c/settings.c/cache.c的主机模拟及ASan/UBSan检查通过，原容量、CRC、事务、失败保护、preset2默认与有效NVS行为保留。
++- 原生产BLE解析函数提取测试通过；新增测试编译实际窗口/GET_STATUS/INFO/LIST/READ/RSP函数及main显示任务，用真实pthread互斥验证关窗等待在途回调排空。覆盖6种状态门禁、flags1/3/7、窗口开关、修改命令BUSY、complete复位、8种MTU/512边界，以及15条显示任务成功/失败路径中读窗口与存储写入的隔离。
++- 帧编码27项通过；Python SDK16项、TypeScript SDK15项通过，包括旧GET_STATUS缺失尾字段兼容、flags7解析及MTU517下496请求上限。TypeScript使用Node experimental transform执行，未声称独立tsc静态分析。
++
++这些检查模拟Flash、NVS、BLE和屏幕外设，不代表真实无线链路、面板刷新并发、运行堆余量或物理掉电验收。
++
++## 实际构建与打包
++
++[Docker构建日志](build-idf522.log)：固定官方`espressif/idf:v5.2.2`镜像digest构建和链接成功，目标ESP32-C3、固件B2.0.1。配置阶段保留OpenThread子仓库Git ownership诊断，构建命令最终exit0，未改变全局Git配置。没有隐去该诊断或称作日志完全无警告。
++
++APP镜像445136字节，OTA槽0x160000，约69%余量；编译期静态D/IRAM102162字节（31.8%），不等于运行期堆测量。
++
++[打包日志](package.log)与[产物核对](artifact-check.json)：Docker环境生成5个bin及4MiB合并镜像，独立核对SHA、合并镜像4个组件偏移及字节、当前分区表与旧B2.0.0一致。[新固件manifest](../../firmware/B2.0.1/manifest.json)标记variant=integrated-board、默认preset2及引脚[0,1,4,3,5,6,7,10]、hardware_tested=false。
++
++- `moink_B2.0.1_app.bin` SHA256：`1cadab640ee3e09e268f604f1614dbbeeda9d9321b31d647a3fa25036bad2f26`。
++- `moink_B2.0.1_merged.bin` SHA256：`b70146d2c589049884001289db6da8c8a2d3febf0c46fe7cd5d9f9a8d1b97db2`。
++- 其余bin与完整清单见[SHA256SUMS](../../firmware/B2.0.1/SHA256SUMS)。
++
++13份最终构建输入的SHA前后一致；16份受保护文件（含旧B2.0.0目录全部文件及settings/store/cache/epd/power/分区/defaults）未变。证据为[构建输入](build-input-sha256.json)、[受保护基线](preserved-baseline.json)与产物核对。受影响原始16文件及清单保留在[修改前备份](../before-B2.0.1-display-read-20261121T093919Z/manifest.json)。
++
++## 硬件与升级边界
++
++本轮没有连接、擦除或刷写ESP，没有在手机实测刷屏并行高清读取。已有B2分区设备可使用APP镜像按原OTA流程升级；有效NVS配置优先，升级不强制改为preset2。R/B1首次迁移才需USB完整分区迁移。完整merged镜像或erase会覆盖用户数据，不能把“应用升级保留有效NVS”的源码行为解释为全量刷写也保存图片和设置。
++
++首次实机应检查窗口开关通知/GET_STATUS一致性、刷屏中完整HD与CRC、窗口收尾BUSY暂停恢复、存并显示的append证明和最终回执、断线重连，以及A0/A1与电源稳定性。离线通过不替代这些结果。
+diff --git a/validation/B2.0.1/artifact-check.json b/validation/B2.0.1/artifact-check.json
+new file mode 100644
+index 0000000..7866e5d
+--- /dev/null
++++ b/validation/B2.0.1/artifact-check.json
+@@ -0,0 +1,32 @@
++{
++  "firmware": "B2.0.1",
++  "api": 1,
++  "upstream_baseline": "4909e4c36172daa1d54a21ae4d4f0d6998eac007",
++  "unchanged_build_inputs": 13,
++  "unchanged_protected_files": 16,
++  "all_5_binary_hashes_match": true,
++  "merged_bytes": 4194304,
++  "merged_components_match": true,
++  "partition_matches_B2_0_0": true,
++  "variant": "integrated-board",
++  "default_gpio_preset": 2,
++  "default_pins": {
++    "ADC": 0,
++    "WAKE": 1,
++    "SCK": 4,
++    "MOSI": 3,
++    "CS": 5,
++    "DC": 6,
++    "RST": 7,
++    "BUSY": 10
++  },
++  "app_bytes": 445136,
++  "sha256": {
++    "bootloader.bin": "307bf21e9326f67588873d42b4c863d8270032bd62d11ee9a7d740eb6737443e",
++    "moink_B2.0.1_app.bin": "1cadab640ee3e09e268f604f1614dbbeeda9d9321b31d647a3fa25036bad2f26",
++    "moink_B2.0.1_merged.bin": "b70146d2c589049884001289db6da8c8a2d3febf0c46fe7cd5d9f9a8d1b97db2",
++    "ota_data_initial.bin": "7d2c7ac4888bfd75cd5f56e8d61f69595121183afc81556c876732fd3782c62f",
++    "partition-table.bin": "4649f9d9d079fbb38ea157467a0ed813e8d0581a898b4ab901cbb40d3568988e"
++  },
++  "hardware_tested": false
++}
+diff --git a/validation/B2.0.1/build-input-sha256.json b/validation/B2.0.1/build-input-sha256.json
+new file mode 100644
+index 0000000..0b53aae
+--- /dev/null
++++ b/validation/B2.0.1/build-input-sha256.json
+@@ -0,0 +1,15 @@
++{
++  "src/ble_api.c": "620e4b39f96e9f78d87f4846c4c15d6e65ae2d66329ccb129e8fdb6487c5f2ab",
++  "src/ble_api.h": "365362ae1dbc876efd56d85bf4d50f7ad5cd14c17ead287a21b90edd7c314763",
++  "src/main.c": "588b0a2f5f63ab177389d13c1f40a28bb8ef318e7b8315988539eac9aba37e7a",
++  "src/version.h": "0dab65cfd15f3294fd01a804a121d638e264a192f3839074b5e1d8fb1227e3d7",
++  "CMakeLists.txt": "eebd2e65fae3a9db9c725dc4f2f3dc92b260ae04725752f1431cf8cde71c85fb",
++  "src/settings.c": "3776b65295bbb354a2ed6ca4f8c53978942bfdae8162e19a53d15b2dc3570286",
++  "src/settings.h": "16e48bd26028d22810b6382674c860dec7148118c2e8c641e79115467c388eda",
++  "src/store.c": "e2c03018a4f5a4c2903f9f9590f7a138f79da3df54dd11a1a56ee5068bc50256",
++  "src/cache.c": "10435ab108f84a148bacbdb7ff73b4aa8313c3f2dbb67228bc897d142729cf37",
++  "src/epd_drv.c": "3ac51dbbd1949a3d1a06201c46d4bf5c288d3a19331b7b5fbf8bc1035337bf34",
++  "src/power.c": "9169090fcb0d7a9788f30a9e44e3031245129a56f4d3833a5abb4845076e5d18",
++  "partitions.csv": "3957d676118cd03b47b6658254fad17d8efdd4f7a1556e5354cac402e22dfd21",
++  "sdkconfig.defaults": "8b19f24cfbe1c17fd6bfebdeaf1bf2b40f22ef3717d9675279203bbf89423d08"
++}
+diff --git a/validation/B2.0.1/document-check.json b/validation/B2.0.1/document-check.json
+new file mode 100644
+index 0000000..c82e654
+--- /dev/null
++++ b/validation/B2.0.1/document-check.json
+@@ -0,0 +1,6 @@
++{
++  "internal_links_checked": 23,
++  "broken_links": [],
++  "ascii_config_inputs": true,
++  "original_backup_files_intact": 16
++}
+diff --git a/validation/B2.0.1/preserved-baseline.json b/validation/B2.0.1/preserved-baseline.json
+new file mode 100644
+index 0000000..1ce4bba
+--- /dev/null
++++ b/validation/B2.0.1/preserved-baseline.json
+@@ -0,0 +1,18 @@
++{
++  "src/settings.c": "3776b65295bbb354a2ed6ca4f8c53978942bfdae8162e19a53d15b2dc3570286",
++  "src/settings.h": "16e48bd26028d22810b6382674c860dec7148118c2e8c641e79115467c388eda",
++  "src/store.c": "e2c03018a4f5a4c2903f9f9590f7a138f79da3df54dd11a1a56ee5068bc50256",
++  "src/cache.c": "10435ab108f84a148bacbdb7ff73b4aa8313c3f2dbb67228bc897d142729cf37",
++  "src/epd_drv.c": "3ac51dbbd1949a3d1a06201c46d4bf5c288d3a19331b7b5fbf8bc1035337bf34",
++  "src/power.c": "9169090fcb0d7a9788f30a9e44e3031245129a56f4d3833a5abb4845076e5d18",
++  "partitions.csv": "3957d676118cd03b47b6658254fad17d8efdd4f7a1556e5354cac402e22dfd21",
++  "sdkconfig.defaults": "8b19f24cfbe1c17fd6bfebdeaf1bf2b40f22ef3717d9675279203bbf89423d08",
++  "firmware/B2.0.0/README.txt": "5bceb221a5a18ed8621b290692e73c43d1e7dcacf744d8380b3b576a22242620",
++  "firmware/B2.0.0/SHA256SUMS": "4ac637166c2b7ce662614f8bd1fd02d3de9631b7550c94d3e19b90e176756e4e",
++  "firmware/B2.0.0/bootloader.bin": "307bf21e9326f67588873d42b4c863d8270032bd62d11ee9a7d740eb6737443e",
++  "firmware/B2.0.0/manifest.json": "2aa78ae6b0a8c99172cc68f27cec10e1b1eebb0fbec8ef083dd80f590bba24b3",
++  "firmware/B2.0.0/moink_B2.0.0_app.bin": "c1b37e6010c6b610d3db73a007b98c99cce7ea9b753a455a0d7d3cb0009e02c7",
++  "firmware/B2.0.0/moink_B2.0.0_merged.bin": "f293fa23d70ab968cc2d6bb0edab396d54d0cb6fd27e573563197c8425f4b356",
++  "firmware/B2.0.0/ota_data_initial.bin": "7d2c7ac4888bfd75cd5f56e8d61f69595121183afc81556c876732fd3782c62f",
++  "firmware/B2.0.0/partition-table.bin": "4649f9d9d079fbb38ea157467a0ed813e8d0581a898b4ab901cbb40d3568988e"
++}
+diff --git a/validation/RESULTS.md b/validation/RESULTS.md
+index 515eb45..a70ad1b 100644
+--- a/validation/RESULTS.md
++++ b/validation/RESULTS.md
+@@ -1,4 +1,11 @@
+-# B2.0.0 本轮验收记录
++# 固件验证记录
++
++当前B2.0.1（2026-11-21）的实现、离线检查、IDF5.2.2构建及新目录打包结果见
++[B2.0.1记录](B2.0.1/RESULTS.md)。本版仍未连接或刷写硬件。
++
++以下保留B2.0.0历史验收，不把旧版尺寸或测试数量当作本版结果。
++
++# B2.0.0 历史验收记录
+ 
+ 日期：2026-11-17。对象：Moink-APP；参考：同级 moink-R1.3.4。
+ 

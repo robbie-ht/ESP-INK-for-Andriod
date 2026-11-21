@@ -52,6 +52,24 @@ class _GalleryAppendProof {
   final List<Map<String, dynamic>> before;
 }
 
+/// A firmware-advertised successful append before the physical display window.
+/// This is provisional evidence; STORE_DONE still decides the final outcome.
+class _GalleryWindowAppendProof {
+  _GalleryWindowAppendProof(
+    this.client,
+    this.generation,
+    this.before,
+    this.revision,
+    this.jobToken,
+  );
+  final EspInkClient client;
+  final int generation, revision;
+  final List<Map<String, dynamic>> before;
+  final Object jobToken;
+  bool queued = false, attempted = false, syncing = false, migrated = false;
+  Future<void>? sync;
+}
+
 class _GalleryDeleteProof {
   const _GalleryDeleteProof(
     this.client,
@@ -66,6 +84,8 @@ class _GalleryDeleteProof {
   final List<Map<String, dynamic>> before;
 }
 
+class _GalleryReadDeferred implements Exception {}
+
 class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
   EspInkController({NativeBle? nativeBle, ArtworkProcessor? artworkProcessor})
     : _ble = nativeBle ?? NativeBle(),
@@ -75,6 +95,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
   EspInkClient? _client;
   final List<StreamSubscription<dynamic>> _subscriptions = [];
   StreamSubscription<dynamic>? _deviceEvents;
+  StreamSubscription<void>? _galleryReadiness;
   SharedPreferences? _preferences;
   TransferCancellation? _cancellation;
   int _renderRevision = 0;
@@ -131,6 +152,9 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
   SettingsView settings = const SettingsView();
   final List<String> logs = [];
   List<Map<String, dynamic>> _galleryMetadata = [];
+  int? _galleryRevision;
+  _GalleryWindowAppendProof? _galleryWindowAppend;
+  Object? _initialGallerySyncToken;
   int _galleryGeneration = 0;
   Future<void> _galleryReadTail = Future.value();
   Future<void>? _galleryPreload;
@@ -140,6 +164,14 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
   final Set<String> _galleryThumbnailAttempts = {};
   int _galleryBackgroundEpoch = 0;
   bool _activeGalleryReadBackground = false;
+  bool _activeGalleryReadOwnsBusy = false;
+  bool _galleryReadBlocked = false;
+  int _galleryDeviceUpdateRevision = 0;
+  bool _lastGalleryWindowReady = false;
+  bool _galleryMetadataNeedsRefresh = false;
+  Object? _foregroundJobToken;
+  bool _displayReadJobActive = false;
+  bool _displayJobQueued = false;
   bool _appActive = true;
   bool _deviceIdle = false;
   final Map<String, Future<GalleryPreviewResult>> _galleryReads = {};
@@ -150,7 +182,9 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
   Object? _activeGalleryReadToken;
   int _pendingGalleryMutations = 0;
   bool get galleryReading =>
-      _activeGalleryReadToken != null && _pendingGalleryMutations == 0;
+      _activeGalleryReadToken != null &&
+      _foregroundJobToken == null &&
+      _pendingGalleryMutations == 0;
 
   GalleryPreviewStatus galleryPreviewStatus(int slot) =>
       _galleryStatuses[slot] ??
@@ -177,13 +211,22 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
     _statusPollTimer?.cancel();
     _statusPollTimer = null;
     _galleryGeneration++;
+    _galleryReadBlocked = false;
+    _lastGalleryWindowReady = false;
+    _galleryMetadataNeedsRefresh = false;
+    _galleryWindowAppend = null;
+    _initialGallerySyncToken = null;
+    _galleryRevision = null;
     if (_activeGalleryReadToken != null) {
       _activeGalleryReadToken = null;
       _activeGalleryReadBackground = false;
       _galleryBackgroundCancellation = null;
-      busy = false;
-      phase = '';
-      progress = null;
+      if (_activeGalleryReadOwnsBusy) {
+        busy = false;
+        phase = '';
+        progress = null;
+      }
+      _activeGalleryReadOwnsBusy = false;
     }
     _galleryReadTail = Future.value();
     gallery = [];
@@ -542,6 +585,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
       await _ble.stopScan();
       scanning = false;
       await _deviceEvents?.cancel();
+      await _galleryReadiness?.cancel();
       unawaited(_client?.dispose());
       _client = null;
       _resetGallerySession();
@@ -552,6 +596,10 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
       _otaSubmitted = false;
       await _ble.connect(id);
       _client = EspInkClient(_ble);
+      final client = _client!;
+      _galleryReadiness = client.galleryReadinessChanges.listen((_) {
+        if (!_disposed && client == _client) _galleryAvailabilityChanged();
+      });
       _deviceEvents = _client!.events.listen((event) {
         _log('设备事件 0x${event.id.toRadixString(16)} · ${event.arg}');
         if (event.id == 3) {
@@ -561,6 +609,12 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
             if (value > 0) _acceptBattery(value);
           }
           _say('设备电量较低，请充电后再刷新屏幕。');
+        }
+        if (event.id == EventId.state || event.id == EventId.displayDone) {
+          // DISPLAY_DONE is published after the firmware releases its job.
+          // It need not be accompanied by a separate STATE(idle) event.
+          _acceptDeviceState(event.id == EventId.displayDone ? 0 : event.arg);
+          _galleryAvailabilityChanged(deviceUpdate: true);
         }
         _notify();
       });
@@ -582,7 +636,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
       connecting = false;
       _notify();
       _scheduleStatusPoll();
-      _scheduleGalleryBackground();
+      _galleryAvailabilityChanged();
     }
   }
 
@@ -597,6 +651,8 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
     }
     _intentionalDisconnect = true;
     await _ble.disconnect();
+    await _galleryReadiness?.cancel();
+    _galleryReadiness = null;
     unawaited(_client?.dispose());
     _client = null;
     _resetGallerySession();
@@ -620,6 +676,8 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
     if (busy) return;
     _intentionalDisconnect = true;
     await _ble.disconnect();
+    await _galleryReadiness?.cancel();
+    _galleryReadiness = null;
     unawaited(_client?.dispose());
     _client = null;
     demo = true;
@@ -696,7 +754,21 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
       cache: s['cacheOn'] as bool? ?? true,
       wakeShow: s['wakeShow'] as bool? ?? false,
     );
-    if (_deviceIdle) await _loadGallery(append: append);
+    if (_deviceIdle) {
+      await _loadGallery(append: append);
+    } else if (client.galleryReadAvailable && _foregroundJobToken == null) {
+      try {
+        await _loadGallery(onlyWithoutForeground: true);
+      } on EspInkException catch (error) {
+        if (error.status != StatusCode.busy &&
+            error.status != StatusCode.stale) {
+          rethrow;
+        }
+        _galleryMetadataNeedsRefresh = true;
+      }
+    } else if (_galleryMetadata.isEmpty) {
+      _galleryMetadataNeedsRefresh = true;
+    }
   }
 
   void _clearBattery() {
@@ -720,6 +792,11 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
     mtu = status['mtu'] as int? ?? _ble.mtu;
     firmware = status['version'] as String? ?? firmware;
     final state = status['stateCode'] as int? ?? 0;
+    _acceptDeviceState(state);
+    _galleryAvailabilityChanged(deviceUpdate: true);
+  }
+
+  void _acceptDeviceState(int state) {
     _deviceIdle = state == 0;
     deviceState =
         {
@@ -733,6 +810,169 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
         '状态 $state';
   }
 
+  bool get _galleryDeviceReadable =>
+      !_galleryReadBlocked &&
+      _galleryWindowAppend?.syncing != true &&
+      ((_deviceIdle && _foregroundJobToken == null) ||
+          (_client?.galleryReadAvailable == true &&
+              (_foregroundJobToken == null || _displayReadJobActive)));
+
+  bool get _galleryReadCanStart =>
+      !connecting &&
+      _pendingGalleryMutations == 0 &&
+      _activeGalleryReadToken == null &&
+      ((demo && !busy) ||
+          (!demo &&
+              _galleryDeviceReadable &&
+              (!busy ||
+                  (_foregroundJobToken != null &&
+                      _displayReadJobActive &&
+                      _client?.galleryReadAvailable == true))));
+
+  void _galleryAvailabilityChanged({bool deviceUpdate = false}) {
+    final ready = _client?.galleryReadAvailable == true;
+    if (deviceUpdate || (ready && !_lastGalleryWindowReady)) {
+      _galleryDeviceUpdateRevision++;
+    }
+    if ((deviceUpdate && (_deviceIdle || ready)) ||
+        (ready && !_lastGalleryWindowReady)) {
+      _galleryReadBlocked = false;
+    }
+    _lastGalleryWindowReady = ready;
+    _synchronizeWindowAppend();
+    _synchronizeInitialGallery();
+    if (!_galleryDeviceReadable) {
+      _stopGalleryBackground();
+    } else {
+      _scheduleGalleryBackground();
+    }
+    _notify();
+  }
+
+  void _synchronizeInitialGallery() {
+    if (_disposed ||
+        !connected ||
+        connecting ||
+        busy ||
+        _foregroundJobToken != null ||
+        !_galleryDeviceReadable ||
+        !_galleryMetadataNeedsRefresh ||
+        _galleryMetadata.isNotEmpty ||
+        _initialGallerySyncToken != null) {
+      return;
+    }
+    final token = Object();
+    final client = _client;
+    final generation = _galleryGeneration;
+    _initialGallerySyncToken = token;
+    unawaited(() async {
+      try {
+        await _loadGallery(onlyWithoutForeground: true);
+      } catch (error) {
+        if (!_disposed &&
+            client == _client &&
+            generation == _galleryGeneration) {
+          if (error is EspInkException && error.status == StatusCode.busy) {
+            _galleryReadBlocked = true;
+          } else {
+            _log('等待设备图库就绪：$error');
+          }
+        }
+      } finally {
+        if (identical(_initialGallerySyncToken, token)) {
+          _initialGallerySyncToken = null;
+          _scheduleGalleryBackground();
+        }
+      }
+    }());
+  }
+
+  bool _windowAppendAvailable(_GalleryWindowAppendProof proof) =>
+      !_disposed &&
+      identical(_galleryWindowAppend, proof) &&
+      identical(_foregroundJobToken, proof.jobToken) &&
+      proof.client == _client &&
+      proof.generation == _galleryGeneration &&
+      proof.queued &&
+      _displayReadJobActive &&
+      _displayJobQueued &&
+      proof.client.galleryAppendCommitted;
+
+  void _synchronizeWindowAppend() {
+    final proof = _galleryWindowAppend;
+    if (proof == null || proof.attempted || !_windowAppendAvailable(proof)) {
+      return;
+    }
+    proof.attempted = true;
+    proof.syncing = true;
+    proof.sync = () async {
+      try {
+        await _loadGallery(windowAppend: proof);
+      } catch (error) {
+        // A short display window may close between INFO and LIST. Keep the old
+        // cache and let the ordinary final receipt synchronize it afterwards.
+        if (error is! EspInkException ||
+            (error.status != StatusCode.busy &&
+                error.status != StatusCode.stale)) {
+          _log('刷屏窗口同步图库：$error');
+        }
+      } finally {
+        proof.syncing = false;
+        if (identical(_galleryWindowAppend, proof)) {
+          _galleryAvailabilityChanged();
+        }
+      }
+    }();
+    unawaited(proof.sync);
+  }
+
+  bool _storeConfirmsAppend(Map<String, dynamic>? result, int previousCount) {
+    final stored = result?['store'];
+    return result?['stored'] == true &&
+        stored is Map &&
+        stored['status'] == 0 &&
+        stored['slot'] == previousCount &&
+        stored['count'] == previousCount + 1;
+  }
+
+  Future<bool> _completeWindowAppend(
+    _GalleryWindowAppendProof? proof,
+    Map<String, dynamic>? result,
+  ) async {
+    if (proof == null) return false;
+    await proof.sync;
+    if (!identical(_galleryWindowAppend, proof)) return false;
+    _galleryWindowAppend = null;
+    if (proof.migrated &&
+        !_storeConfirmsAppend(result, proof.before.length) &&
+        proof.client == _client &&
+        proof.generation == _galleryGeneration) {
+      // The provisional firmware evidence and the final receipt disagree (or
+      // the receipt is unknown). Do not retain any provisionally trusted PNG.
+      _resetGallerySession();
+      _scheduleStatusPoll();
+      return true;
+    }
+    _galleryAvailabilityChanged();
+    return false;
+  }
+
+  Future<T> _waitForDisplayJob<T>(
+    Future<T> operation, {
+    bool frame = false,
+  }) async {
+    _displayReadJobActive = true;
+    _displayJobQueued = !frame;
+    _galleryAvailabilityChanged();
+    try {
+      return await operation;
+    } finally {
+      _displayReadJobActive = false;
+      _displayJobQueued = false;
+      _galleryAvailabilityChanged();
+    }
+  }
+
   void _scheduleStatusPoll() {
     _statusPollTimer?.cancel();
     _statusPollTimer = null;
@@ -744,7 +984,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
       if (!_disposed &&
           _appActive &&
           connected &&
-          !busy &&
+          (!busy || (_displayReadJobActive && _displayJobQueued)) &&
           !connecting &&
           !_statusPolling &&
           _pendingGalleryMutations == 0) {
@@ -755,6 +995,12 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
               client == _client &&
               generation == _galleryGeneration) {
             _acceptDeviceStatus(status);
+            if ((_deviceIdle || client.galleryReadAvailable) &&
+                !busy &&
+                _initialGallerySyncToken == null &&
+                _galleryMetadataNeedsRefresh) {
+              await _loadGallery(onlyWithoutForeground: true);
+            }
             _notify();
             _scheduleGalleryBackground();
           }
@@ -809,6 +1055,33 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
         items.last['slot'] == proof.before.length;
   }
 
+  bool _verifiedWindowAppend(
+    _GalleryWindowAppendProof proof,
+    Map<String, dynamic> info,
+    List<Map<String, dynamic>> items,
+  ) {
+    if (!_windowAppendAvailable(proof) ||
+        _galleryRevision != proof.revision ||
+        _galleryMetadata.length != proof.before.length ||
+        items.length != proof.before.length + 1 ||
+        info['count'] != items.length) {
+      return false;
+    }
+    final revision = proof.revision == 0xffffffff ? 1 : proof.revision + 1;
+    if (info['revision'] != revision) return false;
+    for (var i = 0; i < proof.before.length; i++) {
+      if (proof.before[i]['slot'] != i ||
+          proof.before[i]['revision'] != proof.revision ||
+          !mapEquals(_galleryMetadata[i], proof.before[i]) ||
+          items[i]['revision'] != revision ||
+          !_sameGalleryContent(proof.before[i], items[i])) {
+        return false;
+      }
+    }
+    return items.last['slot'] == proof.before.length &&
+        items.last['revision'] == revision;
+  }
+
   bool _verifiedDelete(
     _GalleryDeleteProof? proof,
     Map<String, dynamic> info,
@@ -856,23 +1129,41 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> _loadGallery({
     _GalleryAppendProof? append,
     _GalleryDeleteProof? delete,
+    _GalleryWindowAppendProof? windowAppend,
+    bool onlyWithoutForeground = false,
   }) async {
     final client = _client;
     final generation = _galleryGeneration;
     if (client == null) return;
+    bool foregroundAcquired() =>
+        onlyWithoutForeground && _foregroundJobToken != null;
     try {
+      if (foregroundAcquired()) return;
+      if (windowAppend != null && !_windowAppendAvailable(windowAppend)) {
+        return;
+      }
       final info = await client.galleryInfo();
+      if (foregroundAcquired()) return;
+      if (windowAppend != null && !_windowAppendAvailable(windowAppend)) {
+        return;
+      }
       final items = await client.galleryList();
       if (_disposed || generation != _galleryGeneration || client != _client) {
         return;
       }
+      if (foregroundAcquired()) return;
+      final preserveWindow =
+          windowAppend != null &&
+          _verifiedWindowAppend(windowAppend, info, items);
+      // A failed provisional proof must not replace even one old identity.
+      if (windowAppend != null && !preserveWindow) return;
       gallerySupported = true;
       galleryCapacity = info['slots'] as int? ?? 8;
       final old = {for (final item in gallery) item.slot: item};
       final previousMetadata = {
         for (final item in _galleryMetadata) item['slot']: item,
       };
-      final preserveAppend = _verifiedAppend(append, items);
+      final preserveAppend = preserveWindow || _verifiedAppend(append, items);
       final preserveDelete = _verifiedDelete(delete, info, items);
       final previousFullFrames = Map<int, String>.of(_galleryFullFrames);
       final previousFullAttempts = Set<String>.of(_galleryFullAttempts);
@@ -888,6 +1179,13 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
       int previousSlot(int slot) =>
           preserveDelete && slot >= delete!.slot ? slot + 1 : slot;
       _galleryMetadata = items;
+      _galleryRevision =
+          info['count'] == items.length &&
+              items.every((item) => item['revision'] == info['revision'])
+          ? info['revision'] as int?
+          : null;
+      _galleryMetadataNeedsRefresh = false;
+      if (preserveWindow) windowAppend.migrated = true;
       gallery = items
           .map(
             (m) => GalleryItemView(
@@ -976,6 +1274,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
         }
       }
     } on EspInkException catch (e) {
+      if (windowAppend != null) rethrow;
       if (e.status == 1) {
         gallerySupported = false;
         _resetGallerySession();
@@ -1072,17 +1371,14 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
     int generation, {
     bool forRead = true,
   }) async {
-    while (!_disposed &&
-        generation == _galleryGeneration &&
-        (busy || connecting || (forRead && _pendingGalleryMutations > 0))) {
+    bool available() => forRead
+        ? _galleryReadCanStart
+        : !busy && !connecting && _activeGalleryReadToken == null;
+    while (!_disposed && generation == _galleryGeneration && !available()) {
       final ready = Completer<void>();
       _galleryIdleWaiters.add(ready);
       void listener() {
-        if ((_disposed ||
-                generation != _galleryGeneration ||
-                (!busy &&
-                    !connecting &&
-                    (!forRead || _pendingGalleryMutations == 0))) &&
+        if ((_disposed || generation != _galleryGeneration || available()) &&
             !ready.isCompleted) {
           ready.complete();
         }
@@ -1101,6 +1397,54 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<GalleryPreviewResult> _readGalleryPreview(
+    int slot,
+    String identity,
+    int generation,
+    bool fullFrame,
+    bool forceReload,
+    bool background,
+    int backgroundEpoch,
+    Object statusOwner,
+  ) async {
+    for (;;) {
+      try {
+        return await _readGalleryPreviewAttempt(
+          slot,
+          identity,
+          generation,
+          fullFrame,
+          forceReload,
+          background,
+          backgroundEpoch,
+          statusOwner,
+        );
+      } on _GalleryReadDeferred {
+        // The attempt released its token and, when appropriate, its own busy
+        // state. Wait for a fresh device-ready signal before retrying from zero.
+        if (_disposed ||
+            generation != _galleryGeneration ||
+            galleryItemIdentity(slot) != identity) {
+          return const GalleryPreviewResult(changed: true);
+        }
+        if (background) {
+          return GalleryPreviewResult(
+            png: _galleryItem(slot)?.png,
+            fullFrame: _galleryFullFrames[slot] == identity,
+            identity: identity,
+          );
+        }
+        if (identical(_galleryStatusOwners[slot], statusOwner)) {
+          _galleryStatuses[slot] = GalleryPreviewStatus(
+            loading: true,
+            fullFrame: _galleryFullFrames[slot] == identity,
+          );
+          _notify();
+        }
+      }
+    }
+  }
+
+  Future<GalleryPreviewResult> _readGalleryPreviewAttempt(
     int slot,
     String identity,
     int generation,
@@ -1149,7 +1493,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
         abandonQueuedRead();
         return changed;
       }
-      if (busy || connecting || _pendingGalleryMutations > 0) continue;
+      if (!_galleryReadCanStart) continue;
       // There is no await between this final idle check and taking the token.
       break;
     }
@@ -1173,25 +1517,39 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
       return GalleryPreviewResult(error: error, identity: identity);
     }
     final client = _client!;
+    final parallelDisplayRead = client.galleryReadAvailable;
+    final deviceUpdateRevision = _galleryDeviceUpdateRevision;
+    var retryAfterNewState = false;
+    final listed = _galleryMetadata
+        .where((item) => item['slot'] == slot)
+        .firstOrNull;
+    final int? expectedRevision = parallelDisplayRead
+        ? (listed?['revision'] as int?)
+        : null;
     final token = Object();
     final cancellation = background ? TransferCancellation() : null;
     if (background) _galleryBackgroundCancellation = cancellation;
     _activeGalleryReadBackground = background;
+    final ownsBusy = !busy;
+    _activeGalleryReadOwnsBusy = ownsBusy;
     _activeGalleryReadToken = token;
-    busy = true;
-    phase = fullFrame ? '正在读取完整画面' : '正在读取缩略图';
-    progress = null;
+    if (ownsBusy) {
+      busy = true;
+      phase = fullFrame ? '正在读取完整画面' : '正在读取缩略图';
+      progress = null;
+    }
     _notify();
     try {
       Map<String, dynamic>? downloadedMetadata;
       final bytes = await client.galleryDownload(
         slot,
         thumbnail: !fullFrame,
+        expectedRevision: expectedRevision,
         cancellation: cancellation,
         onMetadata: (metadata) => downloadedMetadata = metadata,
         onProgress: (value) {
           if (_disposed || generation != _galleryGeneration) return;
-          progress = value;
+          if (ownsBusy) progress = value;
           _galleryStatuses[slot] = GalleryPreviewStatus(
             loading: true,
             progress: value,
@@ -1209,6 +1567,10 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
           .where((item) => item['slot'] == slot)
           .firstOrNull;
       if (!mapEquals(current, metadata)) {
+        if (parallelDisplayRead) {
+          _markGalleryReadStale(slot, identity, fullFrame, statusOwner);
+          return changed;
+        }
         await _loadGallery();
       }
       if (_disposed || generation != _galleryGeneration || client != _client) {
@@ -1299,19 +1661,38 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
       if (_disposed || generation != _galleryGeneration || client != _client) {
         return changed;
       }
-      final text = _readable(error);
-      if (background &&
-          error is EspInkException &&
-          error.status == StatusCode.busy) {
-        _deviceIdle = false;
-        // A transient device job may finish before the next status poll. Stop
-        // this pass now, but let a later confirmed-idle state retry this image.
+      if (error is EspInkException && error.status == StatusCode.busy) {
+        // A late BUSY from a closed window must not overwrite a newer idle or
+        // reopened-window signal. Permit one retry per new device update.
+        retryAfterNewState =
+            deviceUpdateRevision != _galleryDeviceUpdateRevision &&
+            (_deviceIdle || client.galleryReadAvailable);
+        _galleryReadBlocked = !retryAfterNewState;
+        _stopGalleryBackground();
         if (fullFrame) {
           _galleryFullAttempts.remove(identity);
         } else {
           _galleryThumbnailAttempts.remove(identity);
         }
+        if (parallelDisplayRead || _displayReadJobActive || !_deviceIdle) {
+          if (identical(_galleryStatusOwners[slot], statusOwner)) {
+            _galleryStatuses[slot] = GalleryPreviewStatus(
+              loading: !background,
+              fullFrame: cachedFull,
+            );
+          }
+          // A known display window changing admission is not a failed image.
+          // Foreground waits for a fresh status/window signal; background stops.
+          throw _GalleryReadDeferred();
+        }
       }
+      if (parallelDisplayRead &&
+          error is EspInkException &&
+          error.status == StatusCode.stale) {
+        _markGalleryReadStale(slot, identity, fullFrame, statusOwner);
+        return changed;
+      }
+      final text = _readable(error);
       _log('读取图库 $slot：$text');
       _galleryStatuses[slot] = GalleryPreviewStatus(
         error: text,
@@ -1322,16 +1703,39 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
       if (identical(_activeGalleryReadToken, token)) {
         _activeGalleryReadToken = null;
         _activeGalleryReadBackground = false;
+        _activeGalleryReadOwnsBusy = false;
         if (identical(_galleryBackgroundCancellation, cancellation)) {
           _galleryBackgroundCancellation = null;
         }
-        busy = false;
-        phase = '';
-        progress = null;
+        if (ownsBusy && _foregroundJobToken == null) {
+          busy = false;
+          phase = '';
+          progress = null;
+        }
       }
       _notify();
-      if (!background) _scheduleGalleryBackground();
+      if (!background || retryAfterNewState) _scheduleGalleryBackground();
     }
+  }
+
+  void _markGalleryReadStale(
+    int slot,
+    String identity,
+    bool fullFrame,
+    Object statusOwner,
+  ) {
+    _galleryMetadataNeedsRefresh = true;
+    if (fullFrame) {
+      _galleryFullAttempts.add(identity);
+    } else {
+      _galleryThumbnailAttempts.add(identity);
+    }
+    if (identical(_galleryStatusOwners[slot], statusOwner)) {
+      _galleryStatuses[slot] = GalleryPreviewStatus(
+        fullFrame: _galleryFullFrames[slot] == identity,
+      );
+    }
+    _notify();
   }
 
   void _stopGalleryBackground() {
@@ -1348,11 +1752,8 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
       epoch == _galleryBackgroundEpoch &&
       tabIndex == 1 &&
       connected &&
-      _deviceIdle &&
-      !busy &&
-      !connecting &&
-      !_statusPolling &&
-      _pendingGalleryMutations == 0;
+      _galleryReadCanStart &&
+      !_statusPolling;
 
   void _scheduleGalleryBackground() {
     _galleryBackgroundTimer?.cancel();
@@ -1360,7 +1761,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
         !_appActive ||
         tabIndex != 1 ||
         !connected ||
-        !_deviceIdle ||
+        !_galleryDeviceReadable ||
         _pendingGalleryMutations > 0) {
       return;
     }
@@ -1506,21 +1907,30 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
         for (final item in _galleryMetadata) Map<String, dynamic>.of(item),
       ];
       _GalleryAppendProof? proof(Map<String, dynamic>? result) {
-        final stored = result?['store'];
-        if (!saveGallery ||
-            result?['stored'] != true ||
-            stored is! Map ||
-            stored['status'] != 0 ||
-            stored['slot'] != before.length ||
-            stored['count'] != before.length + 1) {
+        if (!saveGallery || !_storeConfirmsAppend(result, before.length)) {
           return null;
         }
         return _GalleryAppendProof(client, generation, before);
       }
 
+      final windowProof =
+          saveGallery &&
+              !storeOnly &&
+              _galleryRevision != null &&
+              _foregroundJobToken != null
+          ? _GalleryWindowAppendProof(
+              client,
+              generation,
+              before,
+              _galleryRevision!,
+              _foregroundJobToken!,
+            )
+          : null;
+      _galleryWindowAppend = windowProof;
       Map<String, dynamic> result;
+      var invalidatedWindow = false;
       try {
-        result = await client.sendFrame(
+        final sending = client.sendFrame(
           frame,
           saveGallery: saveGallery,
           storeOnly: storeOnly,
@@ -1531,11 +1941,19 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
           },
           onPhase: _transferPhase,
         );
-      } on EspInkException catch (error) {
-        if (error.outcome?['stored'] == true &&
+        result = storeOnly
+            ? await sending
+            : await _waitForDisplayJob(sending, frame: true);
+        invalidatedWindow = await _completeWindowAppend(windowProof, result);
+      } catch (error) {
+        final outcome = error is EspInkException ? error.outcome : null;
+        invalidatedWindow = await _completeWindowAppend(windowProof, outcome);
+        if ((outcome?['stored'] == true || invalidatedWindow) &&
             client == _client &&
-            generation == _galleryGeneration) {
-          await _refreshInternal(append: proof(error.outcome));
+            (generation == _galleryGeneration || invalidatedWindow)) {
+          await _refreshInternal(
+            append: invalidatedWindow ? null : proof(outcome),
+          );
         }
         rethrow;
       }
@@ -1547,11 +1965,15 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
             ? '已保存，屏幕刷新完成'
             : '屏幕刷新完成',
       );
-      await _refreshInternal(append: proof(result));
+      await _refreshInternal(append: invalidatedWindow ? null : proof(result));
     });
   }
 
   void _transferPhase(TransferPhase value) {
+    if (_displayReadJobActive && value == TransferPhase.queued) {
+      _displayJobQueued = true;
+      _galleryWindowAppend?.queued = true;
+    }
     _queued = value != TransferPhase.receiving;
     phase = switch (value) {
       TransferPhase.receiving => '正在传输',
@@ -1560,6 +1982,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
       TransferPhase.finalizing => '正在校验，等待设备受理',
     };
     _notify();
+    if (_displayReadJobActive) _galleryAvailabilityChanged();
   }
 
   void cancelTransfer() {
@@ -1571,7 +1994,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> showGallery(int slot) => _job('正在刷新屏幕', () async {
-    if (!demo) await _client!.galleryShow(slot);
+    if (!demo) await _waitForDisplayJob(_client!.galleryShow(slot));
     gallery = gallery
         .map(
           (g) => GalleryItemView(
@@ -1598,7 +2021,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
           ),
       ];
     } else {
-      await _client!.galleryNext();
+      await _waitForDisplayJob(_client!.galleryNext());
       await _refreshInternal();
     }
   });
@@ -1662,7 +2085,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
   });
   Future<void> showCache() => _job('正在重刷最近画面', () async {
     if (!demo) {
-      await _client!.cacheShow();
+      await _waitForDisplayJob(_client!.cacheShow());
       await _refreshInternal();
     } else {
       _clearGalleryCurrent();
@@ -1671,7 +2094,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
   });
   Future<void> clearGhost({int cycles = 2}) => _job('正在清理残影', () async {
     if (!demo) {
-      await _client!.ghostClear(cycles: cycles);
+      await _waitForDisplayJob(_client!.ghostClear(cycles: cycles));
       await _refreshInternal();
     } else {
       _clearGalleryCurrent();
@@ -1794,6 +2217,10 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> _job(String label, Future<void> Function() body) async {
+    if (_foregroundJobToken != null) {
+      _say('设备正在处理其他操作，请稍后重试');
+      return;
+    }
     _stopGalleryBackground();
     if (_activeGalleryReadToken != null) {
       if (_pendingGalleryMutations > 0) {
@@ -1815,6 +2242,8 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
       return;
     }
     if (!_ready()) return;
+    final jobToken = Object();
+    _foregroundJobToken = jobToken;
     busy = true;
     phase = label;
     progress = null;
@@ -1828,13 +2257,15 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
       _log('$label：$e');
       _say(_readable(e));
     } finally {
-      busy = false;
-      phase = '';
-      progress = null;
-      _cancellation = null;
-      _queued = false;
-      _notify();
-      _scheduleGalleryBackground();
+      if (identical(_foregroundJobToken, jobToken)) {
+        _foregroundJobToken = null;
+        busy = false;
+        phase = '';
+        progress = null;
+        _cancellation = null;
+        _queued = false;
+        _galleryAvailabilityChanged(deviceUpdate: _deviceIdle);
+      }
     }
   }
 
@@ -1910,6 +2341,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
       unawaited(s.cancel());
     }
     unawaited(_deviceEvents?.cancel());
+    unawaited(_galleryReadiness?.cancel());
     unawaited(_client?.dispose());
     unawaited(_ble.dispose());
     super.dispose();

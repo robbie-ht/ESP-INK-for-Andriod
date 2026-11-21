@@ -1,0 +1,13 @@
+{
+  "file": "releases/ESP-INK-1.0.7-android.apk",
+  "bytes": 105292945,
+  "sha256": "21e5a7ff42041138fc1ae49b4686b5bf7e2b5fd23239a1c798e384ce32f1c72a",
+  "zip_entries": 379,
+  "zip_crc_passed": true,
+  "matches_build": true,
+  "abis": [
+    "arm64-v8a",
+    "armeabi-v7a",
+    "x86_64"
+  ]
+}

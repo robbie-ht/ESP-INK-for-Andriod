@@ -1,0 +1,214 @@
+Resolving dependencies...
+Downloading packages...
+  cross_file 0.3.5+5 (0.4.0 available)
+  cupertino_icons 1.0.9 (2.0.0 available)
+  image_picker_ios 0.8.13+15 (0.8.13+16 available)
+  jni 1.1.2 (1.2.1 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.3 (1.19.0 available)
+  shared_preferences_foundation 2.5.7 (2.6.2 available)
+  test_api 0.7.12 (0.7.15 available)
+  vector_math 2.4.0 (2.4.4 available)
+Got dependencies!
+9 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart
+00:00 +0: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: real JPEG and packed 2bpp thumbnail responses become usable previews
+00:00 +1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: identical queued reads deduplicate and full frames never downgrade
+00:00 +2: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: identical queued reads deduplicate and full frames never downgrade
+00:00 +3: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: identical queued reads deduplicate and full frames never downgrade
+00:00 +4: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: identical queued reads deduplicate and full frames never downgrade
+00:00 +5: /home/descfly/桌面/ESP32/APP/test/display_gallery_lane_test.dart: READ completes before display completion for op 32
+00:00 +6: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:00 +7: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:00 +8: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:00 +9: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:00 +10: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:00 +11: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:00 +12: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:00 +13: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:00 +14: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:00 +15: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:00 +16: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:00 +17: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:00 +18: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:00 +19: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:00 +20: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:15 +20 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed [E]
+  Expected: false
+    Actual: <true>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/gallery_controller_test.dart 491:5             main.<fn>
+  
+00:15 +20 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a malformed encoded thumbnail returns an error rather than a broken image
+00:15 +21 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: an already cached demo picture remains usable during a device job
+00:15 +22 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: preload yields to an explicitly opened slot and stops after leaving gallery
+00:15 +23 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a user refresh cancels preload before another thumbnail
+00:15 +24 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: user operation 35 is queued ahead of background thumbnails
+00:15 +25 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: user operation 36 is queued ahead of background thumbnails
+00:15 +26 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: user operation 37 is queued ahead of background thumbnails
+00:15 +27 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: send during prefetch uploads the draft captured when the user clicked
+00:15 +28 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: revisions invalidate cached previews and old slot identities
+00:15 +29 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a late read from a disconnected device cannot populate a new device
+00:15 +30 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: confirmed append preserves downloaded full frames with new identities
+00:16 +31 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: confirmed append revision wrap skips zero and retains full frames
+00:16 +32 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: append with a changed old prefix cannot retain a full-frame cache
+00:16 +33 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: external append does not reuse old cache merely because metadata matches
+00:16 +34 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: saved append retains cache even when the independent display fails
+00:16 +35 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: deleting logical slot never transfers the old full cache to the new occupant
+00:16 +36 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: deleting picture two retains picture one HD without read or display commands
+00:17 +37 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: deleting slot zero migrates two distinct HD previews and current to shifted identities
+00:17 +38 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: deleting the current slot does not mark another cached image as displayed
+00:17 +39 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: delete revision wrap skips zero while preserving verified HD
+00:17 +40 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: deleting the last cached image produces an empty gallery without refreshing the panel
+00:18 +41 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a shifted thumbnail survives deletion and remains eligible for automatic HD
+00:19 +42 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: delete proof rejects inconsistent slot instead of retaining old HD
+00:19 +43 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: delete proof rejects inconsistent count instead of retaining old HD
+00:19 +44 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: delete proof rejects inconsistent current instead of retaining old HD
+00:19 +45 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: delete proof rejects inconsistent revision instead of retaining old HD
+00:19 +46 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: delete proof rejects inconsistent extra mutation instead of retaining old HD
+00:19 +47 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: delete proof rejects inconsistent INFO count instead of retaining old HD
+00:19 +48 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: delete proof rejects inconsistent INFO revision instead of retaining old HD
+00:19 +49 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: same frame CRC cannot validate deletion when thumbnail identity changed
+00:19 +50 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: external deletion without this app completion cannot migrate cached previews
+00:19 +51 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: failed deletion cannot grant a shifted preview a verified cache identity
+00:19 +52 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: gallery automatically fetches thumbnails first then full frames
+00:20 +53 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: leaving gallery stops a background full read after its in-flight block
+00:20 +54 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: background full read yields to user operation at the next block
+00:21 +55 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: background failure is shown once instead of retrying forever
+00:23 +56 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a temporarily invalid voltage keeps the last connection reading and marks it stale
+00:23 +57 -1: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a device busy response stops the remaining automatic full-frame reads
+00:23 +57 -2: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a device busy response stops the remaining automatic full-frame reads [E]
+  Expected: non-empty
+    Actual: <null>
+  NoSuchMethodError: The getter 'isNotEmpty' was called on null.
+  Receiver: null
+  Tried calling: isNotEmpty at #0      Object.noSuchMethod (dart:core-patch/object_patch.dart:38:5)
+  #1      _NotEmpty.matches (package:matcher/src/core_matchers.dart:32:25)
+  #2      _expect (package:matcher/src/expect/expect.dart:176:30)
+  #3      expect (package:matcher/src/expect/expect.dart:65:3)
+  #4      expect (package:flutter_test/src/widget_tester.dart:473:18)
+  #5      main.<anonymous closure> (file:///home/descfly/%E6%A1%8C%E9%9D%A2/ESP32/APP/test/gallery_controller_test.dart:1116:7)
+  <asynchronous suspension>
+  #6      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+  <asynchronous suspension>
+  #7      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+  <asynchronous suspension>
+  #8      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+  <asynchronous suspension>
+  
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/gallery_controller_test.dart 1116:7            main.<fn>
+  
+00:23 +57 -2: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: same-revision metadata replacement cannot reuse a stale full frame
+00:23 +58 -2: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: real low-battery event payload updates the current voltage directly
+00:23 +59 -2: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:24 +59 -3: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy [E]
+  Expected: non-empty
+    Actual: <null>
+  NoSuchMethodError: The getter 'isNotEmpty' was called on null.
+  Receiver: null
+  Tried calling: isNotEmpty at #0      Object.noSuchMethod (dart:core-patch/object_patch.dart:38:5)
+  #1      _NotEmpty.matches (package:matcher/src/core_matchers.dart:32:25)
+  #2      _expect (package:matcher/src/expect/expect.dart:176:30)
+  #3      expect (package:matcher/src/expect/expect.dart:65:3)
+  #4      expect (package:flutter_test/src/widget_tester.dart:473:18)
+  #5      main.<anonymous closure> (file:///home/descfly/%E6%A1%8C%E9%9D%A2/ESP32/APP/test/gallery_controller_test.dart:1160:5)
+  <asynchronous suspension>
+  #6      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+  <asynchronous suspension>
+  #7      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+  <asynchronous suspension>
+  #8      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+  <asynchronous suspension>
+  
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/gallery_controller_test.dart 1160:5            main.<fn>
+  
+00:24 +59 -3: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: background idle wait cannot steal a foreground job through a microtask gap
+00:25 +60 -3: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: foreground read rechecks idle after its await before taking the device
+00:25 +61 -3: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: committed append window retains old HD and reads old and new frames before DISPLAY_DONE
+00:26 +62 -3: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read-only flags do not authorize provisional append cache migration
+00:26 +63 -3: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a failed store final receipt revokes provisional append cache and synchronizes metadata
+00:26 +64 -3: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a wrong slot final receipt revokes provisional append cache and synchronizes metadata
+00:26 +65 -3: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a wrong count final receipt revokes provisional append cache and synchronizes metadata
+00:26 +66 -3: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: B2.0.1 show display wait permits a verified read without replacing foreground status
+00:26 +67 -3: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: B2.0.1 cache display wait permits a verified read without replacing foreground status
+00:26 +68 -3: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: B2.0.1 ghost display wait permits a verified read without replacing foreground status
+00:26 +69 -3: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: B2.0.1 send display wait permits a verified read without replacing foreground status
+00:26 +69 -4: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: B2.0.1 send display wait permits a verified read without replacing foreground status [E]
+  Expected: every element((bool, String, double):<(true, 正在传输, 0.1539855072463768)>)
+    Actual: [
+              (bool, String, double):(true, 正在传输, 0.1539855072463768),
+              (bool, String, double):(true, 正在传输, 0.15879755434782608),
+              (bool, String, double):(true, 正在传输, 0.16360960144927536),
+              (bool, String, double):(true, 正在传输, 0.16842164855072464),
+              (bool, String, double):(true, 正在传输, 0.17323369565217392),
+              (bool, String, double):(true, 正在传输, 0.1780457427536232),
+              (bool, String, double):(true, 正在传输, 0.18285778985507245),
+              (bool, String, double):(true, 正在传输, 0.18766983695652173),
+              (bool, String, double):(true, 正在传输, 0.192481884057971),
+              (bool, String, double):(true, 正在传输, 0.1972939311594203),
+              (bool, String, double):(true, 正在传输, 0.20210597826086957),
+              (bool, String, double):(true, 正在传输, 0.20691802536231885),
+              (bool, String, double):(true, 正在传输, 0.21173007246376813),
+              (bool, String, double):(true, 正在传输, 0.21654211956521738),
+              (bool, String, double):(true, 正在传输, 0.22135416666666666),
+              (bool, String, double):(true, 正在传输, 0.22616621376811594),
+              (bool, String, double):(true, 正在传输, 0.23097826086956522),
+              (bool, String, double):(true, 正在传输, 0.2357903079710145),
+              (bool, String, double):(true, 正在传输, 0.24060235507246377),
+              (bool, String, double):(true, 正在传输, 0.24541440217391305),
+              (bool, String, double):(true, 正在传输, 0.2502264492753623),
+              (bool, String, double):(true, 正在传输, 0.2550384963768116),
+              (bool, String, double):(true, 正在传输, 0.25985054347826086),
+              (bool, String, double):(true, 正在传输, 0.26466259057971014),
+              ...
+            ]
+     Which: has value (bool, String, double):<(true, 正在传输, 0.15879755434782608)> which doesn't match (bool, String, double):<(true, 正在传输, 0.1539855072463768)> at index 1
+  A display-window read may update its card only
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/gallery_controller_test.dart 1500:11           main.<fn>
+  
+00:26 +69 -4: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: legacy firmware display wait cannot read until the display finishes
+00:26 +70 -4: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: gallery reads wait through upload and store-only work despite supported firmware
+00:26 +70 -5: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: gallery reads wait through upload and store-only work despite supported firmware [E]
+  Expected: <3>
+    Actual: <1>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/gallery_controller_test.dart 1565:5            main.<fn>
+  
+00:26 +70 -5: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: external upload state does not open a gallery read window
+00:26 +71 -5: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: external OTA state does not open a gallery read window
+00:26 +72 -5: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: GET_STATUS and STATE open external refresh reads only for the advertised window
+00:26 +73 -5: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: closing a background display window cancels after the in-flight block and later resumes
+00:28 +74 -5: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: display completion and a following deletion drain the pending background reply first
+00:29 +75 -5: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a parallel display-window download still rejects a corrupted full-frame CRC
+00:29 +76 -5: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a revision change while a parallel read is in flight cannot publish the wrong image
+00:29 +76 -6: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a revision change while a parallel read is in flight cannot publish the wrong image [E]
+  Expected: contains '图库已变化'
+    Actual: '图库或设备已变化，请返回图库重新打开'
+     Which: does not contain '图库已变化'
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/gallery_controller_test.dart 1721:5            main.<fn>
+  
+00:29 +76 -6: Some tests failed.
+
+Failing tests:
+  /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: B2.0.1 send display wait permits a verified read without replacing foreground status
+  /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a device busy response stops the remaining automatic full-frame reads
+  /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a revision change while a parallel read is in flight cannot publish the wrong image
+  /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: gallery reads wait through upload and store-only work despite supported firmware
+  ... and 2 more

@@ -1,0 +1,6 @@
+Analyzing lib, test...
+
+   info - test/gallery_controller_test.dart:122:9 - Use the null-aware marker '?' rather than a null check via an 'if'. Try using '?'. - use_null_aware_elements
+   info - test/gallery_controller_test.dart:183:11 - Use the null-aware marker '?' rather than a null check via an 'if'. Try using '?'. - use_null_aware_elements
+
+2 issues found.

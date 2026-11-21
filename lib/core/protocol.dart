@@ -180,6 +180,47 @@ class EspInkClient {
   final _disconnected = Completer<void>();
   Future<void> _ctrlTail = Future.value();
   Future<void> _jobTail = Future.value();
+  Future<void> _galleryReadTail = Future.value();
+  final _galleryReadiness = StreamController<void>.broadcast(sync: true);
+  int _pendingJobs = 0;
+  bool _requiresGalleryWindow = false;
+  bool _localDisplayWait = false;
+  bool _firmwareGalleryReadReady = false;
+  bool _firmwareGalleryReadSupported = false;
+  bool _firmwareGalleryAppendCommitted = false;
+  int _windowRevision = 0;
+  int? _reportedState;
+
+  /// Only a firmware-advertised physical display window can overlap a job.
+  /// Idle gallery reads use their normal lane and do not require this feature.
+  bool get galleryReadAvailable =>
+      !_closed &&
+      _firmwareGalleryReadReady &&
+      (_pendingJobs == 0 || (_pendingJobs == 1 && _localDisplayWait));
+  bool get galleryAppendCommitted =>
+      galleryReadAvailable && _firmwareGalleryAppendCommitted;
+  Stream<void> get galleryReadinessChanges => _galleryReadiness.stream;
+
+  void _readinessChanged() {
+    if (!_closed) _galleryReadiness.add(null);
+  }
+
+  void _acceptGalleryWindow(int state, int flags) {
+    _firmwareGalleryReadSupported = (flags & 1) != 0;
+    _firmwareGalleryReadReady =
+        _firmwareGalleryReadSupported &&
+        (flags & 2) != 0 &&
+        (state == 3 || state == 4);
+    _firmwareGalleryAppendCommitted =
+        _firmwareGalleryReadReady && (flags & 4) != 0;
+    _readinessChanged();
+  }
+
+  void _displayWait(bool waiting) {
+    _localDisplayWait = waiting;
+    _readinessChanged();
+  }
+
   var _seq = 0;
   var _closed = false;
   var _uncertain = false;
@@ -225,6 +266,7 @@ class EspInkClient {
     await _notifications.cancel();
     await _connection.cancel();
     await _events.close();
+    await _galleryReadiness.close();
   }
 
   Future<void> disconnect() async {
@@ -262,28 +304,91 @@ class EspInkClient {
         waiter.done.complete(_EventOutcome.event(event));
       }
     }
+    if (event.id == EventId.state) {
+      _windowRevision++;
+      _reportedState = event.arg;
+      _acceptGalleryWindow(
+        event.arg,
+        event.payload.isEmpty ? 0 : event.payload[0],
+      );
+    } else if (event.id == EventId.displayDone) {
+      _windowRevision++;
+      _reportedState = 0;
+      _firmwareGalleryReadReady = false;
+      _readinessChanged();
+    }
     _events.add(event);
   }
 
-  Future<T> _exclusive<T>(Future<T> Function() action, {bool modifies = true}) {
-    final result = _jobTail.then((_) async {
+  Future<T> _exclusive<T>(Future<T> Function() action) {
+    // Snapshot only preceding reads. Later reads wait behind this job unless
+    // this exact job reaches an advertised display-only window.
+    final precedingReads = _galleryReadTail;
+    _pendingJobs++;
+    final result = _jobTail
+        .then((_) async {
+          await precedingReads;
+          _checkLink();
+          // An earlier display window cannot authorize the next mutation job.
+          _firmwareGalleryReadReady = false;
+          _windowRevision++;
+          if (_uncertain) {
+            throw EspInkException(
+              '作业',
+              '上一操作结果待确认，请重新连接并核对设备后再操作',
+              resultUnknown: true,
+            );
+          }
+          try {
+            return await action();
+          } on EspInkException catch (e) {
+            if (e.resultUnknown) _uncertain = true;
+            rethrow;
+          }
+        })
+        .whenComplete(() {
+          _pendingJobs--;
+          _readinessChanged();
+        });
+    _jobTail = result.then<void>((_) {}, onError: (Object _, StackTrace _) {});
+    // Publish the barrier before a synchronous listener can queue a read.
+    _readinessChanged();
+    return result;
+  }
+
+  Future<T> _galleryRead<T>(Future<T> Function() action) {
+    final windowRead = galleryReadAvailable;
+    final jobs = windowRead ? Future<void>.value() : _jobTail;
+    final precedingReads = _galleryReadTail;
+    final result = () async {
+      await jobs;
+      await precedingReads;
       _checkLink();
-      if (modifies && _uncertain) {
-        throw EspInkException(
-          '作业',
-          '上一操作结果待确认，请重新连接并核对设备后再操作',
-          resultUnknown: true,
-        );
-      }
+      _requiresGalleryWindow = windowRead;
       try {
         return await action();
-      } on EspInkException catch (e) {
-        if (modifies && e.resultUnknown) _uncertain = true;
-        rethrow;
+      } finally {
+        _requiresGalleryWindow = false;
       }
-    });
-    _jobTail = result.then<void>((_) {}, onError: (Object _, StackTrace _) {});
+    }();
+    _galleryReadTail = result.then<void>(
+      (_) {},
+      onError: (Object _, StackTrace _) {},
+    );
     return result;
+  }
+
+  void _checkGalleryReadWindow() {
+    _checkLink();
+    // A close event drains the RSP already in flight before the next block.
+    // Mutations stay queued behind the complete read future.
+    if (_requiresGalleryWindow && !_firmwareGalleryReadReady) {
+      throw EspInkException(
+        'CAROUSEL_READ',
+        '屏幕作业暂时关闭读图窗口',
+        status: StatusCode.busy,
+      );
+    }
   }
 
   Future<_Reply> _command(
@@ -385,13 +490,25 @@ class EspInkClient {
   }
 
   Future<Map<String, dynamic>> getStatus() async {
+    final windowRevision = _windowRevision;
     final p = await _call(Op.getStatus);
     _need(p, 27, 'GET_STATUS');
     _need(p, 27 + p[26], 'GET_STATUS');
     final battery = ByteData.sublistView(p).getInt16(3, Endian.little);
+    final extension = 27 + p[26];
+    if (windowRevision == _windowRevision) {
+      _reportedState = p[1];
+      _acceptGalleryWindow(p[1], p.length > extension ? p[extension] : 0);
+    }
+    // A STATE/DISPLAY_DONE received after this request is newer than its RSP.
+    final state = _reportedState ?? p[1];
     return {
+      'galleryReadSupported': _firmwareGalleryReadSupported,
+      'galleryReadReady': _firmwareGalleryReadReady,
+      'galleryAppendCommitted':
+          _firmwareGalleryAppendCommitted && _firmwareGalleryReadReady,
       'api': p[0],
-      'stateCode': p[1],
+      'stateCode': state,
       'state':
           const {
             0: 'idle',
@@ -400,7 +517,7 @@ class EspInkClient {
             3: 'refreshing',
             4: 'clearing',
             6: 'sleeping',
-          }[p[1]] ??
+          }[state] ??
           'unknown',
       'panel': p[2],
       'batteryMv': battery > 0 ? battery : null,
@@ -469,11 +586,12 @@ class EspInkClient {
   }
 
   Future<List<Map<String, dynamic>>> galleryList() =>
-      _exclusive(_galleryList, modifies: false);
+      _galleryRead(_galleryList);
   Future<List<Map<String, dynamic>>> _galleryList({
     TransferCancellation? cancellation,
   }) async {
     _checkCancellation(cancellation);
+    _checkGalleryReadWindow();
     final info = await galleryInfo();
     _checkCancellation(cancellation);
     final count = info['count'] as int, revision = info['revision'] as int;
@@ -481,6 +599,7 @@ class EspInkClient {
     while (items.length < count) {
       _checkCancellation(cancellation);
       final start = items.length;
+      _checkGalleryReadWindow();
       final p = await _call(Op.galleryList, [start, count - start]);
       _checkCancellation(cancellation);
       _need(p, 6, 'CAROUSEL_LIST');
@@ -524,10 +643,11 @@ class EspInkClient {
   Future<Uint8List> galleryDownload(
     int slot, {
     bool thumbnail = false,
+    int? expectedRevision,
     TransferCancellation? cancellation,
     void Function(double)? onProgress,
     void Function(Map<String, dynamic>)? onMetadata,
-  }) => _exclusive(() async {
+  }) => _galleryRead(() async {
     _checkCancellation(cancellation);
     _range(slot, 0, 7, 'slot');
     final items = await _galleryList(cancellation: cancellation);
@@ -541,6 +661,13 @@ class EspInkClient {
       );
     }
     final item = found.first;
+    if (expectedRevision != null && item['revision'] != expectedRevision) {
+      throw EspInkException(
+        'CAROUSEL_READ',
+        '图库版本变化，请等待同步完成',
+        status: StatusCode.stale,
+      );
+    }
     final total = item[thumbnail ? 'thumbnailLen' : 'len'] as int;
     final expectedCrc = item[thumbnail ? 'thumbnailCrc16' : 'crc16'] as int;
     final format = thumbnail ? item['thumbnailFormat'] as int : 1;
@@ -565,6 +692,7 @@ class EspInkClient {
       v.setUint32(2, offset, Endian.little);
       v.setUint16(6, requested, Endian.little);
       v.setUint32(8, item['revision'] as int, Endian.little);
+      _checkGalleryReadWindow();
       final p = await _call(Op.galleryRead, args);
       // Drain any already-sent request before releasing the job queue. A read
       // has no device-side transaction to ABORT, and its reply must not leak
@@ -596,13 +724,14 @@ class EspInkClient {
     }
     onMetadata?.call(Map<String, dynamic>.unmodifiable(item));
     return data;
-  }, modifies: false);
+  });
 
   Future<void> _display(int op, List<int> args, int success) =>
       _exclusive(() async {
         final waiter = _arm(EventId.displayDone, {1, success});
         try {
           await _call(op, args, true);
+          _displayWait(true);
           final event = await _awaitEvent(waiter, completionTimeout);
           _exact(event.payload, 0, 'DISPLAY_DONE');
           if (event.arg == 1) {
@@ -613,6 +742,7 @@ class EspInkClient {
             );
           }
         } finally {
+          _displayWait(false);
           _waiters.remove(waiter);
         }
       });
@@ -725,6 +855,7 @@ class EspInkClient {
           _phase(onPhase, TransferPhase.receiving);
         },
       );
+      if (!storeOnly) _displayWait(true);
       _phase(onPhase, TransferPhase.queued);
       final result = <String, dynamic>{
         'queued': true,
@@ -774,6 +905,7 @@ class EspInkClient {
       }
       rethrow;
     } finally {
+      _displayWait(false);
       _receivingData = false;
       if (store != null) _waiters.remove(store);
       if (display != null) _waiters.remove(display);

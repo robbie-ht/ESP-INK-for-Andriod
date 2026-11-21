@@ -1,48 +1,43 @@
-# ESP-INK 1.0.6 验证记录
+# ESP-INK 1.0.7与ESP_INK B2.0.1验证记录
 
-日期：2026-11-21，版本1.0.6+7，Android应用ID仍为io.github.robbieht.espink。参考项目：[atunverse/moink](https://github.com/atunverse/moink)。历史[1.0.5验证记录](verification-logs/1.0.5/VERIFICATION-1.0.5.txt)及旧APK/源码归档保留。
+日期：2026-11-21。APP为1.0.7+8、Android应用ID `io.github.robbieht.espink`。固件基线为用户给出的 [ESP_INK / 4909e4c](https://github.com/robbie-ht/ESP_INK/tree/4909e4c36172daa1d54a21ae4d4f0d6998eac007)，关键源码与恢复目录修改前逐字节一致。历史[1.0.6记录](verification-logs/1.0.6/VERIFICATION-1.0.6.txt)及旧APK/源码保留。
 
-## 本次行为
+## APP回归与实现
 
-- A预览区先弹出底部类型选择窗。选拍立得后打开系统相册B，成功进入固定照片编辑C1；选便签直接进入固定便签编辑C2。C1含照片、裁切旋转、留白、滤镜与文字，C2仅底色和文字。两页不再切类型，文字列表独立。完成返回A后，调整按钮按当前draft.kind直达C1或C2，不重复弹窗或选图。取消选择保留原模式和草稿；选便签会使迟到的丢失照片恢复失效。
-- 删除图二后，图一已缓存PNG和高清状态保留，不再清空卡片或重新读图。确认本APP成功单次删除后，验证同会话、回执、完整旧快照、数量、单步revision（含回绕）、INFO/LIST与剩余元数据映射，按删除位置迁移slot与缓存。缩略图仍可空闲补高清；外部修改、异常回执/版本/元数据继续失效保护。删除不调用屏幕显示命令，用户本次反馈明确指APP预览重载。
+最终统一 **389项全部通过**：[tests.log](verification-logs/1.0.7/tests.log)。相对1.0.6新增18项协议和20项控制器回归。Dart分析No issues found：[analyze.log](verification-logs/1.0.7/analyze.log)。
 
-## 自动检查
+覆盖真实客户端的CTRL序号匹配、显示等待、分片元数据和CRC；验证show/cache/ghost/send窗口内HD在DISPLAY_DONE前完成且刷屏busy/phase/progress保持；旧固件和上传/存储/OTA不放开；窗口关闭排空在途响应后停止后续片段；后来排队修改不越过读尾；事件早于RSP、状态响应晚于STATE/DONE、同步readiness监听器重入及断连；flags1/3/7兼容与独立窗口追加证据；最终保存失败/错slot/count撤销暂存；已有追加/删除缓存、编辑器、相册和电压回归保留。
 
-最终统一 **351项全部通过**：[tests.log](verification-logs/1.0.6/tests.log)。相对1.0.5新增24项：16项删除缓存、5项模式导航、2项便签与照片恢复竞争及1项隐藏照片文字后便签正常显示。Dart分析No issues found：[analyze.log](verification-logs/1.0.6/analyze.log)。
+最后新增[迟到BUSY定向检查](verification-logs/1.0.7/busy-done-race-test.log)：DISPLAY_DONE已到后，旧BUSY不能重新阻塞读图；无新增GET_STATUS，2秒内恢复，严格核对一次BUSY加完整分片、CRC与同一身份，maxActiveReads=1。已重新运行389项与Android构建。前388项和49.1秒APK只是中间结果，记录为before-readiness-race-fix-*，没有发布。
 
-删除核心回归逐次监听通知，断言图一PNG始终是同一对象、高清及current保留；空闲650ms后无READ，命令只有DELETE/INFO/LIST。覆盖三图删除首项后的不同PNG/高清映射、当前项、空库、revision回绕、缩略图自动补高清、7种证明不一致、同frame CRC但缩略图变更、外部删除和失败不盲迁移。原slot错图保护、追加缓存及全部协议/图像/裁切/后台读取/电压回归保留。
+排队读若跨追加使revision变化，会返回changed，再以新身份重新请求，不能静默拼接不同版本。STORE_DONE仍在完整作业末尾，flags7不替代最终回执。详细契约见[刷屏读取说明](刷屏期间读取图库.md)。
 
-模式回归覆盖先选类型才打开相册、便签不打开相册、弹窗取消整稿不变、独立页工具隔离、重进记住模式、两组文字独立，以及选便签对迟到恢复的保护。Android选图使用真实控制器+mock MethodChannel和XFile，不等于启动了Android系统相册或Activity回收实测。
+88份最终编译/测试输入在检查及构建前后SHA一致：[build-inputs.json](verification-logs/1.0.7/build-inputs.json)、[input-check.json](verification-logs/1.0.7/input-check.json)。本次改动集中于协议和控制器，未改变页面布局，未把旧Web演示截图当作BLE并行实测。
 
-87份最终编译/测试输入、64份Web非测试输入前后SHA不变：[build-inputs.json](verification-logs/1.0.6/build-inputs.json)、[web-inputs.json](verification-logs/1.0.6/web-inputs.json)、[input-check.json](verification-logs/1.0.6/input-check.json)。缓存修复中间343项已通过，证据保留cache-first-*；随后加入新模式流程，最终结果以351项统一记录为准。
+## Android产物
 
-## Web实际操作
+使用 `ESP_INK_CACHE_DIR=/mnt/data/moink-flutter-work/docker-cache ./tool/build_android.sh apk`，固定flutter-android:3.47.8、Flutter3.47.8/Dart3.13.7/JDK17/SDK36。实际assembleRelease成功：[android-build.log](verification-logs/1.0.7/android-build.log)。保留SDK XML3/4提示及插件SDK35安装记录；未关闭TLS。宿主pub环境已恢复。
 
-Web Release实际 **18.9秒**构建成功：[web-build.log](verification-logs/1.0.6/web-build.log)。390×844实际走通A类型弹窗→便签C2→改黄色底→完成回A→调整直达同一C2；再从A选拍立得，实际浏览器file chooser选择本地PNG进入C1，完成回A，再调整直达C1。C1无便签类型开关，C2无照片工具；便签保留一段文字，照片为独立空文字列表。
+[APK](../releases/ESP-INK-1.0.7-android.apk)与实际build副本一致，379条ZIP CRC通过、包含arm64-v8a/armeabi-v7a/x86_64。字节数和SHA见[完整性记录](verification-logs/1.0.7/apk-integrity.json)。[aapt](verification-logs/1.0.7/apk-badging.log)确认ESP-INK、1.0.7/code8、min24/target36与原包ID；[验签](verification-logs/1.0.7/apk-signature.log)确认v2有效且沿用1.0.4至1.0.6的开发测试证书。未执行手机覆盖安装，不是商店发行签名。
 
-[模式弹窗](previews/1.0.6/a-mode-sheet.jpg)、[便签C2](previews/1.0.6/c2-note.jpg)、[A便签](previews/1.0.6/a-note.jpg)、[重进C2](previews/1.0.6/c2-reopened.jpg)、[照片C1](previews/1.0.6/c1-photo.jpg)、[A照片](previews/1.0.6/a-photo.jpg)、[重进C1](previews/1.0.6/c1-reopened.jpg)。另有A空白首页，共8张实际截图。
+## 固件与复制核验
 
-[操作记录](verification-logs/1.0.6/before-final-followup-browser-check.json)、[控制台](verification-logs/1.0.6/before-final-followup-browser-console.json)：无error，仅CPU渲染fallback警告，不代表Android性能。本次没有实体BLE，因此图库缓存行为由协议/控制器回归验证，没有将演示或Web截图当设备删除实测。
+[B2.0.1完整验证记录](../firmware/B2.0.1/source/validation/B2.0.1/RESULTS.md)包含实际store/settings/cache主机错误注入、生产BLE函数提取、真实pthread互斥排空、6种状态/8种MTU/15条显示任务路径、帧编码27项、Python SDK16项及TypeScript SDK15项。TypeScript以Node experimental transform执行，未声称独立tsc分析。外设仍为模拟。
 
-模式浏览器截图/操作记录在350项阶段采集；随后补便签显字修复与移除电池旧读数副标题，最终351项与Web/Android均重新构建。所示模式页面布局未再改动。电压UI回归确认3.87V仍保留且已删除文案不存在；内部采样与轮询逻辑未改。
+ESP-IDF5.2.2 Docker实际编译/链接成功，app445136B，静态D/IRAM102162B；这不代表运行期堆测量。配置阶段保留第三方OpenThread Git ownership非致命诊断，最终exit0，不能称作完全无警告。5个bin及4MiB合并镜像组件/偏移/SHA检查通过，当前分区表与旧B2.0.0同字节。
 
-## Android实际构建
+[OTA应用镜像](../firmware/B2.0.1/moink_B2.0.1_app.bin) SHA256为 `1cadab640ee3e09e268f604f1614dbbeeda9d9321b31d647a3fa25036bad2f26`；[manifest](../firmware/B2.0.1/manifest.json)记录integrated-board/preset2及引脚[0,1,4,3,5,6,7,10]、hardware_tested=false。有效NVS优先行为及分区不变，13份最终构建输入、16份保护文件不变。
 
-`ESP_INK_CACHE_DIR=/mnt/data/moink-flutter-work/docker-cache ./tool/build_android.sh apk`，Docker flutter-android:3.47.8，Flutter3.47.8 / Dart3.13.7 / JDK17 / SDK36。实际assembleRelease **40.1秒**成功：[android-build.log](verification-logs/1.0.6/android-build.log)。SDK XML3/4警告及插件安装SDK35记录保留，未关闭TLS，宿主pub环境已恢复。
-
-- [ESP-INK-1.0.6-android.apk](../releases/ESP-INK-1.0.6-android.apk)，105129105 bytes，与实际build副本SHA相同：`0994edd00f4852a2aa652c0677e341de6b952a497dd99f07444f2c5df89cc59e`。
-- [aapt](verification-logs/1.0.6/apk-badging.log)：ESP-INK，io.github.robbieht.espink，1.0.6/code7，min24/target36，三ABI。[ZIP完整性](verification-logs/1.0.6/apk-integrity.json)：379条CRC通过。
-- [签名](verification-logs/1.0.6/apk-signature.log)：v2有效，与1.0.5/1.0.4相同开发测试证书，支持同应用覆盖更新；本次未在手机执行升级，不是商店发行签名。
+102份选定固件源码与验证/历史材料逐字节复制到APP/firmware/B2.0.1/source；实际IDF编译目录复制到APP/build/firmware-B2.0.1/build-idf522，复制的app与OTA成品一致。APP/releases/firmware-B2.0.1-copy-check.json保留逐文件SHA。另提供基于4909e4c的ESP_INK-B2.0.1.patch。没有使用软链接。
 
 ## 归档与发布
 
-源码、实际build、APK和文档均在用户指定APP真实目录，全树无软链接。新[ESP-INK-Flutter-source.tar.gz](../releases/ESP-INK-Flutter-source.tar.gz)独立解包逐文件核对SHA；文件数、包大小与SHA见[生成报告](../releases/source-package.json)，根SOURCE_SHA256SUMS与releases/SHA256SUMS分别为源/成品清单。原1.0.5通用源码保留为ESP-INK-1.0.5-source.tar.gz，新源码另有数据盘独立备份。旧版APK与归档不覆盖。
+[完整源码包](../releases/ESP-INK-Flutter-source.tar.gz)包含Flutter和设备固件源码、构建脚本、文档、验证材料与设备镜像，独立解包逐文件核对SHA。文件数、大小和摘要见[生成报告](../releases/source-package.json)。SOURCE_SHA256SUMS为源码清单，releases/SHA256SUMS为成品清单。原1.0.6通用源码保留为版本归档，最新源码另有数据盘独立备份。
 
-[GitHub v1.0.6](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/tag/v1.0.6)发布APK、源码包和SHA256SUMS；远端main/tag/tree与附件digest核对记录位于本地releases/github-v1.0.6。
+[GitHub v1.0.7](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/tag/v1.0.7)发布APK、完整源码、B2.0.1 OTA应用及SHA256SUMS，远端核对记录放在本地releases/github-v1.0.7。固件修改源码随本APP仓库和源包交付；固件基线链接不表示已改写ESP_INK的main。
 
-## 实物边界
+## 实机边界
 
-本次未安装真实手机、未连接或刷写ESP。Android原生相册/Activity恢复、实际BLE删图与缓存体验仍需[真机复核](hardware-check.md)。原生BLE/导出桥、协议和固件未改；本次删除缓存修复不要求先刷固件。
+本轮未连接、擦除或刷写ESP，也未安装真实手机或检验物理屏幕。新并行功能需要APP与B2.0.1同时使用；旧B2.0.0仍兼容但保持刷完再读。已有B2分区选app.bin走OTA，无需清图库；R/B1不能直接用此OTA跨分区升级，merged全量镜像与erase会覆盖数据。
 
-刷屏期间并行读取图库高清尚未开放：当前APP作业/协议队列与参考B2的BUSY契约会等待设备空闲。用户已进一步澄清此需求，当前固件源码路径待提供后核对，未把本版缓存修复声称为刷屏与读图并行。
+真实BLE吞吐、通知丢失、射频/Flash/SPI并发、A0/A1面板、运行堆与电源稳定性仍待[硬件步骤](hardware-check.md)。窗口通知丢失时可能由15秒状态轮询补发现；窗口关闭时未完成的下载会丢弃部分数据后重读。没有把模拟通过写成实机验收。

@@ -28,7 +28,7 @@ ROOT_FILES = (
     ".gitignore", ".metadata", "README.md", "analysis_options.yaml",
     "pubspec.yaml", "pubspec.lock",
 )
-SOURCE_DIRS = ("android", "lib", "test", "assets", "tool", "docs", "web")
+SOURCE_DIRS = ("android", "lib", "test", "assets", "tool", "docs", "web", "firmware")
 EXCLUDED_DIRS = {
     ".git", ".hg", ".svn", ".idea", ".vscode", ".dart_tool",
     ".gradle", ".kotlin", ".cxx", ".pub", ".pub-cache", ".build",
@@ -296,7 +296,7 @@ def package(root: Path) -> dict:
         os.replace(temporary, releases / ARCHIVE_NAME)
         atomic_write(releases / REPORT_NAME, (json.dumps(report, ensure_ascii=False, indent=2) + "\n").encode("utf-8"))
         release_paths = sorted({
-            *releases.glob("*.apk"), *releases.glob("*.tar.gz"),
+            *releases.glob("*.apk"), *releases.glob("*.tar.gz"), *releases.glob("*.bin"),
             *releases.glob("source-package*.json"),
         })
         atomic_write(releases / "SHA256SUMS", checksum_text({

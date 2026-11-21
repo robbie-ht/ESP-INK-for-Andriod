@@ -1,0 +1,90 @@
+Resolving dependencies...
+Downloading packages...
+  cross_file 0.3.5+5 (0.4.0 available)
+  cupertino_icons 1.0.9 (2.0.0 available)
+  image_picker_ios 0.8.13+15 (0.8.13+16 available)
+  jni 1.1.2 (1.2.1 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.3 (1.19.0 available)
+  shared_preferences_foundation 2.5.7 (2.6.2 available)
+  test_api 0.7.12 (0.7.15 available)
+  vector_math 2.4.0 (2.4.4 available)
+Got dependencies!
+9 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /home/descfly/桌面/ESP32/APP/test/protocol_test.dart
+00:00 +0: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: golden PING wire, matching seq, and serial CTRL queue
+00:00 +1: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: timed out seq stays retired after sequence wrap and late response
+00:00 +2: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: timed out seq stays retired after sequence wrap and late response
+00:00 +3: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: timed out seq stays retired after sequence wrap and late response
+00:00 +4: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: timed out seq stays retired after sequence wrap and late response
+00:00 +5: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: timed out seq stays retired after sequence wrap and late response
+00:00 +6: /home/descfly/桌面/ESP32/APP/test/display_gallery_lane_test.dart: save-and-display can read after store work but before late STORE_DONE
+00:00 +7: /home/descfly/桌面/ESP32/APP/test/display_gallery_lane_test.dart: save-and-display can read after store work but before late STORE_DONE
+00:00 +8: /home/descfly/桌面/ESP32/APP/test/display_gallery_lane_test.dart: save-and-display can read after store work but before late STORE_DONE
+00:00 +9: /home/descfly/桌面/ESP32/APP/test/gallery_read_notification_limit_test.dart: MTU 517 thumbnail download survives Android 512-byte receive limit with unchanged firmware
+00:00 +10: /home/descfly/桌面/ESP32/APP/test/gallery_read_notification_limit_test.dart: MTU 517 thumbnail download survives Android 512-byte receive limit with unchanged firmware
+00:00 +11: /home/descfly/桌面/ESP32/APP/test/gallery_read_notification_limit_test.dart: MTU 517 thumbnail download survives Android 512-byte receive limit with unchanged firmware
+00:00 +12: /home/descfly/桌面/ESP32/APP/test/display_gallery_lane_test.dart: old firmware queues gallery behind complete display job
+00:00 +13: /home/descfly/桌面/ESP32/APP/test/display_gallery_lane_test.dart: old firmware queues gallery behind complete display job
+00:00 +14: /home/descfly/桌面/ESP32/APP/test/gallery_read_notification_limit_test.dart: MTU 517 full frame download survives Android 512-byte receive limit with unchanged firmware
+00:00 +15: /home/descfly/桌面/ESP32/APP/test/gallery_read_notification_limit_test.dart: MTU 517 full frame download survives Android 512-byte receive limit with unchanged firmware
+00:00 +16: /home/descfly/桌面/ESP32/APP/test/gallery_read_notification_limit_test.dart: MTU 517 full frame download survives Android 512-byte receive limit with unchanged firmware
+00:00 +17: /home/descfly/桌面/ESP32/APP/test/gallery_read_notification_limit_test.dart: MTU 517 full frame download survives Android 512-byte receive limit with unchanged firmware
+00:00 +18: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: modifying RSP timeout is not retried and blocks subsequent modification
+00:00 +19: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: modifying RSP timeout is not retried and blocks subsequent modification
+00:00 +20: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: modifying RSP timeout is not retried and blocks subsequent modification
+00:00 +21: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: modifying RSP timeout is not retried and blocks subsequent modification
+00:00 +22: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: modifying RSP timeout is not retried and blocks subsequent modification
+00:00 +23: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: modifying RSP timeout is not retried and blocks subsequent modification
+00:00 +24: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: modifying RSP timeout is not retried and blocks subsequent modification
+00:00 +25: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: modifying RSP timeout is not retried and blocks subsequent modification
+00:00 +26: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: modifying RSP timeout is not retried and blocks subsequent modification
+00:00 +27: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: modifying RSP timeout is not retried and blocks subsequent modification
+00:00 +28: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: modifying RSP timeout is not retried and blocks subsequent modification
+00:00 +29: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: modifying RSP timeout is not retried and blocks subsequent modification
+00:00 +30: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: modifying RSP timeout is not retried and blocks subsequent modification
+00:00 +31: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: modifying RSP timeout is not retried and blocks subsequent modification
+00:00 +32: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: modifying RSP timeout is not retried and blocks subsequent modification
+00:00 +33: /home/descfly/桌面/ESP32/APP/test/gallery_read_notification_limit_test.dart: MTU 512 full frame download survives Android 512-byte receive limit with unchanged firmware
+00:00 +34: /home/descfly/桌面/ESP32/APP/test/gallery_read_notification_limit_test.dart: MTU 512 full frame download survives Android 512-byte receive limit with unchanged firmware
+00:00 +35: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: frame honors returned chunk and exact short final fragment
+00:00 +36: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: frame honors returned chunk and exact short final fragment
+00:00 +37: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: frame honors returned chunk and exact short final fragment
+00:00 +38: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: frame honors returned chunk and exact short final fragment
+00:00 +39: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: frame honors returned chunk and exact short final fragment
+00:00 +40: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: frame honors returned chunk and exact short final fragment
+00:00 +41: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: MTU 517 frame negotiates 510 with a device maximum of 512
+00:00 +42: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: frame rejects a selected 512-byte chunk above its request
+00:00 +43: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: store and display completions preceding END RSP are retained
+00:00 +44: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: store-only waits only STORE_DONE, not DISPLAY_DONE
+00:00 +45: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: partial store/display outcome is exposed independently
+00:00 +46: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: STORE success survives DISPLAY timeout as a partial uncertain outcome
+00:00 +47: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: GAP rewinds sequential data with a finite recovery budget
+00:01 +48: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: INCOMPLETE resumes at expected sequence; CRC restarts whole payload
+00:01 +49: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: endless recovery stops and aborts the receiving session
+00:01 +50: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: cancellation in receiving sends one ABORT
+00:01 +51: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: cancellation after queue does not ABORT or claim cancellation
+00:01 +52: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: END enters finalizing before RSP, recovery returns to receiving
+00:01 +53: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: cancel flag during END wait cannot turn queued success into cancellation
+00:01 +54: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: no END RSP is uncertain and never triggers ABORT
+00:01 +55: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: disconnect during queued job immediately fails waiter without ABORT
+00:01 +56: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: job lock spans completion and cacheShow waits DISPLAY_DONE
+00:01 +57: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: OTA validates chip and size before sending
+00:01 +58: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: OTA uses image CRC32 and actual chunk, without padding final fragment
+00:01 +59: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: MTU 517 OTA negotiates 510 with a device maximum of 512
+00:01 +60: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: OTA rejects a selected 512-byte chunk above its request
+00:01 +61: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: OTA 65536 sequence limit checked after negotiated BEGIN and aborted
+00:01 +62: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: OTA NO_MEM after END is unknown slot outcome and not aborted
+00:01 +63: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: gallery download checks each block metadata and final CRC
+00:01 +64: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: pre-cancelled gallery read does not send a command
+00:01 +65: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: gallery cancellation during info does not request list or data
+00:01 +66: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: gallery cancellation between blocks never requests the next one
+00:01 +67: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: cancelling a final block never publishes a completed preview
+00:01 +68: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: in-flight gallery cancellation drains reply and leaves connection usable
+00:01 +69: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: presentation error does not cancel a gallery download
+00:01 +70: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: gallery STALE drops partial data without retry or revision substitution
+00:01 +71: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: changed list revision is rejected
+00:01 +72: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: download CRC and identity mismatch are rejected
+00:01 +73: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: remaining maintenance, gallery and clear commands encode correct ops
+00:01 +74: All tests passed!
