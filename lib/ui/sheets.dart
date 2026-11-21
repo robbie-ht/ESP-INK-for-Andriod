@@ -9,7 +9,7 @@ import 'components.dart';
 
 Future<void> showConnectionSheet(
   BuildContext context,
-  MoinkController c,
+  EspInkController c,
 ) async {
   final android = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
   if (android && !c.scanning && !c.connected) unawaited(c.scan());
@@ -48,7 +48,7 @@ Future<void> showConnectionSheet(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '连接你的墨印',
+                            '连接你的墨水屏',
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           const SizedBox(height: 3),
@@ -93,7 +93,7 @@ Future<void> showConnectionSheet(
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              c.scanning ? '正在寻找附近的墨印…' : '暂时没有发现设备',
+                              c.scanning ? '正在寻找附近的墨水屏…' : '暂时没有发现设备',
                               style: const TextStyle(color: mutedText),
                             ),
                           ],
@@ -115,7 +115,7 @@ Future<void> showConnectionSheet(
                             color: Color(0xFF1967D2),
                           ),
                           title: Text(
-                            device.name.isEmpty ? 'MoInk 墨印' : device.name,
+                            device.name.isEmpty ? 'ESP-INK' : device.name,
                           ),
                           subtitle: Text(
                             '信号 ${device.rssi} dBm',
@@ -201,7 +201,7 @@ Future<void> showConnectionSheet(
   );
 }
 
-Future<void> showSendSheet(BuildContext context, MoinkController c) async {
+Future<void> showSendSheet(BuildContext context, EspInkController c) async {
   if (!c.connected && !c.demo) {
     await showConnectionSheet(context, c);
     if (!context.mounted || (!c.connected && !c.demo)) return;
@@ -217,7 +217,7 @@ Future<void> showSendSheet(BuildContext context, MoinkController c) async {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('把这一刻，送到墨印', style: Theme.of(context).textTheme.titleLarge),
+            Text('把这一刻，送到墨水屏', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 6),
             Text(
               c.demo ? '本地演示 · 不向真实设备发送' : c.deviceName,
@@ -321,7 +321,7 @@ class _SendOption extends StatelessWidget {
   );
 }
 
-Future<void> showLogsSheet(BuildContext context, MoinkController c) =>
+Future<void> showLogsSheet(BuildContext context, EspInkController c) =>
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,

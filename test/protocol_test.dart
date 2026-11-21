@@ -5,11 +5,11 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moink_app/core/frame_codec.dart';
-import 'package:moink_app/core/protocol.dart';
-import 'package:moink_app/core/transport.dart';
+import 'package:esp_ink/core/frame_codec.dart';
+import 'package:esp_ink/core/protocol.dart';
+import 'package:esp_ink/core/transport.dart';
 
-class FakeTransport implements MoinkTransport {
+class FakeTransport implements EspInkTransport {
   FakeTransport({this.mtu = 517});
   @override
   int mtu;
@@ -73,10 +73,10 @@ Uint8List firmware([int size = 1025]) => Uint8List(size)
 
 void main() {
   late FakeTransport t;
-  late MoinkClient c;
+  late EspInkClient c;
   setUp(() {
     t = FakeTransport();
-    c = MoinkClient(
+    c = EspInkClient(
       t,
       commandTimeout: const Duration(milliseconds: 120),
       completionTimeout: const Duration(milliseconds: 180),
@@ -128,7 +128,7 @@ void main() {
   test(
     'timed out seq stays retired after sequence wrap and late response',
     () async {
-      await expectLater(c.ping(), throwsA(isA<MoinkException>()));
+      await expectLater(c.ping(), throwsA(isA<EspInkException>()));
       t.onCtrl = (q) {
         t.notice.add(
           Uint8List.fromList([1, 1, 0, 1, 4, ...ascii.encode('LATE')]),
@@ -143,7 +143,7 @@ void main() {
   );
   test('write failure seq also stays retired after sequence wrap', () async {
     t.onCtrl = (q) => throw StateError('write failed');
-    await expectLater(c.ping(), throwsA(isA<MoinkException>()));
+    await expectLater(c.ping(), throwsA(isA<EspInkException>()));
     t.onCtrl = (q) => t.reply(q, 0, [1, 0]);
     for (var i = 0; i < 260; i++) {
       await c.ping();
@@ -152,8 +152,8 @@ void main() {
   });
   test('truncated status and incompatible api are rejected', () async {
     t.onCtrl = (q) => t.reply(q, 0, q[0] == Op.ping ? [2, 0] : [1, 0]);
-    await expectLater(c.getStatus(), throwsA(isA<MoinkException>()));
-    await expectLater(c.ping(), throwsA(isA<MoinkException>()));
+    await expectLater(c.getStatus(), throwsA(isA<EspInkException>()));
+    await expectLater(c.ping(), throwsA(isA<EspInkException>()));
   });
   test(
     'status preserves signed battery readings and unknown sentinel',
@@ -253,7 +253,7 @@ void main() {
     t.mtu = 23;
     await expectLater(
       c.setSettings({'name': '12345678901234567890'}),
-      throwsA(isA<MoinkException>()),
+      throwsA(isA<EspInkException>()),
     );
     expect(t.ctrl, isEmpty);
   });
@@ -263,10 +263,14 @@ void main() {
       await expectLater(
         c.galleryDelete(0),
         throwsA(
-          isA<MoinkException>().having((e) => e.resultUnknown, 'unknown', true),
+          isA<EspInkException>().having(
+            (e) => e.resultUnknown,
+            'unknown',
+            true,
+          ),
         ),
       );
-      await expectLater(c.galleryClear(), throwsA(isA<MoinkException>()));
+      await expectLater(c.galleryClear(), throwsA(isA<EspInkException>()));
       expect(t.ctrl.map((q) => q[0]), [Op.galleryDelete]);
       expect(c.resultUncertain, true);
     },
@@ -274,7 +278,7 @@ void main() {
   test('disconnect fails pending command immediately', () async {
     t.onCtrl = (q) => t.disconnect();
     final watch = Stopwatch()..start();
-    await expectLater(c.ping(), throwsA(isA<MoinkException>()));
+    await expectLater(c.ping(), throwsA(isA<EspInkException>()));
     expect(watch.elapsedMilliseconds, lessThan(100));
   });
   test('frame honors returned chunk and exact short final fragment', () async {
@@ -304,7 +308,7 @@ void main() {
     normalFrame(chunk: 512);
     await expectLater(
       c.sendFrame(solidFrame()),
-      throwsA(isA<MoinkException>()),
+      throwsA(isA<EspInkException>()),
     );
     expect(t.data, isEmpty);
     expect(t.ctrl.map((q) => q[0]), [Op.frameBegin, Op.frameAbort]);
@@ -344,7 +348,7 @@ void main() {
     await expectLater(
       c.sendFrame(solidFrame(), saveGallery: true),
       throwsA(
-        isA<MoinkException>()
+        isA<EspInkException>()
             .having((e) => e.outcome?['stored'], 'stored', true)
             .having((e) => e.outcome?['displayed'], 'displayed', false),
       ),
@@ -367,7 +371,7 @@ void main() {
       await expectLater(
         c.sendFrame(solidFrame(), saveGallery: true),
         throwsA(
-          isA<MoinkException>()
+          isA<EspInkException>()
               .having((e) => e.resultUnknown, 'unknown', true)
               .having((e) => e.outcome?['stored'], 'stored', true)
               .having((e) => e.outcome?['displayed'], 'displayed', null),
@@ -415,7 +419,7 @@ void main() {
     t.onData = (q) => t.event(EventId.transferGap, 0, le16(0));
     await expectLater(
       c.sendFrame(solidFrame()),
-      throwsA(isA<MoinkException>()),
+      throwsA(isA<EspInkException>()),
     );
     expect(t.ctrl.where((q) => q[0] == Op.frameAbort).length, 1);
     expect(t.data.length, lessThan(12));
@@ -426,7 +430,7 @@ void main() {
     t.onData = (q) => cancellation.cancel();
     await expectLater(
       c.sendFrame(solidFrame(), cancellation: cancellation),
-      throwsA(isA<MoinkCancelled>()),
+      throwsA(isA<EspInkCancelled>()),
     );
     expect(t.ctrl.map((q) => q[0]), [Op.frameBegin, Op.frameAbort]);
   });
@@ -499,7 +503,7 @@ void main() {
     await expectLater(
       c.sendFrame(solidFrame()),
       throwsA(
-        isA<MoinkException>().having((e) => e.resultUnknown, 'unknown', true),
+        isA<EspInkException>().having((e) => e.resultUnknown, 'unknown', true),
       ),
     );
     expect(t.ctrl.where((q) => q[0] == Op.frameAbort), isEmpty);
@@ -520,7 +524,11 @@ void main() {
       await expectLater(
         c.sendFrame(solidFrame()),
         throwsA(
-          isA<MoinkException>().having((e) => e.resultUnknown, 'unknown', true),
+          isA<EspInkException>().having(
+            (e) => e.resultUnknown,
+            'unknown',
+            true,
+          ),
         ),
       );
       expect(t.ctrl.where((q) => q[0] == Op.frameAbort), isEmpty);
@@ -598,7 +606,7 @@ void main() {
         t.reply(q);
       }
     };
-    await expectLater(c.ota(firmware()), throwsA(isA<MoinkException>()));
+    await expectLater(c.ota(firmware()), throwsA(isA<EspInkException>()));
     expect(t.data, isEmpty);
     expect(t.ctrl.map((q) => q[0]), [Op.otaBegin, Op.otaAbort]);
   });
@@ -614,7 +622,7 @@ void main() {
       };
       await expectLater(
         c.ota(firmware(1048577)),
-        throwsA(isA<MoinkException>()),
+        throwsA(isA<EspInkException>()),
       );
       expect(t.data, isEmpty);
       expect(t.ctrl.map((q) => q[0]), [Op.otaBegin, Op.otaAbort]);
@@ -633,7 +641,11 @@ void main() {
       await expectLater(
         c.ota(firmware()),
         throwsA(
-          isA<MoinkException>().having((e) => e.resultUnknown, 'unknown', true),
+          isA<EspInkException>().having(
+            (e) => e.resultUnknown,
+            'unknown',
+            true,
+          ),
         ),
       );
       expect(t.ctrl.where((q) => q[0] == Op.otaAbort), isEmpty);
@@ -716,7 +728,7 @@ void main() {
     final cancellation = TransferCancellation()..cancel();
     await expectLater(
       c.galleryDownload(0, thumbnail: true, cancellation: cancellation),
-      throwsA(isA<MoinkCancelled>()),
+      throwsA(isA<EspInkCancelled>()),
     );
     expect(t.ctrl, isEmpty);
     expect(c.resultUncertain, false);
@@ -733,7 +745,7 @@ void main() {
       };
       await expectLater(
         c.galleryDownload(0, thumbnail: true, cancellation: cancellation),
-        throwsA(isA<MoinkCancelled>()),
+        throwsA(isA<EspInkCancelled>()),
       );
       expect(t.ctrl.map((q) => q[0]), [Op.galleryInfo]);
     },
@@ -752,7 +764,7 @@ void main() {
           onProgress: (_) => cancellation.cancel(),
           onMetadata: (_) => metadataPublished = true,
         ),
-        throwsA(isA<MoinkCancelled>()),
+        throwsA(isA<EspInkCancelled>()),
       );
       expect(t.ctrl.where((q) => q[0] == Op.galleryRead).length, 1);
       expect(t.ctrl.where((q) => q[0] == Op.frameAbort), isEmpty);
@@ -776,7 +788,7 @@ void main() {
           },
           onMetadata: (_) => metadataPublished = true,
         ),
-        throwsA(isA<MoinkCancelled>()),
+        throwsA(isA<EspInkCancelled>()),
       );
       expect(t.ctrl.where((q) => q[0] == Op.galleryRead).length, 2);
       expect(metadataPublished, false);
@@ -801,7 +813,7 @@ void main() {
         thumbnail: true,
         cancellation: cancellation,
       );
-      final cancelled = expectLater(read, throwsA(isA<MoinkCancelled>()));
+      final cancelled = expectLater(read, throwsA(isA<EspInkCancelled>()));
       await started.future;
       cancellation.cancel();
       expect(t.ctrl.where((q) => q[0] == Op.galleryRead).length, 1);
@@ -836,7 +848,7 @@ void main() {
       gallery(stale: true);
       await expectLater(
         c.galleryDownload(0, thumbnail: true),
-        throwsA(isA<MoinkException>().having((e) => e.status, 'status', 16)),
+        throwsA(isA<EspInkException>().having((e) => e.status, 'status', 16)),
       );
       expect(t.ctrl.where((q) => q[0] == Op.galleryRead).length, 2);
       expect(t.ctrl.where((q) => q[0] == Op.galleryInfo).length, 1);
@@ -846,19 +858,19 @@ void main() {
     gallery(pageStale: true);
     await expectLater(
       c.galleryList(),
-      throwsA(isA<MoinkException>().having((e) => e.status, 'status', 16)),
+      throwsA(isA<EspInkException>().having((e) => e.status, 'status', 16)),
     );
   });
   test('download CRC and identity mismatch are rejected', () async {
     gallery(corrupt: true);
     await expectLater(
       c.galleryDownload(0, thumbnail: true),
-      throwsA(isA<MoinkException>().having((e) => e.status, 'status', 8)),
+      throwsA(isA<EspInkException>().having((e) => e.status, 'status', 8)),
     );
     gallery(mismatch: true);
     await expectLater(
       c.galleryDownload(0, thumbnail: true),
-      throwsA(isA<MoinkException>()),
+      throwsA(isA<EspInkException>()),
     );
   });
   test(

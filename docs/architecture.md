@@ -1,6 +1,6 @@
 # 架构与协议边界
 
-UI → MoinkController → MoinkClient → MoinkTransport → NativeBle → Android GATT。
+UI → EspInkController → EspInkClient → EspInkTransport → NativeBle → Android GATT。
 
 图像与文字交互参考同级 `moink-R1.3.4/page/index.html`；设备连接、设置、图库与OTA遵循同级 `Moink-APP/docs/API.md` 和 `APP-INTEGRATION.md` 的B2协议。参考页面中的Wi-Fi HTTP接口不用于本应用。具体对应见 [页面功能对照](page-feature-map.md)。
 
@@ -79,3 +79,10 @@ Android整个特征值最多512字节，DATA还有2字节片号，因此BEGIN请
 revision整体改变通常应清理缓存；确认是当前连接刚完成的一次追加时除外。追加证据同时要求STORE_DONE保存成功、slot/count正确、旧元数据前缀逐项一致且revision只前进一步（0xffffffff回到1）。由此迁移已验证完整帧的身份；保存成功但显示失败同样保留。删除、清空、换槽、异常revision或断线不能套用此例外，CRC16不足以单独证明身份。缓存仍为当前会话内存，不承诺退出APP或重连后持久保存。
 
 GET_STATUS中的非正bat_mv表示本次无有效采样，不能据此推断没电。当前连接保留上次真实正值，标注旧读数和采样时间；新正值及低电量事件更新数值，断线和演示清除。每15秒空闲轻量GET_STATUS，不读取全套设置或图库；应用后台、正在操作、已断开时不发起轮询。已在途请求仍按协议队列完成或超时。
+
+
+## 1.0.4 ESP-INK品牌与应用身份
+
+应用显示名称统一ESP-INK，Dart包esp_ink，Android包io.github.robbieht.espink；Kotlin包与三组平台通道同名迁移，BLE服务/特征UUID和报文字节保持不变。新包名独立安装，不覆盖旧版或自动继承旧草稿/权限；原相册文件不删除，新图片保存到Pictures/ESP-INK。历史协议/构建证据及参考项目原名保留用于来源追溯。
+
+参考项目：[atunverse/moink](https://github.com/atunverse/moink)。本仓库当前客户端品牌为ESP-INK，不代表上游官方应用。

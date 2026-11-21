@@ -47,18 +47,18 @@ class GalleryPreviewStatus {
 
 class _GalleryAppendProof {
   const _GalleryAppendProof(this.client, this.generation, this.before);
-  final MoinkClient client;
+  final EspInkClient client;
   final int generation;
   final List<Map<String, dynamic>> before;
 }
 
-class MoinkController extends ChangeNotifier with WidgetsBindingObserver {
-  MoinkController({NativeBle? nativeBle, ArtworkProcessor? artworkProcessor})
+class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
+  EspInkController({NativeBle? nativeBle, ArtworkProcessor? artworkProcessor})
     : _ble = nativeBle ?? NativeBle(),
       _processArtwork = artworkProcessor ?? processArtwork;
   final NativeBle _ble;
   final ArtworkProcessor _processArtwork;
-  MoinkClient? _client;
+  EspInkClient? _client;
   final List<StreamSubscription<dynamic>> _subscriptions = [];
   StreamSubscription<dynamic>? _deviceEvents;
   SharedPreferences? _preferences;
@@ -466,7 +466,7 @@ class MoinkController extends ChangeNotifier with WidgetsBindingObserver {
     _notify();
     try {
       await _ble.startScan();
-      _log('按 MoInk 服务 UUID 扫描');
+      _log('按 ESP-INK 服务 UUID 扫描');
       await Future<void>.delayed(const Duration(seconds: 10));
     } catch (e) {
       _say(_readable(e));
@@ -495,7 +495,7 @@ class MoinkController extends ChangeNotifier with WidgetsBindingObserver {
       _intentionalDisconnect = false;
       _otaSubmitted = false;
       await _ble.connect(id);
-      _client = MoinkClient(_ble);
+      _client = EspInkClient(_ble);
       _deviceEvents = _client!.events.listen((event) {
         _log('设备事件 0x${event.id.toRadixString(16)} · ${event.arg}');
         if (event.id == 3) {
@@ -512,7 +512,7 @@ class MoinkController extends ChangeNotifier with WidgetsBindingObserver {
       if (ping['api'] != 1) throw StateError('当前设备协议不受支持');
       firmware = ping['version'] as String;
       deviceName =
-          devices.where((d) => d.id == id).firstOrNull?.name ?? 'MoInk';
+          devices.where((d) => d.id == id).firstOrNull?.name ?? 'ESP-INK';
       _log('已连接 $deviceName，固件 $firmware，MTU ${_ble.mtu}');
       await _refreshInternal();
       _say('已连接 $deviceName');
@@ -567,7 +567,7 @@ class MoinkController extends ChangeNotifier with WidgetsBindingObserver {
     unawaited(_client?.dispose());
     _client = null;
     demo = true;
-    deviceName = 'MoInk · 体验设备';
+    deviceName = 'ESP-INK · 体验设备';
     firmware = '本地演示';
     _clearBattery();
     mtu = 517;
@@ -827,7 +827,7 @@ class MoinkController extends ChangeNotifier with WidgetsBindingObserver {
           }
         }
       }
-    } on MoinkException catch (e) {
+    } on EspInkException catch (e) {
       if (e.status == 1) {
         gallerySupported = false;
         _resetGallerySession();
@@ -1130,7 +1130,7 @@ class MoinkController extends ChangeNotifier with WidgetsBindingObserver {
         identity: currentIdentity,
         changed: currentIdentity != identity,
       );
-    } on MoinkCancelled {
+    } on EspInkCancelled {
       if (fullFrame) {
         _galleryFullAttempts.remove(identity);
       } else {
@@ -1153,7 +1153,7 @@ class MoinkController extends ChangeNotifier with WidgetsBindingObserver {
       }
       final text = _readable(error);
       if (background &&
-          error is MoinkException &&
+          error is EspInkException &&
           error.status == StatusCode.busy) {
         _deviceIdle = false;
         // A transient device job may finish before the next status poll. Stop
@@ -1330,7 +1330,7 @@ class MoinkController extends ChangeNotifier with WidgetsBindingObserver {
       _queued = false;
       if (demo) {
         await Future<void>.delayed(const Duration(milliseconds: 500));
-        if (_cancellation!.isCancelled) throw MoinkCancelled();
+        if (_cancellation!.isCancelled) throw EspInkCancelled();
         if (saveGallery) {
           gallery = [
             ...gallery.map(
@@ -1383,7 +1383,7 @@ class MoinkController extends ChangeNotifier with WidgetsBindingObserver {
           },
           onPhase: _transferPhase,
         );
-      } on MoinkException catch (error) {
+      } on EspInkException catch (error) {
         if (error.outcome?['stored'] == true &&
             client == _client &&
             generation == _galleryGeneration) {
@@ -1646,7 +1646,7 @@ class MoinkController extends ChangeNotifier with WidgetsBindingObserver {
     _notify();
     try {
       await body();
-    } on MoinkCancelled {
+    } on EspInkCancelled {
       _say('传输已取消，设备接收会话已结束。');
     } catch (e) {
       _log('$label：$e');
@@ -1663,7 +1663,7 @@ class MoinkController extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   String _readable(Object e) {
-    if (e is MoinkException) {
+    if (e is EspInkException) {
       if (e.outcome != null) {
         final outcome = e.outcome!;
         final parts = <String>[];

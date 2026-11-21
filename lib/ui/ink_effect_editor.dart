@@ -9,7 +9,7 @@ import 'source_artwork_canvas.dart';
 
 Future<void> showInkEffectEditor(
   BuildContext context,
-  MoinkController controller, {
+  EspInkController controller, {
   required WidgetBuilder controlsBuilder,
 }) async {
   final previous = controller.inkPreviewActive;
@@ -35,7 +35,7 @@ class _InkEffectEditor extends StatelessWidget {
     required this.controlsBuilder,
   });
 
-  final MoinkController controller;
+  final EspInkController controller;
   final WidgetBuilder controlsBuilder;
 
   @override

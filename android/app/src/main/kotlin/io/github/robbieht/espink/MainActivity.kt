@@ -1,17 +1,17 @@
-package app.moink.moink_app
+package io.github.robbieht.espink
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 
 class MainActivity : FlutterActivity() {
-    private var ble: MoinkBleBridge? = null
-    private var imageExport: MoinkImageExportBridge? = null
+    private var ble: EspInkBleBridge? = null
+    private var imageExport: EspInkImageExportBridge? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        ble = MoinkBleBridge(this, flutterEngine.dartExecutor.binaryMessenger)
+        ble = EspInkBleBridge(this, flutterEngine.dartExecutor.binaryMessenger)
         imageExport?.dispose()
-        imageExport = MoinkImageExportBridge(this, flutterEngine.dartExecutor.binaryMessenger)
+        imageExport = EspInkImageExportBridge(this, flutterEngine.dartExecutor.binaryMessenger)
     }
 
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {

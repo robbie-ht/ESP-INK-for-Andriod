@@ -3,10 +3,10 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
-import 'package:moink_app/app/controller.dart';
-import 'package:moink_app/app/image_processor.dart';
-import 'package:moink_app/app/models.dart';
-import 'package:moink_app/core/frame_codec.dart';
+import 'package:esp_ink/app/controller.dart';
+import 'package:esp_ink/app/image_processor.dart';
+import 'package:esp_ink/app/models.dart';
+import 'package:esp_ink/core/frame_codec.dart';
 
 class _RenderRequest {
   _RenderRequest(this.draft);
@@ -42,11 +42,11 @@ Future<void> _flush(WidgetTester tester) async {
 
 void main() {
   late _ControlledProcessor processor;
-  late MoinkController controller;
+  late EspInkController controller;
 
   setUp(() {
     processor = _ControlledProcessor();
-    controller = MoinkController(artworkProcessor: processor.call);
+    controller = EspInkController(artworkProcessor: processor.call);
   });
 
   tearDown(() => controller.dispose());

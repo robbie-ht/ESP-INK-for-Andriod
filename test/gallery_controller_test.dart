@@ -5,12 +5,12 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
-import 'package:moink_app/app/controller.dart';
-import 'package:moink_app/app/image_processor.dart';
-import 'package:moink_app/app/models.dart';
-import 'package:moink_app/core/frame_codec.dart';
-import 'package:moink_app/core/native_ble.dart';
-import 'package:moink_app/core/protocol.dart';
+import 'package:esp_ink/app/controller.dart';
+import 'package:esp_ink/app/image_processor.dart';
+import 'package:esp_ink/app/models.dart';
+import 'package:esp_ink/core/frame_codec.dart';
+import 'package:esp_ink/core/native_ble.dart';
+import 'package:esp_ink/core/protocol.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 List<int> _le16(int n) => [n & 255, n >> 8 & 255];
@@ -286,7 +286,7 @@ Future<void> _flush() => Future<void>.delayed(Duration.zero);
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late _GalleryBle ble;
-  late MoinkController controller;
+  late EspInkController controller;
   late _Device a;
   late List<ComposerDraft> processedDrafts;
 
@@ -298,7 +298,7 @@ void main() {
       'b': _Device([_Picture(color: 2)]),
     });
     processedDrafts = [];
-    controller = MoinkController(
+    controller = EspInkController(
       nativeBle: ble,
       artworkProcessor: (draft) async {
         processedDrafts.add(draft);
@@ -401,7 +401,7 @@ void main() {
     () async {
       final artwork = Completer<ProcessedArtwork>();
       controller.dispose();
-      controller = MoinkController(
+      controller = EspInkController(
         nativeBle: ble,
         artworkProcessor: (_) => artwork.future,
       );

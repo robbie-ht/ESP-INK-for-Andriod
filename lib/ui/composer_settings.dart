@@ -143,7 +143,7 @@ class PaletteSelector extends StatelessWidget {
 
 Future<void> _sheet(
   BuildContext context,
-  MoinkController c,
+  EspInkController c,
   String title,
   List<Widget> Function(BuildContext) body,
 ) => showModalBottomSheet<void>(
@@ -192,7 +192,7 @@ Future<void> _sheet(
   ),
 );
 
-Future<void> showPhotoGeometrySheet(BuildContext context, MoinkController c) =>
+Future<void> showPhotoGeometrySheet(BuildContext context, EspInkController c) =>
     showPhotoCropEditor(context, c);
 
 double _snap(double value) {
@@ -200,7 +200,7 @@ double _snap(double value) {
   return (value - near).abs() <= 3 ? near : value;
 }
 
-Future<void> showPaddingSheet(BuildContext context, MoinkController c) =>
+Future<void> showPaddingSheet(BuildContext context, EspInkController c) =>
     _sheet(context, c, '照片留白', (context) {
       final d = c.draft;
       return [
@@ -259,7 +259,7 @@ Future<void> showPaddingSheet(BuildContext context, MoinkController c) =>
 
 Future<void> showImageSettingsSheet(
   BuildContext context,
-  MoinkController c,
+  EspInkController c,
 ) => showInkEffectEditor(
   context,
   c,

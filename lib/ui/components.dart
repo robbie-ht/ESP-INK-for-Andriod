@@ -27,7 +27,7 @@ class Brand extends StatelessWidget {
       ),
       const SizedBox(width: 11),
       const Text(
-        'MoInk',
+        'ESP-INK',
         style: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.w600,
@@ -36,7 +36,7 @@ class Brand extends StatelessWidget {
       ),
       if (!compact) ...[
         const SizedBox(width: 8),
-        const Text('墨印', style: TextStyle(fontSize: 14, color: mutedText)),
+        const Text('四色墨水屏', style: TextStyle(fontSize: 14, color: mutedText)),
         const SizedBox(width: 14),
         const InkDots(size: 6, spacing: 4),
       ],

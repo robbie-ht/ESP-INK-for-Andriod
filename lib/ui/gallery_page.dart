@@ -11,14 +11,14 @@ import 'sheets.dart';
 
 class GalleryPage extends StatefulWidget {
   const GalleryPage({super.key, required this.c});
-  final MoinkController c;
+  final EspInkController c;
 
   @override
   State<GalleryPage> createState() => _GalleryPageState();
 }
 
 class _GalleryPageState extends State<GalleryPage> {
-  MoinkController get c => widget.c;
+  EspInkController get c => widget.c;
   bool get available => c.connected || c.demo;
   bool get blocked => c.busy && !c.galleryReading;
   String? _preloadedIdentity;
@@ -111,7 +111,7 @@ class _GalleryPageState extends State<GalleryPage> {
           child: EmptyState(
             icon: Icons.photo_library_outlined,
             title: '连接后，看看你的收藏',
-            description: '设备图库可以存下 8 张画面。\n连接墨印后，照片和便签就会出现在这里。',
+            description: '设备图库可以存下 8 张画面。\n连接墨水屏后，照片和便签就会出现在这里。',
             action: FilledButton.icon(
               onPressed: () => showConnectionSheet(context, c),
               icon: const Icon(Icons.bluetooth_rounded),
@@ -151,7 +151,7 @@ class _GalleryPageState extends State<GalleryPage> {
                   ),
                   const SizedBox(width: 13),
                   Text(
-                    c.demo ? '本地演示图库' : '储存在墨印设备',
+                    c.demo ? '本地演示图库' : '储存在墨水屏设备',
                     style: const TextStyle(fontSize: 12, color: mutedText),
                   ),
                 ],
@@ -323,7 +323,7 @@ class _GalleryPageState extends State<GalleryPage> {
                 icon: const Icon(Icons.download_rounded, size: 21),
               ),
               IconButton(
-                tooltip: '在墨印上显示',
+                tooltip: '在墨水屏上显示',
                 onPressed: blocked ? null : () => c.showGallery(item.slot),
                 icon: const Icon(Icons.slideshow_rounded, size: 22),
               ),
@@ -412,7 +412,7 @@ class _UnreadPreview extends StatelessWidget {
 
 Future<void> showGalleryPreview(
   BuildContext context,
-  MoinkController controller,
+  EspInkController controller,
   int slot, {
   bool downloadOnOpen = false,
 }) => Navigator.of(context).push<void>(
@@ -439,7 +439,7 @@ class GalleryImageViewer extends StatefulWidget {
     this.downloadOnOpen = false,
     this.saveImage = saveGalleryImage,
   });
-  final MoinkController c;
+  final EspInkController c;
   final int slot;
   final bool downloadOnOpen;
   final GalleryImageSaver saveImage;
@@ -596,7 +596,7 @@ class _GalleryImageViewerState extends State<GalleryImageViewer> {
       final message = await widget.saveImage(
         result.png!,
         fileName:
-            'MoInk-画面-${widget.slot + 1}-${DateTime.now().millisecondsSinceEpoch}.png',
+            'ESP-INK-画面-${widget.slot + 1}-${DateTime.now().millisecondsSinceEpoch}.png',
       );
       if (!mounted || request != _request) return;
       setState(() => _saveMessage = message);
@@ -997,7 +997,7 @@ class _GalleryImageViewerState extends State<GalleryImageViewer> {
                     widget.c.showGallery(widget.slot);
                   },
             icon: const Icon(Icons.slideshow_rounded, size: 19),
-            label: Text(widget.c.demo ? '演示切换' : '在墨印上显示'),
+            label: Text(widget.c.demo ? '演示切换' : '在墨水屏上显示'),
           ),
         ] else
           FilledButton(

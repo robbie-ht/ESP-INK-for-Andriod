@@ -7,9 +7,9 @@ import 'device_page.dart';
 import 'gallery_page.dart';
 import 'sheets.dart';
 
-class MoinkHome extends StatelessWidget {
-  const MoinkHome({super.key, required this.controller});
-  final MoinkController controller;
+class EspInkHome extends StatelessWidget {
+  const EspInkHome({super.key, required this.controller});
+  final EspInkController controller;
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: controller,
@@ -28,7 +28,7 @@ class MoinkHome extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Brand(compact: size.width < 480),
+                    Brand(compact: size.width < 720),
                     const Spacer(),
                     if (size.width >= 620) ...[
                       const Text(

@@ -3,9 +3,9 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moink_app/app/artwork.dart';
-import 'package:moink_app/app/models.dart';
-import 'package:moink_app/app/photo_geometry.dart';
+import 'package:esp_ink/app/artwork.dart';
+import 'package:esp_ink/app/models.dart';
+import 'package:esp_ink/app/photo_geometry.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

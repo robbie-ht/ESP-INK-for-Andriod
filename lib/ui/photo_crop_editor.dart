@@ -12,7 +12,7 @@ import '../app/photo_geometry.dart';
 /// The editor keeps a private draft. No color conversion runs while composing.
 Future<void> showPhotoCropEditor(
   BuildContext context,
-  MoinkController controller,
+  EspInkController controller,
 ) async {
   final result = await Navigator.of(context).push<ComposerDraft>(
     MaterialPageRoute<ComposerDraft>(

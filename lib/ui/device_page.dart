@@ -8,13 +8,13 @@ import 'sheets.dart';
 
 class DevicePage extends StatelessWidget {
   const DevicePage({super.key, required this.c});
-  final MoinkController c;
+  final EspInkController c;
   bool get enabled => (c.connected || c.demo) && (!c.busy || c.galleryReading);
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text('和墨印，保持连接。', style: Theme.of(context).textTheme.headlineMedium),
+      Text('和墨水屏，保持连接。', style: Theme.of(context).textTheme.headlineMedium),
       const SizedBox(height: 8),
       const Text('屏幕的状态，日常的小习惯，都在这里。', style: TextStyle(color: mutedText)),
       const SizedBox(height: 25),
@@ -268,7 +268,7 @@ class DevicePage extends StatelessWidget {
               ? () async {
                   if (await confirmAction(
                     context,
-                    title: '让墨印进入休眠？',
+                    title: '让墨水屏进入休眠？',
                     message: '屏幕上的画面会保留。蓝牙将断开，下次连接前请按设备按键唤醒；手机不能远程唤醒休眠设备。',
                     confirm: '进入休眠',
                   )) {
@@ -352,7 +352,7 @@ class DevicePage extends StatelessWidget {
                   ? () async {
                       if (await confirmAction(
                         context,
-                        title: '重启墨印？',
+                        title: '重启墨水屏？',
                         message: '重启后需要重新连接设备。',
                         confirm: '重启',
                       )) {
@@ -683,7 +683,7 @@ class DevicePage extends StatelessWidget {
     var checked = false;
     await _editSheet(
       context,
-      '更新墨印固件',
+      '更新墨水屏固件',
       (context, setState) => [
         const TonalLabel(
           '请保持供电和蓝牙连接',

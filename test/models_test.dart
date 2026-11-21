@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moink_app/app/models.dart';
+import 'package:esp_ink/app/models.dart';
 
 void main() {
   test('photo and note retain separate text layers and advanced settings', () {

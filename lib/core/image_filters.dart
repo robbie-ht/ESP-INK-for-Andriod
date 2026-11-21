@@ -1,4 +1,5 @@
 /// Color mapping and serpentine dithering ported from moink-R1.3.4/page/index.html.
+/// Reference project: https://github.com/atunverse/moink (atunverse).
 /// All coordinates here are upright; frame_codec alone performs wire rotation.
 library;
 
@@ -74,7 +75,8 @@ double _clamp(num v, num low, num high) => v.clamp(low, high).toDouble();
 double _luma(double r, double g, double b) => r * .2126 + g * .7152 + b * .0722;
 double _s2l(double value) {
   final v = _clamp(value, 0, 255) / 255;
-  return 255 * (v <= .04045 ? v / 12.92 : math.pow((v + .055) / 1.055, 2.4).toDouble());
+  return 255 *
+      (v <= .04045 ? v / 12.92 : math.pow((v + .055) / 1.055, 2.4).toDouble());
 }
 
 final _linearLut = List<double>.generate(256, (i) => _s2l(i.toDouble()));
@@ -275,7 +277,9 @@ Float64List warmMap(
   for (var i = 0; i < buf.length; i++) {
     var v = buf[i] + brightness;
     if (contrast != 0) v = (v - 128) * (1 + contrast / 100) + 128;
-    if (gamma != 1) v = 255 * math.pow(_clamp(v, 0, 255) / 255, gamma).toDouble();
+    if (gamma != 1) {
+      v = 255 * math.pow(_clamp(v, 0, 255) / 255, gamma).toDouble();
+    }
     buf[i] = _clamp(v, 0, 255);
   }
   if (cfg['autoLevels'] == true) {

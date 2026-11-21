@@ -14,7 +14,7 @@ class ImageExportException implements Exception {
   String toString() => message;
 }
 
-const _channel = MethodChannel('app.moink/image_export');
+const _channel = MethodChannel('io.github.robbieht.espink/image_export');
 const _pngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
 const _pngEnd = [0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130];
 

@@ -79,8 +79,8 @@ abstract final class EventId {
       storeDone = 6;
 }
 
-class MoinkEvent {
-  const MoinkEvent(this.id, this.arg, this.payload);
+class EspInkEvent {
+  const EspInkEvent(this.id, this.arg, this.payload);
   final int id, arg;
   final Uint8List payload;
 }
@@ -93,8 +93,8 @@ class TransferCancellation {
   void cancel() => _cancelled = true;
 }
 
-class MoinkException implements Exception {
-  MoinkException(
+class EspInkException implements Exception {
+  EspInkException(
     this.operation,
     this.message, {
     this.status,
@@ -114,8 +114,8 @@ class MoinkException implements Exception {
       '$operation: $message${status == null ? '' : ' (${statusNames[status] ?? status})'}';
 }
 
-class MoinkCancelled extends MoinkException {
-  MoinkCancelled() : super('传输', '接收已中止');
+class EspInkCancelled extends EspInkException {
+  EspInkCancelled() : super('传输', '接收已中止');
 }
 
 class _Reply {
@@ -137,8 +137,8 @@ class _Pending {
 class _EventOutcome {
   _EventOutcome.event(this.event) : error = null;
   _EventOutcome.error(this.error) : event = null;
-  final MoinkEvent? event;
-  final MoinkException? error;
+  final EspInkEvent? event;
+  final EspInkException? error;
 }
 
 class _Waiter {
@@ -150,8 +150,8 @@ class _Waiter {
 
 /// One client per connected link. Recreate after disconnect or an uncertain
 /// modifying operation. No command is automatically resent after a missing RSP.
-class MoinkClient {
-  MoinkClient(
+class EspInkClient {
+  EspInkClient(
     this.transport, {
     this.commandTimeout = const Duration(seconds: 15),
     this.completionTimeout = const Duration(seconds: 900),
@@ -168,12 +168,12 @@ class MoinkClient {
     });
   }
 
-  final MoinkTransport transport;
+  final EspInkTransport transport;
   final Duration commandTimeout, completionTimeout, mutationTimeout;
   final int maxRetries;
   late final StreamSubscription<Uint8List> _notifications;
   late final StreamSubscription<bool> _connection;
-  final _events = StreamController<MoinkEvent>.broadcast();
+  final _events = StreamController<EspInkEvent>.broadcast();
   final Map<int, _Pending> _pending = {};
   final Set<int> _retiredSequences = {};
   final List<_Waiter> _waiters = [];
@@ -185,7 +185,7 @@ class MoinkClient {
   var _uncertain = false;
   int? _gapAt;
   bool _receivingData = false;
-  Stream<MoinkEvent> get events => _events.stream;
+  Stream<EspInkEvent> get events => _events.stream;
   int get mtu => transport.mtu;
   bool get resultUncertain => _uncertain;
   // Android caps the entire characteristic value at 512 bytes, including the
@@ -194,7 +194,7 @@ class MoinkClient {
 
   void _checkLink() {
     if (_closed || !transport.isConnected) {
-      throw MoinkException('连接', '连接已断开，请重新连接');
+      throw EspInkException('连接', '连接已断开，请重新连接');
     }
   }
 
@@ -205,7 +205,7 @@ class MoinkClient {
     for (final p in _pending.values) {
       p.timer.cancel();
       p.completer.completeError(
-        MoinkException(p.op, '连接已断开，结果待确认', resultUnknown: p.sideEffect),
+        EspInkException(p.op, '连接已断开，结果待确认', resultUnknown: p.sideEffect),
       );
     }
     _pending.clear();
@@ -213,7 +213,7 @@ class MoinkClient {
       if (!w.done.isCompleted) {
         w.done.complete(
           _EventOutcome.error(
-            MoinkException('作业', '完成通知缺失，结果待确认', resultUnknown: true),
+            EspInkException('作业', '完成通知缺失，结果待确认', resultUnknown: true),
           ),
         );
       }
@@ -245,7 +245,7 @@ class MoinkClient {
       return;
     }
     if (bytes[0] != 0x81) return;
-    final event = MoinkEvent(
+    final event = EspInkEvent(
       bytes[1],
       bytes[2],
       Uint8List.fromList(bytes.sublist(3)),
@@ -269,7 +269,7 @@ class MoinkClient {
     final result = _jobTail.then((_) async {
       _checkLink();
       if (modifies && _uncertain) {
-        throw MoinkException(
+        throw EspInkException(
           '作业',
           '上一操作结果待确认，请重新连接并核对设备后再操作',
           resultUnknown: true,
@@ -277,7 +277,7 @@ class MoinkClient {
       }
       try {
         return await action();
-      } on MoinkException catch (e) {
+      } on EspInkException catch (e) {
         if (modifies && e.resultUnknown) _uncertain = true;
         rethrow;
       }
@@ -294,7 +294,7 @@ class MoinkClient {
     final result = _ctrlTail.then((_) {
       _checkLink();
       if (args.length + 2 > mtu - 3) {
-        throw MoinkException('MTU', '当前MTU不足以发送完整命令，请协商更大MTU');
+        throw EspInkException('MTU', '当前MTU不足以发送完整命令，请协商更大MTU');
       }
       int? available;
       for (var attempt = 0; attempt < 256; attempt++) {
@@ -304,7 +304,7 @@ class MoinkClient {
           break;
         }
       }
-      if (available == null) throw MoinkException('连接', '响应超时过多，请重新连接');
+      if (available == null) throw EspInkException('连接', '响应超时过多，请重新连接');
       final seq = available;
       final name = '0x${op.toRadixString(16)}';
       final done = Completer<_Reply>();
@@ -315,7 +315,7 @@ class MoinkClient {
           _retiredSequences.add(seq);
           if (sideEffect) _uncertain = true;
           done.completeError(
-            MoinkException(
+            EspInkException(
               name,
               '响应超时${sideEffect ? '，结果待确认' : ''}',
               resultUnknown: sideEffect,
@@ -332,7 +332,7 @@ class MoinkClient {
           timer.cancel();
           _retiredSequences.add(seq);
           done.completeError(
-            MoinkException(name, '写入失败：$error', resultUnknown: sideEffect),
+            EspInkException(name, '写入失败：$error', resultUnknown: sideEffect),
           );
         }
       });
@@ -349,7 +349,7 @@ class MoinkClient {
   ]) async {
     final reply = await _command(op, args, sideEffect);
     if (reply.status != 0) {
-      throw MoinkException(
+      throw EspInkException(
         '0x${op.toRadixString(16)}',
         '设备拒绝操作',
         status: reply.status,
@@ -365,11 +365,11 @@ class MoinkClient {
     return waiter;
   }
 
-  Future<MoinkEvent> _awaitEvent(_Waiter waiter, Duration timeout) async {
+  Future<EspInkEvent> _awaitEvent(_Waiter waiter, Duration timeout) async {
     final outcome = await waiter.done.future.timeout(
       timeout,
       onTimeout: () => _EventOutcome.error(
-        MoinkException('作业', '完成等待超时，结果待确认', resultUnknown: true),
+        EspInkException('作业', '完成等待超时，结果待确认', resultUnknown: true),
       ),
     );
     if (outcome.error != null) throw outcome.error!;
@@ -380,7 +380,7 @@ class MoinkClient {
     final p = await _call(Op.ping);
     _need(p, 2, 'PING');
     _need(p, 2 + p[1], 'PING');
-    if (p[0] != 1) throw MoinkException('PING', '不支持的协议版本 ${p[0]}');
+    if (p[0] != 1) throw EspInkException('PING', '不支持的协议版本 ${p[0]}');
     return {'api': p[0], 'version': ascii.decode(p.sublist(2, 2 + p[1]))};
   }
 
@@ -458,7 +458,7 @@ class MoinkClient {
     final p = await _call(Op.galleryInfo);
     _exact(p, 7, 'CAROUSEL_INFO');
     if (p[0] > p[2] || p[2] > 8 || (p[1] != 255 && p[1] >= p[0])) {
-      throw MoinkException('CAROUSEL_INFO', '无效的图库元数据');
+      throw EspInkException('CAROUSEL_INFO', '无效的图库元数据');
     }
     return {
       'count': p[0],
@@ -485,7 +485,7 @@ class MoinkClient {
       _checkCancellation(cancellation);
       _need(p, 6, 'CAROUSEL_LIST');
       if (_u32(p, 0) != revision) {
-        throw MoinkException(
+        throw EspInkException(
           'CAROUSEL_LIST',
           '图库版本变化，已丢弃本次列表，请重新加载',
           status: StatusCode.stale,
@@ -496,12 +496,12 @@ class MoinkClient {
           returned == 0 ||
           returned > count - start ||
           p.length != 6 + returned * 22) {
-        throw MoinkException('CAROUSEL_LIST', '分页长度或偏移不合法');
+        throw EspInkException('CAROUSEL_LIST', '分页长度或偏移不合法');
       }
       for (var i = 0; i < returned; i++) {
         final o = 6 + i * 22;
         if (p[o] != start + i) {
-          throw MoinkException('CAROUSEL_LIST', '图库条目次序不合法');
+          throw EspInkException('CAROUSEL_LIST', '图库条目次序不合法');
         }
         items.add({
           'slot': p[o],
@@ -534,7 +534,7 @@ class MoinkClient {
     _checkCancellation(cancellation);
     final found = items.where((item) => item['slot'] == slot);
     if (found.isEmpty) {
-      throw MoinkException(
+      throw EspInkException(
         'CAROUSEL_READ',
         '图片不存在',
         status: StatusCode.notReady,
@@ -545,7 +545,7 @@ class MoinkClient {
     final expectedCrc = item[thumbnail ? 'thumbnailCrc16' : 'crc16'] as int;
     final format = thumbnail ? item['thumbnailFormat'] as int : 1;
     if (total <= 0 || total > (thumbnail ? 20000 : frameLength)) {
-      throw MoinkException('CAROUSEL_READ', '不合法的载荷长度');
+      throw EspInkException('CAROUSEL_READ', '不合法的载荷长度');
     }
     final data = Uint8List(total);
     var offset = 0;
@@ -557,7 +557,7 @@ class MoinkClient {
         math.min(mtu - 19, 512 - 3 - 13),
         total - offset,
       );
-      if (requested <= 0) throw MoinkException('CAROUSEL_READ', 'MTU不足');
+      if (requested <= 0) throw EspInkException('CAROUSEL_READ', 'MTU不足');
       final args = Uint8List(12);
       final v = ByteData.sublistView(args);
       args[0] = slot;
@@ -580,7 +580,7 @@ class MoinkClient {
           p[12] != format ||
           block.length > requested ||
           offset + block.length > total) {
-        throw MoinkException('CAROUSEL_READ', '下载身份、偏移或元数据不一致，已丢弃部分数据');
+        throw EspInkException('CAROUSEL_READ', '下载身份、偏移或元数据不一致，已丢弃部分数据');
       }
       data.setRange(offset, offset + block.length, block);
       offset += block.length;
@@ -588,7 +588,11 @@ class MoinkClient {
       _checkCancellation(cancellation);
     }
     if (crc16(data) != expectedCrc) {
-      throw MoinkException('CAROUSEL_READ', '下载CRC不一致', status: StatusCode.crc);
+      throw EspInkException(
+        'CAROUSEL_READ',
+        '下载CRC不一致',
+        status: StatusCode.crc,
+      );
     }
     onMetadata?.call(Map<String, dynamic>.unmodifiable(item));
     return data;
@@ -602,7 +606,7 @@ class MoinkClient {
           final event = await _awaitEvent(waiter, completionTimeout);
           _exact(event.payload, 0, 'DISPLAY_DONE');
           if (event.arg == 1) {
-            throw MoinkException(
+            throw EspInkException(
               '显示',
               '作业未正常完成，屏幕可能已变化',
               status: StatusCode.notReady,
@@ -632,7 +636,7 @@ class MoinkClient {
           final event = await _awaitEvent(waiter, mutationTimeout);
           final result = _storeResult(event);
           if (event.arg != 0) {
-            throw MoinkException(
+            throw EspInkException(
               '图库',
               '存储作业失败',
               status: event.arg,
@@ -676,7 +680,7 @@ class MoinkClient {
       thumbnailW,
       thumbnailH,
     );
-    if (cancellation?.isCancelled ?? false) throw MoinkCancelled();
+    if (cancellation?.isCancelled ?? false) throw EspInkCancelled();
     final args = Uint8List(thumb.isEmpty ? 13 : 24),
         data = Uint8List(frame.length + thumb.length);
     data.setAll(0, frame);
@@ -745,7 +749,7 @@ class MoinkClient {
         result['displayed'] = e.arg == 0;
       }
       if (result['stored'] == false || result['displayed'] == false) {
-        throw MoinkException(
+        throw EspInkException(
           '图片作业',
           '存储与显示结果请分别核对',
           status: result['stored'] == false
@@ -757,9 +761,9 @@ class MoinkClient {
       _phase(onPhase, TransferPhase.completed);
       return result;
     } catch (e) {
-      if (receiving) await _abortReceiving(Op.frameAbort, e is MoinkCancelled);
-      if (observed != null && e is MoinkException && e.outcome == null) {
-        throw MoinkException(
+      if (receiving) await _abortReceiving(Op.frameAbort, e is EspInkCancelled);
+      if (observed != null && e is EspInkException && e.outcome == null) {
+        throw EspInkException(
           e.operation,
           e.message,
           status: e.status,
@@ -794,7 +798,7 @@ class MoinkClient {
     void Function(TransferPhase)? onPhase,
   }) => _exclusive(() async {
     validateOtaImage(image);
-    if (cancellation?.isCancelled ?? false) throw MoinkCancelled();
+    if (cancellation?.isCancelled ?? false) throw EspInkCancelled();
     final args = Uint8List(10), v = ByteData(10);
     v.setUint32(0, image.length, Endian.little);
     v.setUint32(4, crc32(image), Endian.little);
@@ -824,7 +828,7 @@ class MoinkClient {
       // Accepted boot-slot selection, not permanent OTA confirmation.
       _phase(onPhase, TransferPhase.queued);
     } catch (e) {
-      if (receiving) await _abortReceiving(Op.otaAbort, e is MoinkCancelled);
+      if (receiving) await _abortReceiving(Op.otaAbort, e is EspInkCancelled);
       rethrow;
     } finally {
       _receivingData = false;
@@ -840,10 +844,10 @@ class MoinkClient {
         chunk > chunkSize ||
         chunk > maximum ||
         maximum > math.min(mtu - 5, 512)) {
-      throw MoinkException('BEGIN', '设备返回了不合法的分片长度');
+      throw EspInkException('BEGIN', '设备返回了不合法的分片长度');
     }
     if ((length + chunk - 1) ~/ chunk > 65536) {
-      throw MoinkException('BEGIN', '分片超过65536，需更大MTU');
+      throw EspInkException('BEGIN', '分片超过65536，需更大MTU');
     }
     return chunk;
   }
@@ -863,7 +867,7 @@ class MoinkClient {
     _receivingData = true;
     void retry(int expected) {
       if (++retries > maxRetries || expected < 0 || expected >= total) {
-        throw MoinkException(
+        throw EspInkException(
           '传输',
           '恢复次数超限或设备返回非法分片号',
           status: StatusCode.seqGap,
@@ -875,11 +879,11 @@ class MoinkClient {
     for (;;) {
       while (index < total) {
         _checkLink();
-        if (cancellation?.isCancelled ?? false) throw MoinkCancelled();
+        if (cancellation?.isCancelled ?? false) throw EspInkCancelled();
         if (_gapAt != null) {
           final gap = _gapAt!;
           _gapAt = null;
-          if (gap > index) throw MoinkException('传输', '设备请求尚未发送的分片');
+          if (gap > index) throw EspInkException('传输', '设备请求尚未发送的分片');
           if (gap < index) retry(gap);
         }
         final finish = math.min((index + 1) * chunk, data.length);
@@ -889,12 +893,12 @@ class MoinkClient {
         await Future.any<void>([
           transport.writeData(packet),
           _disconnected.future.then((_) {
-            throw MoinkException('传输', '接收中断线，会话已丢弃');
+            throw EspInkException('传输', '接收中断线，会话已丢弃');
           }),
         ]).timeout(
           commandTimeout,
           onTimeout: () {
-            throw MoinkException('传输', '数据写入超时');
+            throw EspInkException('传输', '数据写入超时');
           },
         );
         index++;
@@ -910,13 +914,13 @@ class MoinkClient {
         retry(gap);
         continue;
       }
-      if (cancellation?.isCancelled ?? false) throw MoinkCancelled();
+      if (cancellation?.isCancelled ?? false) throw EspInkCancelled();
       beforeEnd(); // Sending END makes queue/boot-slot outcome uncertain.
       final reply = await _command(end, [], true);
       if (reply.status == StatusCode.ok) {
         if (end == Op.frameEnd) {
           if (reply.payload.length != 1 || reply.payload[0] != 1) {
-            throw MoinkException(
+            throw EspInkException(
               'FRAME_END',
               '排队回执无效，结果待确认',
               resultUnknown: true,
@@ -945,7 +949,7 @@ class MoinkClient {
               reply.status == StatusCode.busy)) {
         resume();
       }
-      throw MoinkException(
+      throw EspInkException(
         'END',
         '设备未接受传输',
         status: reply.status,
@@ -957,14 +961,14 @@ class MoinkClient {
 
   Future<void> _abortReceiving(int op, bool cancellation) async {
     if (_closed || !transport.isConnected) {
-      if (cancellation) throw MoinkException('取消', '连接已断开，无法确认中止');
+      if (cancellation) throw EspInkException('取消', '连接已断开，无法确认中止');
       return;
     }
     try {
       await _call(op, [], true);
     } catch (e) {
       if (cancellation) {
-        throw MoinkException('取消', '中止回执缺失或失败，结果待确认', resultUnknown: true);
+        throw EspInkException('取消', '中止回执缺失或失败，结果待确认', resultUnknown: true);
       }
     }
   }
@@ -984,7 +988,7 @@ class MoinkClient {
       _exclusive(() => _call(Op.sleepNow, [], true).then((_) {}));
 }
 
-Map<String, dynamic> _storeResult(MoinkEvent event) {
+Map<String, dynamic> _storeResult(EspInkEvent event) {
   _exact(event.payload, 3, 'STORE_DONE');
   return {
     'status': event.arg,
@@ -1093,15 +1097,15 @@ int _u16(Uint8List p, int offset) =>
 int _u32(Uint8List p, int offset) =>
     ByteData.sublistView(p).getUint32(offset, Endian.little);
 void _need(Uint8List p, int n, String operation) {
-  if (p.length < n) throw MoinkException(operation, '响应长度不足');
+  if (p.length < n) throw EspInkException(operation, '响应长度不足');
 }
 
 void _exact(Uint8List p, int n, String operation) {
-  if (p.length != n) throw MoinkException(operation, '响应长度错误');
+  if (p.length != n) throw EspInkException(operation, '响应长度错误');
 }
 
 void _checkCancellation(TransferCancellation? cancellation) {
-  if (cancellation?.isCancelled ?? false) throw MoinkCancelled();
+  if (cancellation?.isCancelled ?? false) throw EspInkCancelled();
 }
 
 void _progress(void Function(double)? handler, double progress) {

@@ -3,11 +3,11 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
-import 'package:moink_app/app/controller.dart';
-import 'package:moink_app/app/image_processor.dart';
-import 'package:moink_app/app/models.dart';
-import 'package:moink_app/core/frame_codec.dart';
-import 'package:moink_app/ui/composer_settings.dart';
+import 'package:esp_ink/app/controller.dart';
+import 'package:esp_ink/app/image_processor.dart';
+import 'package:esp_ink/app/models.dart';
+import 'package:esp_ink/core/frame_codec.dart';
+import 'package:esp_ink/ui/composer_settings.dart';
 
 Uint8List _png(int level) => Uint8List.fromList(
   img.encodePng(
@@ -16,7 +16,7 @@ Uint8List _png(int level) => Uint8List.fromList(
 );
 
 void main() {
-  Future<void> open(WidgetTester tester, MoinkController c, Size size) async {
+  Future<void> open(WidgetTester tester, EspInkController c, Size size) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -42,7 +42,7 @@ void main() {
     testWidgets('effect preview stays visible while controls scroll at $size', (
       tester,
     ) async {
-      final c = MoinkController(
+      final c = EspInkController(
         artworkProcessor: (_) async =>
             ProcessedArtwork(solidFrame(color: 1), _png(210)),
       );
@@ -88,7 +88,7 @@ void main() {
     'adjustment updates effect automatically without a refresh button',
     (tester) async {
       final rendered = <ComposerDraft>[];
-      final c = MoinkController(
+      final c = EspInkController(
         artworkProcessor: (draft) async {
           rendered.add(draft);
           return ProcessedArtwork(
@@ -122,7 +122,7 @@ void main() {
   testWidgets('closing editor restores an already active main effect preview', (
     tester,
   ) async {
-    final c = MoinkController(
+    final c = EspInkController(
       artworkProcessor: (_) async =>
           ProcessedArtwork(solidFrame(color: 1), _png(190)),
     );

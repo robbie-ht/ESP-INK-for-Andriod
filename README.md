@@ -1,21 +1,29 @@
-# MoInk 墨印 · Flutter Android
+# ESP-INK · Flutter Android
 
-墨印四彩墨水屏的 Android 伴侣应用。界面采用 Google Material 3：浅色、蓝色主色、柔和圆角和三栏导航。源码位于本仓库，设备通过B2协议连接；接口参考见 `docs/reference/B2/`。
+四彩墨水屏的 Android 伴侣应用。界面采用 Google Material 3：浅色、蓝色主色、柔和圆角和三栏导航。源码位于本仓库，设备通过B2协议连接；接口参考见 `docs/reference/B2/`。
 
-源码、实际编译目录、安装包、源码压缩包及文档均集中在本APP目录，目录内没有软链接。当前版本为 **1.0.3+4**，安装包为 `releases/MoInk-1.0.3-android.apk`。本版增加效果自动更新与固定预览调参、空闲自动高清和追加时高清缓存保留，并改善偶发无效电压采样的展示；保留MTU517读取限长修复；实际构建与验证状态见 [验证记录](docs/VERIFICATION.md)，完整入口见 [交付说明](docs/交付说明.md)。
+源码、实际编译目录、安装包、源码压缩包及文档均集中在本APP目录，目录内没有软链接。当前版本为 **1.0.4+5**，安装包为 `releases/ESP-INK-1.0.4-android.apk`。本版统一采用ESP-INK名称与独立应用ID，保留效果自动更新与固定预览调参、空闲自动高清、追加时高清缓存保留和有效电压读数标记，以及MTU517读取限长修复；实际构建与验证状态见 [验证记录](docs/VERIFICATION.md)，完整入口见 [交付说明](docs/交付说明.md)。
 
 ## 下载与仓库
 
-- [最新安装包与源码归档](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/tag/v1.0.3)：MoInk 1.0.3，Android 7.0及以上；安装包为测试签名。
-- [直接下载APK](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.3/MoInk-1.0.3-android.apk)、[完整源码压缩包](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.3/MoInk-Flutter-source.tar.gz)、[成品SHA256](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.3/SHA256SUMS)。
+- [最新安装包与源码归档](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/tag/v1.0.4)：ESP-INK 1.0.4，Android 7.0及以上；安装包为测试签名。
+- [直接下载APK](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.4/ESP-INK-1.0.4-android.apk)、[完整源码压缩包](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.4/ESP-INK-Flutter-source.tar.gz)、[成品SHA256](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.4/SHA256SUMS)。
 - 克隆后可按下方Docker步骤构建。仓库包含源码、字体许可、文档、测试、Gradle wrapper及验证记录；`build/`和`releases/`在本地保留，由Git忽略。下载文件放入本地`releases/`后，交付文档中的成品相对链接即可使用。
+
+新版应用ID为 `io.github.robbieht.espink`，与旧版不同，安装后可与旧版并存；不会删除旧版，也不会自动迁移旧版草稿。请在旧版保留需要的内容，再在ESP-INK中重新选择照片或建立草稿。
 
 ```bash
 git clone https://github.com/robbie-ht/ESP-INK-for-Andriod.git
 cd ESP-INK-for-Andriod
 ```
 
-![固定预览的效果调整页](docs/previews/1.0.3/effect-landscape-last.jpg)
+![ESP-INK界面](docs/previews/1.0.4/esp-ink-desktop.jpg)
+
+## 参考与致谢
+
+本项目的照片/便签交互、四色图像风格与抖动算法参考 [atunverse/moink（墨印 · MoInk）](https://github.com/atunverse/moink)，感谢原作者。原项目名称、来源路径及相关署名保留在参考资料和历史记录中。
+
+**ESP-INK 是本仓库的 Flutter Android 客户端名称，不代表 MoInk 官方应用。** BLE 对接以本仓库保存的 B2 协议资料为准；具体来源见 [参考资料说明](docs/reference/README.md)。
 
 ## 已实现
 
@@ -26,7 +34,7 @@ cd ESP-INK-for-Andriod
 - **连接**：Android 原生 BLE、按服务 UUID 发现设备、动态权限申请、服务/特征发现、EVT 订阅、MTU 协商、握手和主动状态查询。不需要 Wi-Fi 配网或系统配对。
 - **传输**：768×552 / 105984 bytes；按设备返回的 chunk 分片，u16序号上限、末片长度、CRC、GAP/INCOMPLETE有限恢复；接收阶段可取消；排队后分别等待 STORE_DONE / DISPLAY_DONE。
 - **设备图库**：先逐卡读取缩略图，设备和APP空闲时自动补读768×552完整画面。前台查看、发送、删除、设置等操作可取消后台后续分片并优先执行；离页、后台和断线停止自动读取，失败不会无限重试。确认APP追加成功、原条目元数据与单步revision符合时保留已下载高清预览；删除、覆盖、异常版本变化和换设备继续失效保护。
-- **保存图库图片**：先读取CRC通过的768×552完整帧，再导出PNG，绝不把缩略图当完整图保存。Android 10及以上保存到相册 `Pictures/MoInk`，不申请读取图库权限；Android 7–9只在保存时请求旧存储写权限，拒绝与保存错误均明确提示。网页发起浏览器下载，是否完成需检查下载列表；桌面运行环境调用系统另存文件。真实BLE回读与手机相册保存仍待真机验证。
+- **保存图库图片**：先读取CRC通过的768×552完整帧，再导出PNG，绝不把缩略图当完整图保存。Android 10及以上保存到相册 `Pictures/ESP-INK`，不申请读取图库权限；Android 7–9只在保存时请求旧存储写权限，拒绝与保存错误均明确提示。网页发起浏览器下载，是否完成需检查下载列表；桌面运行环境调用系统另存文件。真实BLE回读与手机相册保存仍待真机验证。
 - **设备管理**：电池电压、固件/MTU/状态、名称、屏型、休眠/唤醒/换图、GPIO、缓存、清残影和重启。偶发无效电压不会清空当前连接的最近真实值，界面标“上次有效读数”；空闲定期读取状态，断线清除旧值，不使用虚构默认电压。
 - **OTA**：选择应用 `.bin`，检查 ESP32-C3 头、镜像容量、CRC32和协商片数；传输/校验与重启确认分开呈现。R/B1→B2首次分区迁移仍需USB完整刷入。
 - **本地演示**：可在没有设备时体验创作和模拟图库，界面明确标为“本地演示”；不会把演示操作发送到设备。
@@ -47,7 +55,7 @@ cd ESP-INK-for-Andriod
 工具链镜像标签为 `flutter-android:3.47.8`。系统盘较小时，可将缓存放数据盘，例如：
 
 ```bash
-MOINK_CACHE_DIR=/mnt/data/moink-flutter-work/docker-cache ./tool/build_android.sh apk
+ESP_INK_CACHE_DIR=/mnt/data/esp-ink-flutter-work/docker-cache ./tool/build_android.sh apk
 ```
 
 镜像环境：Flutter 3.47.8、Dart 3.13.7、JDK17、Android SDK36、NDK28.2.13676358。不要加 sudo；镜像构建者和运行者的UID/GID必须相同。不同用户/机器需要重新构建工具链镜像。版本固定在 Dockerfile 与 `pubspec.lock`，不要只改 Flutter 版本而不更新下载校验与 Android 配套。
@@ -82,20 +90,20 @@ flutter analyze
 - `lib/core/image_filters.dart`：纯Dart颜色映射、自动色阶、锐化、8种抖动和3种色域。
 - `lib/core/protocol.dart`：命令队列、回执与事件、设置、图片/图库/OTA协议。
 - `lib/core/frame_codec.dart`：CRC与180°方向契约的2bpp编解码。
-- `lib/core/image_export.dart`、`android/.../MoinkImageExportBridge.kt`：图库完整PNG导出、Android相册保存与其他平台保存入口。
-- `lib/core/native_ble.dart`、`android/.../MoinkBleBridge.kt`：Android蓝牙适配；GATT回调驱动串行队列。
+- `lib/core/image_export.dart`、`android/.../EspInkImageExportBridge.kt`：图库完整PNG导出、Android相册保存与其他平台保存入口。
+- `lib/core/native_ble.dart`、`android/.../EspInkBleBridge.kt`：Android蓝牙适配；GATT回调驱动串行队列。
 - `test/`：固件文档报文金标、模拟链路故障、112组原JS图像金标、分层渲染和界面检查。
 - `tool/`：可移植的Docker工具链与构建入口。
 - `build/`：真实编译目录，无软链接，包含Android中间文件与Web预览。
 - `releases/`：安装包、完整源码压缩包和包校验记录。
 - `docs/`：架构、功能对照、交付说明、真机步骤与验证记录；`previews/`保存截图，`verification-logs/`保存检查证据，`reference/`保存参考文档与旧page算法源码。
 
-Docker工具链的说明与最初默认示例检查记录在 [tool/docker/README.md](tool/docker/README.md)，它与MoInk应用的验证记录分开。图像金标fixture已恢复并通过测试；需要重新生成时，应把原R1.3.4 HTML作为参数交给 `tool/generate_image_filter_vectors.cjs`。
+Docker工具链的说明与最初默认示例检查记录在 [tool/docker/README.md](tool/docker/README.md)，它与ESP-INK应用的验证记录分开。图像金标fixture已恢复并通过测试；需要重新生成时，应把原R1.3.4 HTML作为参数交给 `tool/generate_image_filter_vectors.cjs`。
 
 维护边界与上机步骤见 [架构说明](docs/architecture.md) 和 [真机检查](docs/hardware-check.md)。
 
 内置字体为 Noto Sans SC、Noto Serif SC、Noto Sans Mono SC，许可见 `assets/fonts/LICENSE-Noto.txt`；应用没有远程字体或图片依赖。草稿保存文字、布局与处理参数，照片字节不写入草稿，重开应用后需要重新选图。
 
-## 2026-11-21 源码恢复
+## 历史恢复记录
 
-本工程已从完整旧版备份和本次聊天的原始补丁恢复到1.0.2+3；81份编译/测试输入已核对，271项测试与静态检查重新通过。恢复过程和新构建结果见 [恢复记录](docs/RECOVERY-2026-11-21.md)。目录内均为真实文件，不使用软链接。
+本工程曾于2026-11-21恢复安卓APP源码。恢复范围、旧版本校验及资料缺口见 [恢复记录](docs/RECOVERY-2026-11-21.md)，当前版本状态以 [验证记录](docs/VERIFICATION.md) 为准。

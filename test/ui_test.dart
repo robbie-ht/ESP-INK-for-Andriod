@@ -3,13 +3,13 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
-import 'package:moink_app/app/controller.dart';
-import 'package:moink_app/app/image_processor.dart';
-import 'package:moink_app/app/models.dart';
-import 'package:moink_app/core/frame_codec.dart';
-import 'package:moink_app/main.dart';
+import 'package:esp_ink/app/controller.dart';
+import 'package:esp_ink/app/image_processor.dart';
+import 'package:esp_ink/app/models.dart';
+import 'package:esp_ink/core/frame_codec.dart';
+import 'package:esp_ink/main.dart';
 
-class UiController extends MoinkController {
+class UiController extends EspInkController {
   UiController({super.artworkProcessor});
 
   int scans = 0, sends = 0, saves = 0;
@@ -32,7 +32,7 @@ class UiController extends MoinkController {
   @override
   Future<void> enterDemo() async {
     demo = true;
-    deviceName = 'MoInk · 体验设备';
+    deviceName = 'ESP-INK · 体验设备';
     gallerySupported = true;
     gallery = [
       for (var i = 0; i < 3; i++)
@@ -61,7 +61,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(c.dispose);
-    await tester.pumpWidget(MoinkApp(controller: c));
+    await tester.pumpWidget(EspInkApp(controller: c));
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 50)),
     );
@@ -81,7 +81,7 @@ void main() {
       expect(c.draft.textLayers, isEmpty);
       await tester.tap(find.text('未连接设备'));
       await tester.pumpAndSettle();
-      expect(find.text('连接你的墨印'), findsOneWidget);
+      expect(find.text('连接你的墨水屏'), findsOneWidget);
       expect(c.connected, isFalse);
       expect(c.sends, 0);
       await tester.tap(find.text('体验演示'));
@@ -160,11 +160,11 @@ void main() {
       await tester.pumpAndSettle();
       expect(c.saves, 0);
       expect(find.text('名称最多 20 个 UTF-8 字节（约 6 个汉字）'), findsOneWidget);
-      await tester.enterText(find.byType(TextFormField).first, '我的墨印');
+      await tester.enterText(find.byType(TextFormField).first, '我的墨水屏');
       await tester.tap(find.text('保存设置'));
       await tester.pumpAndSettle();
       expect(c.saves, 1);
-      expect(c.settings.name, '我的墨印');
+      expect(c.settings.name, '我的墨水屏');
       expect(tester.takeException(), isNull);
     },
   );

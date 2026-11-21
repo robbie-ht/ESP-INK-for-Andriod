@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moink_app/core/frame_codec.dart';
+import 'package:esp_ink/core/frame_codec.dart';
 
 void main() {
   final vectors = jsonDecode(

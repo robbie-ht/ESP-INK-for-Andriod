@@ -5,19 +5,19 @@ import 'ui/home.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MoinkApp());
+  runApp(const EspInkApp());
 }
 
-class MoinkApp extends StatefulWidget {
-  const MoinkApp({super.key, this.controller});
-  final MoinkController? controller;
+class EspInkApp extends StatefulWidget {
+  const EspInkApp({super.key, this.controller});
+  final EspInkController? controller;
   @override
-  State<MoinkApp> createState() => _MoinkAppState();
+  State<EspInkApp> createState() => _EspInkAppState();
 }
 
-class _MoinkAppState extends State<MoinkApp> {
-  late final MoinkController controller =
-      widget.controller ?? MoinkController();
+class _EspInkAppState extends State<EspInkApp> {
+  late final EspInkController controller =
+      widget.controller ?? EspInkController();
   final messenger = GlobalKey<ScaffoldMessengerState>();
   @override
   void initState() {
@@ -65,7 +65,7 @@ class _MoinkAppState extends State<MoinkApp> {
       surface: const Color(0xFFFAFBFF),
     );
     return MaterialApp(
-      title: 'MoInk 墨印',
+      title: 'ESP-INK',
       debugShowCheckedModeBanner: false,
       scaffoldMessengerKey: messenger,
       theme: ThemeData(
@@ -151,7 +151,7 @@ class _MoinkAppState extends State<MoinkApp> {
           elevation: 0,
         ),
       ),
-      home: MoinkHome(controller: controller),
+      home: EspInkHome(controller: controller),
     );
   }
 }

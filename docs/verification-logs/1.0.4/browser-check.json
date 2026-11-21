@@ -1,0 +1,26 @@
+{
+  "url": "http://127.0.0.1:8787/",
+  "title": "ESP-INK",
+  "viewports": [
+    {
+      "width": 390,
+      "height": 844
+    },
+    {
+      "width": 640,
+      "height": 800
+    },
+    {
+      "width": 1280,
+      "height": 720
+    }
+  ],
+  "checks": [
+    "Document title and app header show ESP-INK",
+    "Phone shows one ESP-INK brand without duplicate translated subtitle",
+    "640px header has no overflow with longer brand",
+    "Desktop shows ESP-INK and neutral four-color display subtitle"
+  ],
+  "console_errors": 0,
+  "scope": "Web branding/responsive UI; not physical Android BLE/ADC/MediaStore validation"
+}

@@ -2,10 +2,10 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
-import 'package:moink_app/app/image_processor.dart';
-import 'package:moink_app/app/models.dart';
-import 'package:moink_app/core/frame_codec.dart';
-import 'package:moink_app/core/image_filters.dart';
+import 'package:esp_ink/app/image_processor.dart';
+import 'package:esp_ink/app/models.dart';
+import 'package:esp_ink/core/frame_codec.dart';
+import 'package:esp_ink/core/image_filters.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

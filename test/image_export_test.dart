@@ -2,11 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
-import 'package:moink_app/core/image_export.dart';
+import 'package:esp_ink/core/image_export.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const channel = MethodChannel('app.moink/image_export');
+  const channel = MethodChannel('io.github.robbieht.espink/image_export');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
   final png = Uint8List.fromList(img.encodePng(img.Image(width: 8, height: 8)));
@@ -17,7 +17,7 @@ void main() {
     calls = [];
     messenger.setMockMethodCallHandler(channel, (call) async {
       calls.add(call);
-      return '已保存到相册：Pictures/MoInk/test-unique.png';
+      return '已保存到相册：Pictures/ESP-INK/test-unique.png';
     });
   });
 
@@ -27,11 +27,11 @@ void main() {
   });
 
   test('exports actual PNG bytes to the separate Android channel', () async {
-    final result = await saveGalleryImage(png, fileName: '墨印-图库-1.png');
-    expect(result, '已保存到相册：Pictures/MoInk/test-unique.png');
+    final result = await saveGalleryImage(png, fileName: '墨水屏-图库-1.png');
+    expect(result, '已保存到相册：Pictures/ESP-INK/test-unique.png');
     expect(calls.single.method, 'savePng');
     expect(calls.single.arguments['png'], orderedEquals(png));
-    expect(calls.single.arguments['fileName'], '墨印-图库-1.png');
+    expect(calls.single.arguments['fileName'], '墨水屏-图库-1.png');
   });
 
   test(

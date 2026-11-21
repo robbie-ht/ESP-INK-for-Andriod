@@ -1,5 +1,7 @@
 # 原控制页与Flutter功能对照
 
+上游参考：[atunverse/moink](https://github.com/atunverse/moink)。
+
 参考文件：同级 `moink-R1.3.4/page/index.html`。本次按其图片与文字创作能力实现Flutter编辑器，设备通信依据同级 `Moink-APP/docs/API.md` 的B2 BLE接口。该文件中部分注释使用比目录名更高的版本号，因此图像金标另记录实际源文件SHA256，不只依赖目录名。
 
 ## 图片与文字

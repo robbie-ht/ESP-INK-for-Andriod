@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moink_app/app/controller.dart';
-import 'package:moink_app/main.dart';
+import 'package:esp_ink/app/controller.dart';
+import 'package:esp_ink/main.dart';
 
-class _VoltageController extends MoinkController {
+class _VoltageController extends EspInkController {
   bool online = true;
   @override
   bool get connected => online;
@@ -17,7 +17,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(c.dispose);
     c.tabIndex = 2;
-    await tester.pumpWidget(MoinkApp(controller: c));
+    await tester.pumpWidget(EspInkApp(controller: c));
     await tester.pumpAndSettle();
   }
 

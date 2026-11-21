@@ -1,4 +1,4 @@
-package app.moink.moink_app
+package io.github.robbieht.espink
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -33,7 +33,7 @@ import java.util.UUID
 
 /** All mutable link state and platform calls run on the main looper. */
 @SuppressLint("MissingPermission")
-class MoinkBleBridge(private val activity: Activity, messenger: BinaryMessenger) :
+class EspInkBleBridge(private val activity: Activity, messenger: BinaryMessenger) :
     MethodChannel.MethodCallHandler, EventChannel.StreamHandler {
     companion object {
         private val SERVICE = UUID.fromString("6d6f496e-4b00-4000-8000-000000000000")
@@ -61,8 +61,8 @@ class MoinkBleBridge(private val activity: Activity, messenger: BinaryMessenger)
     }
 
     private val main = Handler(Looper.getMainLooper())
-    private val methods = MethodChannel(messenger, "app.moink/ble")
-    private val events = EventChannel(messenger, "app.moink/ble_events")
+    private val methods = MethodChannel(messenger, "io.github.robbieht.espink/ble")
+    private val events = EventChannel(messenger, "io.github.robbieht.espink/ble_events")
     private val manager = activity.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
     private var sink: EventChannel.EventSink? = null
     private var pendingPermission: PendingPermission? = null
@@ -278,7 +278,7 @@ class MoinkBleBridge(private val activity: Activity, messenger: BinaryMessenger)
             val id = result.device.address
             val oldName = found[id]?.get("name") as? String
             val name = result.scanRecord?.deviceName?.takeIf { it.isNotBlank() }
-                ?: result.device.name?.takeIf { it.isNotBlank() } ?: oldName ?: "未命名 MoInk"
+                ?: result.device.name?.takeIf { it.isNotBlank() } ?: oldName ?: "未命名 ESP-INK"
             found[id] = mapOf("id" to id, "name" to name, "rssi" to result.rssi)
             emit(mapOf("type" to "scan", "devices" to found.values.toList()))
         } catch (_: SecurityException) {
@@ -348,7 +348,7 @@ class MoinkBleBridge(private val activity: Activity, messenger: BinaryMessenger)
                     control.properties and BluetoothGattCharacteristic.PROPERTY_WRITE == 0 ||
                     payload.properties and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE == 0 ||
                     notification.properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY == 0) {
-                    failLink("incompatible_device", "设备缺少 MoInk 所需服务或特征，请核对固件版本。")
+                    failLink("incompatible_device", "设备缺少 ESP-INK 所需服务或特征，请核对固件版本。")
                     return@post
                 }
                 val cccd = notification.getDescriptor(CCCD)

@@ -4,13 +4,13 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
-import 'package:moink_app/app/artwork.dart';
-import 'package:moink_app/app/controller.dart';
-import 'package:moink_app/app/image_processor.dart';
-import 'package:moink_app/app/models.dart';
-import 'package:moink_app/core/frame_codec.dart';
-import 'package:moink_app/main.dart';
-import 'package:moink_app/ui/source_artwork_canvas.dart';
+import 'package:esp_ink/app/artwork.dart';
+import 'package:esp_ink/app/controller.dart';
+import 'package:esp_ink/app/image_processor.dart';
+import 'package:esp_ink/app/models.dart';
+import 'package:esp_ink/core/frame_codec.dart';
+import 'package:esp_ink/main.dart';
+import 'package:esp_ink/ui/source_artwork_canvas.dart';
 
 Uint8List _sourcePng() {
   final image = img.Image(width: 8, height: 5);
@@ -72,13 +72,13 @@ Future<void> _waitFor(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
-  Future<void> launch(WidgetTester tester, MoinkController controller) async {
+  Future<void> launch(WidgetTester tester, EspInkController controller) async {
     tester.view.physicalSize = const Size(1440, 1100);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(controller.dispose);
-    await tester.pumpWidget(MoinkApp(controller: controller));
+    await tester.pumpWidget(EspInkApp(controller: controller));
     await _waitFor(tester, find.byKey(const ValueKey('live-source-paint')));
     await tester.pumpAndSettle();
     expect(_livePainter(tester).photo, isNotNull);
@@ -88,7 +88,7 @@ void main() {
     'pending dot conversion keeps the decoded source photograph visible',
     (tester) async {
       final processor = _ControlledProcessor();
-      final controller = MoinkController(artworkProcessor: processor.call);
+      final controller = EspInkController(artworkProcessor: processor.call);
       controller.updateDraft(ComposerDraft(photoBytes: _sourcePng()));
       // An older device preview must never replace the source while editing.
       controller.previewPng = _deviceArtwork().png;
@@ -128,7 +128,7 @@ void main() {
     'a completed dot result cannot switch the user back from source mode',
     (tester) async {
       final processor = _ControlledProcessor();
-      final controller = MoinkController(artworkProcessor: processor.call);
+      final controller = EspInkController(artworkProcessor: processor.call);
       controller.updateDraft(ComposerDraft(photoBytes: _sourcePng()));
       await launch(tester, controller);
       await tester.tap(find.text('墨水屏效果'));
@@ -163,7 +163,7 @@ void main() {
     tester,
   ) async {
     final processor = _ControlledProcessor();
-    final controller = MoinkController(artworkProcessor: processor.call);
+    final controller = EspInkController(artworkProcessor: processor.call);
     controller.updateDraft(ComposerDraft(photoBytes: _sourcePng()));
     await launch(tester, controller);
     final decodedPhoto = _livePainter(tester).photo;
@@ -192,7 +192,7 @@ void main() {
     'main effect mode refreshes edits and keeps its last result visible',
     (tester) async {
       final processor = _ControlledProcessor();
-      final controller = MoinkController(artworkProcessor: processor.call);
+      final controller = EspInkController(artworkProcessor: processor.call);
       controller.updateDraft(ComposerDraft(photoBytes: _sourcePng()));
       await launch(tester, controller);
       await tester.tap(find.text('墨水屏效果'));

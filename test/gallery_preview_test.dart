@@ -4,10 +4,10 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
-import 'package:moink_app/app/controller.dart';
-import 'package:moink_app/app/models.dart';
-import 'package:moink_app/core/image_export.dart';
-import 'package:moink_app/ui/gallery_page.dart';
+import 'package:esp_ink/app/controller.dart';
+import 'package:esp_ink/app/models.dart';
+import 'package:esp_ink/core/image_export.dart';
+import 'package:esp_ink/ui/gallery_page.dart';
 
 Uint8List _png(int red) {
   final image = img.Image(width: 48, height: 32);
@@ -15,7 +15,7 @@ Uint8List _png(int red) {
   return Uint8List.fromList(img.encodePng(image));
 }
 
-class GalleryTestController extends MoinkController {
+class GalleryTestController extends EspInkController {
   GalleryTestController({Uint8List? cached}) {
     gallerySupported = true;
     tabIndex = 1;
@@ -341,7 +341,7 @@ void main() {
         saveImage: (png, {required fileName}) async {
           saved = png;
           filename = fileName;
-          return '已发起下载：MoInk.png（请查看浏览器下载列表）';
+          return '已发起下载：ESP-INK.png（请查看浏览器下载列表）';
         },
       );
       await finishImages(tester);
@@ -349,8 +349,8 @@ void main() {
       await finishImages(tester);
       expect(c.reads, [false, true]);
       expect(saved, same(full));
-      expect(filename, startsWith('MoInk-画面-1-'));
-      expect(find.text('已发起下载：MoInk.png（请查看浏览器下载列表）'), findsOneWidget);
+      expect(filename, startsWith('ESP-INK-画面-1-'));
+      expect(find.text('已发起下载：ESP-INK.png（请查看浏览器下载列表）'), findsOneWidget);
       expect(find.text('完整画面 · 768 × 552'), findsOneWidget);
     },
   );
@@ -395,7 +395,7 @@ void main() {
         if (++attempts == 1) {
           throw ImageExportException('相册保存失败，请重试', code: 'save_failed');
         }
-        return '已保存到相册：Pictures/MoInk/test.png';
+        return '已保存到相册：Pictures/ESP-INK/test.png';
       },
     );
     await finishImages(tester);
@@ -406,7 +406,7 @@ void main() {
     await tester.tap(find.byKey(const Key('gallery-download')));
     await finishImages(tester);
     expect(attempts, 2);
-    expect(find.text('已保存到相册：Pictures/MoInk/test.png'), findsOneWidget);
+    expect(find.text('已保存到相册：Pictures/ESP-INK/test.png'), findsOneWidget);
     expect(find.text('相册保存失败，请重试'), findsNothing);
   });
 
@@ -462,7 +462,7 @@ void main() {
             .onPressed,
         isNull,
       );
-      saving.complete('已保存到相册：Pictures/MoInk/test.png');
+      saving.complete('已保存到相册：Pictures/ESP-INK/test.png');
       await finishImages(tester);
       expect(find.byKey(const Key('gallery-save-result')), findsOneWidget);
     },
@@ -489,13 +489,13 @@ void main() {
       tester
           .widget<IconButton>(
             find.byWidgetPredicate(
-              (widget) => widget is IconButton && widget.tooltip == '在墨印上显示',
+              (widget) => widget is IconButton && widget.tooltip == '在墨水屏上显示',
             ),
           )
           .onPressed,
       isNotNull,
     );
-    await tester.tap(find.byTooltip('在墨印上显示'));
+    await tester.tap(find.byTooltip('在墨水屏上显示'));
     expect(c.shows, 1);
     expect(tester.takeException(), isNull);
   });

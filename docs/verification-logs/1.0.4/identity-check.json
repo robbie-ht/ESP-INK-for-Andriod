@@ -1,0 +1,20 @@
+{
+  "applicationId": "io.github.robbieht.espink",
+  "label": "ESP-INK",
+  "version": "1.0.4+5",
+  "minSdk": 24,
+  "targetSdk": 36,
+  "new_namespace_present_in_dex": true,
+  "legacy_namespace_absent_in_dex": true,
+  "test_signature_matches_previous": true,
+  "ble_uuids_unchanged": [
+    "6d6f496e-4b00-4000-8000-000000000000",
+    "6d6f496e-4b00-4000-8000-000000000001",
+    "6d6f496e-4b00-4000-8000-000000000002",
+    "6d6f496e-4b00-4000-8000-000000000003",
+    "00002902-0000-1000-8000-00805f9b34fb"
+  ],
+  "build_inputs_unchanged": 84,
+  "symlinks": 0,
+  "actual_build_directory": true
+}

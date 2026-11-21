@@ -1,4 +1,4 @@
-package app.moink.moink_app
+package io.github.robbieht.espink
 
 import android.Manifest
 import android.app.Activity
@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
 /** User-initiated PNG export. No media-library read permission is requested. */
-class MoinkImageExportBridge(activity: Activity, messenger: BinaryMessenger) :
+class EspInkImageExportBridge(activity: Activity, messenger: BinaryMessenger) :
     MethodChannel.MethodCallHandler {
     companion object {
         private const val PERMISSION_REQUEST = 8424
@@ -44,7 +44,7 @@ class MoinkImageExportBridge(activity: Activity, messenger: BinaryMessenger) :
 
     private var activity: Activity? = activity
     private val context = activity.applicationContext
-    private val channel = MethodChannel(messenger, "app.moink/image_export")
+    private val channel = MethodChannel(messenger, "io.github.robbieht.espink/image_export")
     private val main = Handler(Looper.getMainLooper())
     private val worker = Executors.newSingleThreadExecutor()
     private var active: Request? = null
@@ -110,7 +110,7 @@ class MoinkImageExportBridge(activity: Activity, messenger: BinaryMessenger) :
         if (currentActivity.shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             rationale = AlertDialog.Builder(currentActivity)
                 .setTitle("保存图片到相册")
-                .setMessage("此 Android 版本需要存储权限，才能把图片保存到 Pictures/MoInk。")
+                .setMessage("此 Android 版本需要存储权限，才能把图片保存到 Pictures/ESP-INK。")
                 .setPositiveButton("继续") { _, _ -> ask() }
                 .setNegativeButton("取消") { _, _ ->
                     finish(request, error = ExportFailure("cancelled", "已取消保存。"))
@@ -190,7 +190,7 @@ class MoinkImageExportBridge(activity: Activity, messenger: BinaryMessenger) :
         val values = ContentValues().apply {
             put(MediaStore.Images.Media.DISPLAY_NAME, name)
             put(MediaStore.Images.Media.MIME_TYPE, "image/png")
-            put(MediaStore.Images.Media.RELATIVE_PATH, "${Environment.DIRECTORY_PICTURES}/MoInk")
+            put(MediaStore.Images.Media.RELATIVE_PATH, "${Environment.DIRECTORY_PICTURES}/ESP-INK")
             put(MediaStore.Images.Media.IS_PENDING, 1)
         }
         checkActive(request)
@@ -215,7 +215,7 @@ class MoinkImageExportBridge(activity: Activity, messenger: BinaryMessenger) :
                 if (it.moveToFirst()) it.getString(0) else null
             } ?: name
         } catch (_: Exception) { name }
-        return "已保存到相册：Pictures/MoInk/$actualName"
+        return "已保存到相册：Pictures/ESP-INK/$actualName"
     }
 
     @Suppress("DEPRECATION")
@@ -223,8 +223,8 @@ class MoinkImageExportBridge(activity: Activity, messenger: BinaryMessenger) :
         if (Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED) {
             throw ExportFailure("storage_unavailable", "手机共享存储暂不可写，请检查存储状态后重试。")
         }
-        val directory = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "MoInk")
-        if (!directory.isDirectory && !directory.mkdirs()) throw IOException("Cannot create Pictures/MoInk")
+        val directory = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "ESP-INK")
+        if (!directory.isDirectory && !directory.mkdirs()) throw IOException("Cannot create Pictures/ESP-INK")
         val file = File(directory, uniqueName(request))
         if (!file.createNewFile()) throw IOException("Unique destination already exists")
         try {
@@ -248,9 +248,9 @@ class MoinkImageExportBridge(activity: Activity, messenger: BinaryMessenger) :
             scanned.await(10, TimeUnit.SECONDS)
         } catch (_: Exception) { /* The completed file remains available even if indexing is delayed. */ }
         return if (scannedUri.get() != null) {
-            "已保存到相册：Pictures/MoInk/${file.name}"
+            "已保存到相册：Pictures/ESP-INK/${file.name}"
         } else {
-            "已保存到：Pictures/MoInk/${file.name}（相册索引可能稍后更新）"
+            "已保存到：Pictures/ESP-INK/${file.name}（相册索引可能稍后更新）"
         }
     }
 

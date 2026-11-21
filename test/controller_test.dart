@@ -5,11 +5,11 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
-import 'package:moink_app/app/controller.dart';
-import 'package:moink_app/app/models.dart';
-import 'package:moink_app/core/frame_codec.dart';
-import 'package:moink_app/core/native_ble.dart';
-import 'package:moink_app/core/protocol.dart';
+import 'package:esp_ink/app/controller.dart';
+import 'package:esp_ink/app/models.dart';
+import 'package:esp_ink/core/frame_codec.dart';
+import 'package:esp_ink/core/native_ble.dart';
+import 'package:esp_ink/core/protocol.dart';
 
 List<int> _le16(int value) => [value & 255, (value >> 8) & 255];
 List<int> _le32(int value) => [
@@ -249,20 +249,20 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late _Device deviceA, deviceB;
   late _FakeNativeBle ble;
-  late MoinkController controller;
+  late EspInkController controller;
 
   setUp(() {
     deviceA = _Device(
-      name: 'MoInk-A',
+      name: 'ESP-INK-A',
       thumbnail: _smallPng(255, 0, 0),
       revision: 2,
       thumbnailFormat: 2,
       thumbnailWidth: 2,
       thumbnailHeight: 1,
     );
-    deviceB = _Device(name: 'MoInk-B', thumbnail: _smallPng(0, 0, 0));
+    deviceB = _Device(name: 'ESP-INK-B', thumbnail: _smallPng(0, 0, 0));
     ble = _FakeNativeBle({'A': deviceA, 'B': deviceB});
-    controller = MoinkController(nativeBle: ble);
+    controller = EspInkController(nativeBle: ble);
     // init() starts artwork rendering and mobile picker recovery. Neither is
     // relevant to these protocol/controller tests, so connect directly.
   });
@@ -284,7 +284,7 @@ void main() {
     await ble.disconnect();
     await controller.connect('B');
     expect(controller.connected, isTrue, reason: controller.message);
-    expect(controller.deviceName, 'MoInk-B');
+    expect(controller.deviceName, 'ESP-INK-B');
     expect(controller.gallery.single.slot, 0);
     expect(controller.gallery.single.png, isNull);
     await controller.loadGalleryPreview(0);

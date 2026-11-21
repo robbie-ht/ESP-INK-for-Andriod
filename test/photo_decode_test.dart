@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
-import 'package:moink_app/app/photo_decode.dart';
+import 'package:esp_ink/app/photo_decode.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

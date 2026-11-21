@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moink_app/core/native_ble.dart';
+import 'package:esp_ink/core/native_ble.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const methodChannel = MethodChannel('app.moink/ble');
-  const eventChannel = EventChannel('app.moink/ble_events');
+  const methodChannel = MethodChannel('io.github.robbieht.espink/ble');
+  const eventChannel = EventChannel('io.github.robbieht.espink/ble_events');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 

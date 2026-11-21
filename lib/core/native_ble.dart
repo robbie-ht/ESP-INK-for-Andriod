@@ -29,9 +29,9 @@ class NativeBleException implements Exception {
 
 /// Android's one-link BLE bridge. GATT write success is not a device job result.
 /// Dispose this instance before replacing it with another transport.
-class NativeBle implements MoinkTransport {
-  static const _methods = MethodChannel('app.moink/ble');
-  static const _events = EventChannel('app.moink/ble_events');
+class NativeBle implements EspInkTransport {
+  static const _methods = MethodChannel('io.github.robbieht.espink/ble');
+  static const _events = EventChannel('io.github.robbieht.espink/ble_events');
 
   final _notifications = StreamController<Uint8List>.broadcast();
   final _connections = StreamController<bool>.broadcast();
@@ -150,7 +150,7 @@ class NativeBle implements MoinkTransport {
                 .map(
                   (item) => DiscoveredDevice(
                     id: item['id'] as String? ?? '',
-                    name: item['name'] as String? ?? '未命名 MoInk',
+                    name: item['name'] as String? ?? '未命名 ESP-INK',
                     rssi: (item['rssi'] as num?)?.toInt() ?? -127,
                   ),
                 )

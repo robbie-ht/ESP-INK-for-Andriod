@@ -44,7 +44,7 @@ EXCLUDED_SUFFIXES = {
     ".iml", ".ipr", ".iws", ".pyc", ".pyo", ".swp", ".class",
     ".keystore", ".jks", ".p12", ".pfx", ".pem", ".key", ".apk", ".aab",
 }
-ARCHIVE_NAME = "MoInk-Flutter-source.tar.gz"
+ARCHIVE_NAME = "ESP-INK-Flutter-source.tar.gz"
 MANIFEST_NAME = "SOURCE_SHA256SUMS"
 REPORT_NAME = "source-package.json"
 
@@ -174,7 +174,7 @@ def preserve_previous_release(releases: Path, current_version: str) -> None:
         return
     # Historical public filenames use the release version, without build number.
     version = previous_version.split("+", 1)[0]
-    keep_old_copy(previous, releases / f"MoInk-{version}-source.tar.gz")
+    keep_old_copy(previous, releases / f"ESP-INK-{version}-source.tar.gz")
     report = releases / REPORT_NAME
     if report.exists():
         keep_old_copy(report, releases / f"source-package-{version}.json")

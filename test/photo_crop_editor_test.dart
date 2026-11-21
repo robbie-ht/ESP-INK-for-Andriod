@@ -4,11 +4,11 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
-import 'package:moink_app/app/controller.dart';
-import 'package:moink_app/app/models.dart';
-import 'package:moink_app/ui/photo_crop_editor.dart';
+import 'package:esp_ink/app/controller.dart';
+import 'package:esp_ink/app/models.dart';
+import 'package:esp_ink/ui/photo_crop_editor.dart';
 
-class CropController extends MoinkController {
+class CropController extends EspInkController {
   int commits = 0;
 
   @override

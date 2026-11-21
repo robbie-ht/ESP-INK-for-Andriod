@@ -13,13 +13,13 @@ import 'source_artwork_canvas.dart';
 
 class ComposerPage extends StatefulWidget {
   const ComposerPage({super.key, required this.c});
-  final MoinkController c;
+  final EspInkController c;
   @override
   State<ComposerPage> createState() => _ComposerPageState();
 }
 
 class _ComposerPageState extends State<ComposerPage> {
-  MoinkController get c => widget.c;
+  EspInkController get c => widget.c;
   String? selectedId;
   bool inkPreview = false;
   ComposerDraft? gestureDraft;
@@ -56,7 +56,7 @@ class _ComposerPageState extends State<ComposerPage> {
           ),
           const SizedBox(height: 9),
           const Text(
-            '一张照片，几句心事。你的墨印，由你来写。',
+            '一张照片，几句心事。你的墨水屏，由你来写。',
             style: TextStyle(color: mutedText),
           ),
           const SizedBox(height: 25),

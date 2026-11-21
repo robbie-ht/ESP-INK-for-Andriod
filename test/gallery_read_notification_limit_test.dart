@@ -3,9 +3,9 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moink_app/core/frame_codec.dart';
-import 'package:moink_app/core/protocol.dart';
-import 'package:moink_app/core/transport.dart';
+import 'package:esp_ink/core/frame_codec.dart';
+import 'package:esp_ink/core/protocol.dart';
+import 'package:esp_ink/core/transport.dart';
 
 List<int> _le16(int value) => [value & 255, (value >> 8) & 255];
 List<int> _le32(int value) => [..._le16(value), ..._le16(value >> 16)];
@@ -15,9 +15,9 @@ int _u32(Uint8List value, int offset) =>
     ByteData.sublistView(value).getUint32(offset, Endian.little);
 
 /// Models the existing firmware's MTU - 19 read cap, before any firmware fix.
-/// The Android receive gate must run before bytes reach MoinkClient: delivering
+/// The Android receive gate must run before bytes reach EspInkClient: delivering
 /// a 514-byte notification directly to Dart would hide the MTU 517 regression.
-class _LegacyGalleryTransport implements MoinkTransport {
+class _LegacyGalleryTransport implements EspInkTransport {
   _LegacyGalleryTransport(this.mtu);
 
   @override
@@ -125,7 +125,7 @@ void main() {
         'Android 512-byte receive limit with unchanged firmware',
         () async {
           final transport = _LegacyGalleryTransport(mtu);
-          final client = MoinkClient(
+          final client = EspInkClient(
             transport,
             commandTimeout: const Duration(milliseconds: 120),
           );
