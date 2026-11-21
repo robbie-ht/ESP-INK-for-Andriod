@@ -5,6 +5,7 @@ import 'package:esp_ink/app/controller.dart';
 import 'package:esp_ink/app/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' show AppLifecycleState;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,6 +21,7 @@ Uint8List _photo(int red, int green) {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   const pickerChannel = MethodChannel('plugins.flutter.io/image_picker');
+  const selectorChannel = MethodChannel('plugins.flutter.io/file_selector');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 
@@ -29,7 +31,9 @@ void main() {
   late Uint8List selectedBytes, recoveredBytes;
   late ComposerDraft original;
   late List<MethodCall> calls;
+  late List<MethodCall> selectorCalls;
   Future<Object?> Function(MethodCall)? handler;
+  Future<Object?> Function(MethodCall)? selectorHandler;
 
   Map<String, Object> lostPhoto(File file) => {
     'type': 'image',
@@ -50,11 +54,18 @@ void main() {
         .writeAsBytes(recoveredBytes);
     emptyFile = await File('${temporary.path}/empty.png').writeAsBytes([]);
     calls = [];
+    selectorCalls = [];
     handler = null;
+    selectorHandler = null;
     messenger.setMockMethodCallHandler(pickerChannel, (call) async {
       calls.add(call);
       if (handler != null) return handler!(call);
       return call.method == 'pickImage' ? selectedFile.path : null;
+    });
+    messenger.setMockMethodCallHandler(selectorChannel, (call) async {
+      selectorCalls.add(call);
+      if (selectorHandler != null) return selectorHandler!(call);
+      return [selectedFile.path];
     });
     controller = EspInkController();
     original = ComposerDraft(
@@ -75,6 +86,7 @@ void main() {
     controller.dispose();
     await Future<void>.delayed(Duration.zero);
     messenger.setMockMethodCallHandler(pickerChannel, null);
+    messenger.setMockMethodCallHandler(selectorChannel, null);
     debugDefaultTargetPlatformOverride = null;
     await temporary.delete(recursive: true);
   });
@@ -361,4 +373,181 @@ void main() {
       expect(controller.draft.adjustments, same(before.adjustments));
     },
   );
+
+  group('Windows photo selection', () {
+    setUp(() {
+      controller.dispose();
+      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+      controller = EspInkController();
+      controller.updateDraft(original);
+    });
+
+    test(
+      'uses the desktop file selector and accepts its actual photo bytes',
+      () async {
+        expect(await controller.pickPhoto(), isTrue);
+        expect(calls, isEmpty, reason: 'Windows must not call image_picker');
+        expect(selectorCalls.single.method, 'openFile');
+        final arguments =
+            selectorCalls.single.arguments as Map<Object?, Object?>;
+        final groups = arguments['acceptedTypeGroups'] as List<Object?>;
+        final photos = groups.single as Map<Object?, Object?>;
+        expect(photos['extensions'], [
+          'jpg',
+          'jpeg',
+          'png',
+          'webp',
+          'bmp',
+          'gif',
+        ]);
+        expect(arguments['multiple'], isFalse);
+        expect(arguments['confirmButtonText'], '选择照片');
+        expect(controller.draft.kind, CompositionKind.photo);
+        expect(controller.draft.photoBytes, orderedEquals(selectedBytes));
+        expect(controller.draft.zoom, 1);
+        expect(controller.draft.rotation, 0);
+        expect(controller.draft.quarterTurns, 0);
+        expect(controller.draft.mirror, isFalse);
+        expect(controller.draft.offsetX, 0);
+        expect(controller.draft.offsetY, 0);
+        expect(controller.draft.background, original.background);
+        expect(controller.pickingPhoto, isFalse);
+        expect(controller.recoveredPhotoNeedsAdjustment, isFalse);
+      },
+    );
+
+    test('cancelled desktop selection preserves the existing draft and unlocks retry', () async {
+      selectorHandler = (_) async => null;
+      expect(await controller.pickPhoto(), isFalse);
+      expect(controller.draft, same(original));
+      expect(controller.pickingPhoto, isFalse);
+      selectorHandler = null;
+      expect(await controller.pickPhoto(), isTrue);
+      expect(selectorCalls, hasLength(2));
+      expect(calls, isEmpty);
+    });
+
+    for (final invalid in ['empty', 'missing', 'oversized']) {
+      test('a $invalid desktop file preserves the existing draft', () async {
+        var path = emptyFile.path;
+        switch (invalid) {
+          case 'missing':
+            path = '${temporary.path}/missing.png';
+          case 'oversized':
+            final oversized = File('${temporary.path}/desktop-large.png');
+            final opened = await oversized.open(mode: FileMode.write);
+            await opened.truncate(24 * 1024 * 1024 + 1);
+            await opened.close();
+            path = oversized.path;
+        }
+        selectorHandler = (_) async => [path];
+        expect(await controller.pickPhoto(), isFalse);
+        expect(controller.draft, same(original));
+        expect(controller.pickingPhoto, isFalse);
+        expect(controller.message, contains('无法打开这张照片'));
+        if (invalid == 'oversized') {
+          expect(controller.message, contains('24 MB'));
+        }
+        expect(calls, isEmpty);
+      });
+    }
+
+    test(
+      'desktop dialog failure releases its guard and keeps the draft',
+      () async {
+        selectorHandler = (_) async => throw PlatformException(
+          code: 'open_failed',
+          message: 'test desktop dialog failure',
+        );
+        expect(await controller.pickPhoto(), isFalse);
+        expect(controller.draft, same(original));
+        expect(controller.pickingPhoto, isFalse);
+        expect(controller.message, contains('test desktop dialog failure'));
+        selectorHandler = null;
+        expect(await controller.pickPhoto(), isTrue);
+        expect(calls, isEmpty);
+      },
+    );
+
+    test(
+      'concurrent desktop selections share a single pending file dialog',
+      () async {
+        final opened = Completer<void>(), reply = Completer<Object?>();
+        selectorHandler = (_) {
+          opened.complete();
+          return reply.future;
+        };
+        final first = controller.pickPhoto();
+        await opened.future;
+        expect(controller.pickingPhoto, isTrue);
+        expect(await controller.pickPhoto(), isFalse);
+        expect(selectorCalls, hasLength(1));
+        expect(controller.draft, same(original));
+        reply.complete([selectedFile.path]);
+        expect(await first, isTrue);
+        expect(controller.draft.photoBytes, orderedEquals(selectedBytes));
+        expect(controller.pickingPhoto, isFalse);
+        expect(calls, isEmpty);
+      },
+    );
+
+    test(
+      'a late desktop photo cannot overwrite a subsequent note choice',
+      () async {
+        final opened = Completer<void>(), reply = Completer<Object?>();
+        selectorHandler = (_) {
+          opened.complete();
+          return reply.future;
+        };
+        final picking = controller.pickPhoto();
+        await opened.future;
+        controller.selectNoteComposition();
+        final note = controller.draft;
+        reply.complete([selectedFile.path]);
+        expect(await picking, isFalse);
+        expect(controller.draft, same(note));
+        expect(controller.draft.kind, CompositionKind.note);
+        expect(controller.draft.photoBytes, same(original.photoBytes));
+        expect(controller.recoveredPhotoNeedsAdjustment, isFalse);
+        expect(controller.pickingPhoto, isFalse);
+      },
+    );
+
+    test(
+      'initialization never invokes Android lost-data recovery on Windows',
+      () async {
+        handler = (_) async => throw MissingPluginException('Android only');
+        await controller.init();
+        expect(calls, isEmpty);
+        expect(selectorCalls, isEmpty);
+        expect(controller.draft, same(original));
+        expect(controller.recoveredPhotoNeedsAdjustment, isFalse);
+        expect(
+          controller.logs,
+          isNot(contains(contains('MissingPluginException'))),
+        );
+      },
+    );
+
+    test(
+      'a desktop file dialog may return after the window becomes inactive',
+      () async {
+        final opened = Completer<void>(), reply = Completer<Object?>();
+        selectorHandler = (_) {
+          opened.complete();
+          return reply.future;
+        };
+        final picking = controller.pickPhoto();
+        await opened.future;
+        controller.didChangeAppLifecycleState(AppLifecycleState.inactive);
+        reply.complete([selectedFile.path]);
+        expect(await picking, isTrue);
+        controller.didChangeAppLifecycleState(AppLifecycleState.resumed);
+        expect(controller.draft.photoBytes, orderedEquals(selectedBytes));
+        expect(controller.pickingPhoto, isFalse);
+        expect(controller.recoveredPhotoNeedsAdjustment, isFalse);
+        expect(calls, isEmpty);
+      },
+    );
+  });
 }

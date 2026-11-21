@@ -1,0 +1,57 @@
+00:00 +0: loading /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart
+00:00 +0: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: construction and unused disposal never initialize the plugin
+00:00 +1: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: unsupported platform does not activate UniversalBle
+00:00 +2: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: scan filters the service, preserves names and sorts latest RSSI
+00:00 +3: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: stop before availability returns never starts a native scan
+00:00 +4: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: scan stop is serialized after an in-flight scan start
+00:00 +5: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: AvailabilityState.poweredOff produces a useful error before scanning
+00:00 +6: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: AvailabilityState.unsupported produces a useful error before scanning
+00:00 +7: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: AvailabilityState.unauthorized produces a useful error before scanning
+00:00 +8: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: CCCD and actual MTU must finish before connected is published
+00:00 +9: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: notifications are copied and ignored before ready or after disconnect
+00:00 +10: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: missing B2 service or mandatory characteristic properties is rejected
+00:00 +11: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: failed CCCD never exposes a writable connection
+00:00 +12: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: MTU below 39 fails while 39..47 warns without inventing a larger value
+00:00 +13: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: CTRL and DATA share FIFO, use distinct write modes and copy input
+00:00 +14: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: MTU 517 never permits an attribute above 512 or an empty write
+00:00 +15: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: ambiguous write error is not retried and queued writes cannot escape
+00:00 +16: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: disconnect cancels queued writes and an in-flight write completion
+00:00 +17: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: a cancelled late connect is closed before a replacement session starts
+00:00 +18: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: remote disconnect and adapter removal invalidate a ready connection
+00:00 +19: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: native timeout closes the session and does not report connected
+00:00 +20: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: Windows settings uses the desktop runner channel without activating BLE
+00:00 +21: /home/descfly/桌面/ESP32/APP/test/windows_ble_test.dart: NativeBle facade delegates Windows streams, commands and disposal
+00:00 +22: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: accepted system photo returns true and resets only photo geometry
+00:00 +23: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: system picker cancellation returns false without changing the draft
+00:00 +24: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: empty photo fails without discarding the existing draft
+00:00 +25: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: unreadable photo fails without discarding the existing draft
+00:00 +26: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: over-limit photo fails without discarding the existing draft
+00:00 +27: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: platform picker exception preserves the draft and releases the guard
+00:00 +28: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: a concurrent pick returns false and opens only one system picker
+00:00 +29: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: Android lost photo is accepted and adjustment navigation is consumed once
+00:00 +30: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: a normal selection clears an unconsumed recovered-photo navigation
+00:00 +31: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: late Android recovery cannot overwrite a newer normal selection
+00:00 +32: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: normal picker completing after recovery wins and clears duplicate navigation
+00:00 +33: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: an explicit note choice supersedes a pending Android photo recovery
+00:00 +34: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: choosing note clears recovered navigation while preserving the photo draft
+00:00 +35: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: choosing note enables its saved text after photo overlays were hidden
+00:00 +36: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: Windows photo selection uses the desktop file selector and accepts its actual photo bytes
+00:00 +37: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: Windows photo selection cancelled desktop selection preserves the existing draft and unlocks retry
+00:00 +38: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: Windows photo selection a empty desktop file preserves the existing draft
+00:00 +39: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: Windows photo selection a missing desktop file preserves the existing draft
+00:00 +40: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: Windows photo selection a oversized desktop file preserves the existing draft
+00:00 +41: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: Windows photo selection desktop dialog failure releases its guard and keeps the draft
+00:00 +42: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: Windows photo selection concurrent desktop selections share a single pending file dialog
+00:00 +43: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: Windows photo selection a late desktop photo cannot overwrite a subsequent note choice
+00:00 +44: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: Windows photo selection initialization never invokes Android lost-data recovery on Windows
+00:00 +45: /home/descfly/桌面/ESP32/APP/test/photo_picker_controller_test.dart: Windows photo selection a desktop file dialog may return after the window becomes inactive
+00:00 +46: /home/descfly/桌面/ESP32/APP/test/image_export_test.dart: exports actual PNG bytes to the separate Android channel
+00:00 +47: /home/descfly/桌面/ESP32/APP/test/image_export_test.dart: empty, wrong-format and truncated images never reach Android
+00:00 +48: /home/descfly/桌面/ESP32/APP/test/image_export_test.dart: unsafe and oversized filenames never reach Android
+00:00 +49: /home/descfly/桌面/ESP32/APP/test/image_export_test.dart: permission denial preserves the actionable native error
+00:00 +50: /home/descfly/桌面/ESP32/APP/test/image_export_test.dart: missing service and missing save result never report success
+00:00 +51: /home/descfly/桌面/ESP32/APP/test/image_export_test.dart: native cancellation is kept distinct from a failed save
+00:00 +52: /home/descfly/桌面/ESP32/APP/test/image_export_test.dart: Windows PNG export writes the complete PNG to the selected Unicode path with spaces
+00:00 +53: /home/descfly/桌面/ESP32/APP/test/image_export_test.dart: Windows PNG export cancelling the save dialog creates no file and reports cancellation
+00:00 +54: /home/descfly/桌面/ESP32/APP/test/image_export_test.dart: Windows PNG export an actual write error returns a readable failure without reporting success
+00:00 +55: All tests passed!

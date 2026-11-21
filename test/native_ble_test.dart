@@ -142,7 +142,7 @@ void main() {
   });
 
   test(
-    'non-Android platforms return a useful error without platform calls',
+    'unsupported platforms return a useful error without platform calls',
     () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.linux;
       expect(ble.supported, isFalse);

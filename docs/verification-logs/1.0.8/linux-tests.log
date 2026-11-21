@@ -1,0 +1,426 @@
+00:00 +0: loading /home/descfly/桌面/ESP32/APP/test/image_export_test.dart
+00:00 +0: /home/descfly/桌面/ESP32/APP/test/image_export_test.dart: exports actual PNG bytes to the separate Android channel
+00:00 +1: /home/descfly/桌面/ESP32/APP/test/image_export_test.dart: empty, wrong-format and truncated images never reach Android
+00:00 +2: /home/descfly/桌面/ESP32/APP/test/image_export_test.dart: unsafe and oversized filenames never reach Android
+00:00 +3: /home/descfly/桌面/ESP32/APP/test/image_export_test.dart: permission denial preserves the actionable native error
+00:00 +4: /home/descfly/桌面/ESP32/APP/test/image_export_test.dart: missing service and missing save result never report success
+00:00 +5: /home/descfly/桌面/ESP32/APP/test/image_export_test.dart: native cancellation is kept distinct from a failed save
+00:00 +6: /home/descfly/桌面/ESP32/APP/test/image_export_test.dart: Windows PNG export writes the complete PNG to the selected Unicode path with spaces
+00:00 +7: /home/descfly/桌面/ESP32/APP/test/image_export_test.dart: Windows PNG export cancelling the save dialog creates no file and reports cancellation
+00:00 +8: /home/descfly/桌面/ESP32/APP/test/image_export_test.dart: Windows PNG export an actual write error returns a readable failure without reporting success
+00:00 +9: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +10: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +11: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +12: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +13: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +14: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +15: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +16: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +17: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +18: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +19: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +20: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +21: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +22: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +23: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +24: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +25: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +26: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +27: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +28: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +29: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +30: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +31: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +32: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +33: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +34: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +35: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +36: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +37: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +38: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +39: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +40: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +41: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +42: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +43: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +44: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +45: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +46: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +47: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +48: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +49: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +50: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +51: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +52: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +53: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +54: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +55: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +56: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +57: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +58: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +59: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +60: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +61: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +62: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +63: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +64: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +65: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +66: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +67: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +68: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +69: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +70: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +71: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +72: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +73: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +74: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +75: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +76: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +77: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +78: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +79: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +80: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +81: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +82: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +83: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +84: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +85: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +86: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +87: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +88: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +89: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +90: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +91: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +92: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +93: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +94: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +95: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +96: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +97: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +98: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +99: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +100: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +101: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +102: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +103: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +104: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +105: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +106: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +107: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +108: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +109: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +110: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +111: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +112: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +113: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +114: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +115: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +116: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +117: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +118: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +119: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +120: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +121: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +122: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +123: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +124: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +125: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +126: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +127: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +128: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +129: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +130: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +131: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(844.0, 390.0)
+00:00 +132: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: adjustment updates effect automatically without a refresh button
+00:01 +133: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: adjustment updates effect automatically without a refresh button
+00:01 +134: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: adjustment updates effect automatically without a refresh button
+00:01 +135: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: adjustment updates effect automatically without a refresh button
+00:01 +136: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: adjustment updates effect automatically without a refresh button
+00:01 +137: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: adjustment updates effect automatically without a refresh button
+00:01 +138: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: adjustment updates effect automatically without a refresh button
+00:01 +139: /home/descfly/桌面/ESP32/APP/test/display_gallery_lane_test.dart: old firmware queues gallery behind complete display job
+00:01 +140: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: closing editor restores an already active main effect preview
+00:01 +141: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: closing editor restores an already active main effect preview
+00:01 +142: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: closing editor restores an already active main effect preview
+00:01 +143: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: closing editor restores an already active main effect preview
+00:01 +144: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: closing editor restores an already active main effect preview
+00:01 +145: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: closing editor restores an already active main effect preview
+00:01 +146: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: closing editor restores an already active main effect preview
+00:01 +147: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: closing editor restores an already active main effect preview
+00:01 +148: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: closing editor restores an already active main effect preview
+00:01 +149: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: closing editor restores an already active main effect preview
+00:01 +150: /home/descfly/桌面/ESP32/APP/test/display_gallery_lane_test.dart: a new mutation cannot reuse a preceding external display window
+00:01 +151: /home/descfly/桌面/ESP32/APP/test/photo_geometry_test.dart: cover encloses every corner for all orientations and large pans
+00:01 +152: /home/descfly/桌面/ESP32/APP/test/photo_geometry_test.dart: cover encloses every corner for all orientations and large pans
+00:01 +153: /home/descfly/桌面/ESP32/APP/test/photo_geometry_test.dart: contain shows the whole original at every angle including pan limits
+00:01 +154: /home/descfly/桌面/ESP32/APP/test/photo_geometry_test.dart: inverse transform retains exact source pixel even after mirroring
+00:01 +155: /home/descfly/桌面/ESP32/APP/test/photo_geometry_test.dart: pinch, pan and rotation preserve the source pixel below the focal point
+00:01 +156: /home/descfly/桌面/ESP32/APP/test/photo_geometry_test.dart: normalization is idempotent and permits reaching a zoomed photo edge
+00:01 +157: /home/descfly/桌面/ESP32/APP/test/photo_geometry_test.dart: corner crop preserves image on stage then expands the selected region
+00:01 +158: /home/descfly/桌面/ESP32/APP/test/photo_geometry_test.dart: scaled editor viewport and final output resolve the same photo coordinates
+00:01 +159: /home/descfly/桌面/ESP32/APP/test/photo_geometry_test.dart: invalid persisted transforms recover while invalid image sizes fail clearly
+00:01 +160: /home/descfly/桌面/ESP32/APP/test/photo_geometry_test.dart: real raster painter exactly matches final artwork with rotation, mirror and padding
+00:01 +161: /home/descfly/桌面/ESP32/APP/test/photo_geometry_test.dart: rotated cover never rasterizes a transparent hole inside crop
+00:01 +162: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +163: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +164: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +165: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +166: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +167: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +168: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +169: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +170: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +171: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +172: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +173: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +174: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +175: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +176: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +177: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +178: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +179: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +180: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +181: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +182: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +183: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +184: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +185: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +186: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +187: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +188: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +189: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +190: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +191: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +192: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:01 +193: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:02 +194: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:02 +195: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:02 +196: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:02 +197: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +198: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +199: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +200: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +201: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +202: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +203: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +204: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +205: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +206: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +207: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +208: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +209: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +210: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +211: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +212: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +213: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +214: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +215: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +216: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +217: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +218: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +219: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +220: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +221: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +222: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +223: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +224: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +225: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:02 +226: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:02 +227: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +228: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +229: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +230: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +231: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +232: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +233: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +234: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +235: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +236: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +237: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +238: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +239: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +240: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +241: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +242: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +243: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +244: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +245: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +246: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +247: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +248: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +249: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +250: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +251: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +252: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +253: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +254: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +255: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +256: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +257: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +258: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +259: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +260: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +261: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +262: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:03 +263: /home/descfly/桌面/ESP32/APP/test/voltage_status_ui_test.dart: retained voltage stays visible without the removed sampling caption
+00:03 +264: /home/descfly/桌面/ESP32/APP/test/voltage_status_ui_test.dart: retained voltage stays visible without the removed sampling caption
+00:03 +265: /home/descfly/桌面/ESP32/APP/test/voltage_status_ui_test.dart: retained voltage stays visible without the removed sampling caption
+00:03 +266: /home/descfly/桌面/ESP32/APP/test/voltage_status_ui_test.dart: retained voltage stays visible without the removed sampling caption
+00:03 +267: /home/descfly/桌面/ESP32/APP/test/voltage_status_ui_test.dart: retained voltage stays visible without the removed sampling caption
+00:03 +268: /home/descfly/桌面/ESP32/APP/test/voltage_status_ui_test.dart: retained voltage stays visible without the removed sampling caption
+00:03 +269: /home/descfly/桌面/ESP32/APP/test/voltage_status_ui_test.dart: retained voltage stays visible without the removed sampling caption
+00:03 +270: /home/descfly/桌面/ESP32/APP/test/voltage_status_ui_test.dart: retained voltage stays visible without the removed sampling caption
+00:03 +271: /home/descfly/桌面/ESP32/APP/test/voltage_status_ui_test.dart: retained voltage stays visible without the removed sampling caption
+00:03 +272: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: finishing C retains the last edits and final effect on A
+00:03 +273: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: finishing C retains the last edits and final effect on A
+00:03 +274: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: finishing C retains the last edits and final effect on A
+00:03 +275: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: finishing C retains the last edits and final effect on A
+00:03 +276: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: finishing C retains the last edits and final effect on A
+00:03 +277: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: finishing C retains the last edits and final effect on A
+00:03 +278: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: finishing C retains the last edits and final effect on A
+00:03 +279: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: finishing C retains the last edits and final effect on A
+00:03 +280: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: finishing C retains the last edits and final effect on A
+00:03 +281: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: finishing C retains the last edits and final effect on A
+00:03 +282: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: finishing C retains the last edits and final effect on A
+00:03 +283: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +284: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +285: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +286: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +287: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +288: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +289: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +290: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +291: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +292: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +293: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +294: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +295: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +296: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +297: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +298: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +299: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +300: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +301: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +302: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +303: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +304: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:03 +305: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:04 +306: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:04 +307: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:04 +308: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:04 +309: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:04 +310: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:04 +311: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:04 +312: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:04 +313: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:04 +314: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:04 +315: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:04 +316: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:04 +317: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: reopening C preserves photo geometry and effect parameters
+00:04 +318: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: reopening C preserves photo geometry and effect parameters
+00:04 +319: /home/descfly/桌面/ESP32/APP/test/photo_flow_test.dart: reopening C preserves photo geometry and effect parameters
+00:04 +320: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:04 +321: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:04 +322: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:04 +323: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:04 +324: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:04 +325: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:04 +326: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:04 +327: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:04 +328: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:04 +329: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:04 +330: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:04 +331: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:04 +332: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:04 +333: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:04 +334: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:05 +335: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:05 +336: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:05 +337: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:05 +338: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:05 +339: /home/descfly/桌面/ESP32/APP/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:05 +340: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:05 +341: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:05 +342: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:05 +343: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:05 +344: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:05 +345: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:05 +346: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:05 +347: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:05 +348: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:05 +349: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:05 +350: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:05 +351: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:06 +352: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:06 +353: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:06 +354: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:06 +355: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:06 +356: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:06 +357: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:06 +358: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:06 +359: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:06 +360: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:19 +361: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a malformed encoded thumbnail returns an error rather than a broken image
+00:19 +362: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: an already cached demo picture remains usable during a device job
+00:19 +363: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: preload yields to an explicitly opened slot and stops after leaving gallery
+00:19 +364: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a user refresh cancels preload before another thumbnail
+00:19 +365: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: user operation 35 is queued ahead of background thumbnails
+00:19 +366: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: user operation 36 is queued ahead of background thumbnails
+00:19 +367: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: user operation 37 is queued ahead of background thumbnails
+00:19 +368: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: send during prefetch uploads the draft captured when the user clicked
+00:20 +369: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: revisions invalidate cached previews and old slot identities
+00:20 +370: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a late read from a disconnected device cannot populate a new device
+00:20 +371: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: confirmed append preserves downloaded full frames with new identities
+00:20 +372: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: confirmed append revision wrap skips zero and retains full frames
+00:20 +373: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: append with a changed old prefix cannot retain a full-frame cache
+00:20 +374: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: external append does not reuse old cache merely because metadata matches
+00:20 +375: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: saved append retains cache even when the independent display fails
+00:20 +376: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: deleting logical slot never transfers the old full cache to the new occupant
+00:20 +377: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: deleting picture two retains picture one HD without read or display commands
+00:21 +378: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: deleting slot zero migrates two distinct HD previews and current to shifted identities
+00:21 +379: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: deleting the current slot does not mark another cached image as displayed
+00:22 +380: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: delete revision wrap skips zero while preserving verified HD
+00:22 +381: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: deleting the last cached image produces an empty gallery without refreshing the panel
+00:22 +382: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a shifted thumbnail survives deletion and remains eligible for automatic HD
+00:23 +383: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: delete proof rejects inconsistent slot instead of retaining old HD
+00:23 +384: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: delete proof rejects inconsistent count instead of retaining old HD
+00:23 +385: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: delete proof rejects inconsistent current instead of retaining old HD
+00:23 +386: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: delete proof rejects inconsistent revision instead of retaining old HD
+00:23 +387: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: delete proof rejects inconsistent extra mutation instead of retaining old HD
+00:23 +388: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: delete proof rejects inconsistent INFO count instead of retaining old HD
+00:23 +389: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: delete proof rejects inconsistent INFO revision instead of retaining old HD
+00:23 +390: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: same frame CRC cannot validate deletion when thumbnail identity changed
+00:23 +391: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: external deletion without this app completion cannot migrate cached previews
+00:23 +392: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: failed deletion cannot grant a shifted preview a verified cache identity
+00:23 +393: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: gallery automatically fetches thumbnails first then full frames
+00:24 +394: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: leaving gallery stops a background full read after its in-flight block
+00:25 +395: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: background full read yields to user operation at the next block
+00:25 +396: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: background failure is shown once instead of retrying forever
+00:27 +397: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a temporarily invalid voltage keeps the last connection reading and marks it stale
+00:27 +398: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a device busy response stops the remaining automatic full-frame reads
+00:28 +399: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: same-revision metadata replacement cannot reuse a stale full frame
+00:28 +400: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: real low-battery event payload updates the current voltage directly
+00:28 +401: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:44 +402: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: background idle wait cannot steal a foreground job through a microtask gap
+00:45 +403: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: foreground read rechecks idle after its await before taking the device
+00:45 +404: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: committed append window retains old HD and reads old and new frames before DISPLAY_DONE
+00:45 +405: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: read-only flags do not authorize provisional append cache migration
+00:46 +406: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a failed store final receipt revokes provisional append cache and synchronizes metadata
+00:46 +407: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a wrong slot final receipt revokes provisional append cache and synchronizes metadata
+00:46 +408: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a wrong count final receipt revokes provisional append cache and synchronizes metadata
+00:46 +409: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: B2.0.1 show display wait permits a verified read without replacing foreground status
+00:46 +410: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: B2.0.1 cache display wait permits a verified read without replacing foreground status
+00:46 +411: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: B2.0.1 ghost display wait permits a verified read without replacing foreground status
+00:46 +412: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: B2.0.1 send display wait permits a verified read without replacing foreground status
+00:46 +413: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: legacy firmware display wait cannot read until the display finishes
+00:46 +414: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: gallery reads wait through upload and store-only work despite supported firmware
+00:46 +415: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: external upload state does not open a gallery read window
+00:46 +416: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: external OTA state does not open a gallery read window
+00:46 +417: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: GET_STATUS and STATE open external refresh reads only for the advertised window
+00:46 +418: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: closing a background display window drains its block and resumes on reopened window
+00:48 +419: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: closing a background display window drains its block and resumes on DISPLAY_DONE
+00:50 +420: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a delayed BUSY reply cannot hide a newer DISPLAY_DONE readiness update
+00:50 +421: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: display completion and a following deletion drain the pending background reply first
+00:51 +422: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a parallel display-window download still rejects a corrupted full-frame CRC
+00:51 +423: /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart: a revision change while a parallel read is in flight cannot publish the wrong image
+00:51 +424: All tests passed!

@@ -4,32 +4,23 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import 'ble_models.dart';
 import 'transport.dart';
+import 'windows_ble.dart';
 
-class DiscoveredDevice {
-  const DiscoveredDevice({
-    required this.id,
-    required this.name,
-    required this.rssi,
-  });
+export 'ble_models.dart';
 
-  final String id;
-  final String name;
-  final int rssi;
-}
-
-class NativeBleException implements Exception {
-  const NativeBleException(this.message, {this.code = 'ble_error'});
-  final String message;
-  final String code;
-
-  @override
-  String toString() => message;
-}
-
-/// Android's one-link BLE bridge. GATT write success is not a device job result.
+/// One-link BLE bridge. GATT write success is not a device job result.
 /// Dispose this instance before replacing it with another transport.
 class NativeBle implements EspInkTransport {
+  NativeBle({WindowsBle? windowsBle})
+    : _windows =
+          windowsBle ??
+          (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows
+              ? WindowsBle()
+              : null);
+
+  final WindowsBle? _windows;
   static const _methods = MethodChannel('io.github.robbieht.espink/ble');
   static const _events = EventChannel('io.github.robbieht.espink/ble_events');
 
@@ -51,19 +42,24 @@ class NativeBle implements EspInkTransport {
   int _mtu = 23;
 
   bool get supported =>
-      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+      _windows != null ||
+      (!kIsWeb && defaultTargetPlatform == TargetPlatform.android);
   @override
-  int get mtu => _mtu;
+  int get mtu => _windows?.mtu ?? _mtu;
   @override
-  bool get isConnected => _connected;
+  bool get isConnected => _windows?.isConnected ?? _connected;
   @override
-  Stream<Uint8List> get notifications => _notifications.stream;
+  Stream<Uint8List> get notifications =>
+      _windows?.notifications ?? _notifications.stream;
   @override
-  Stream<bool> get connectionChanges => _connections.stream;
-  Stream<List<DiscoveredDevice>> get scanResults => _scans.stream;
-  Stream<String> get errors => _errors.stream;
-  bool get isScanning => _scanning;
-  Stream<bool> get scanStateChanges => _scanStates.stream;
+  Stream<bool> get connectionChanges =>
+      _windows?.connectionChanges ?? _connections.stream;
+  Stream<List<DiscoveredDevice>> get scanResults =>
+      _windows?.scanResults ?? _scans.stream;
+  Stream<String> get errors => _windows?.errors ?? _errors.stream;
+  bool get isScanning => _windows?.isScanning ?? _scanning;
+  Stream<bool> get scanStateChanges =>
+      _windows?.scanStateChanges ?? _scanStates.stream;
 
   void _checkUsable() {
     if (_disposed || _disposing) {
@@ -71,7 +67,7 @@ class NativeBle implements EspInkTransport {
     }
     if (!supported) {
       throw const NativeBleException(
-        '真实蓝牙连接仅支持 Android 手机；当前平台可使用演示模式。',
+        '真实蓝牙连接支持 Android 和 Windows；当前平台可使用演示模式。',
         code: 'unsupported_platform',
       );
     }
@@ -180,6 +176,7 @@ class NativeBle implements EspInkTransport {
   }
 
   Future<void> startScan() async {
+    if (_windows != null) return _windows.startScan();
     final generation = _generation;
     final scanGeneration = ++_scanGeneration;
     await _ensureEvents();
@@ -195,12 +192,14 @@ class NativeBle implements EspInkTransport {
   }
 
   Future<void> stopScan() async {
+    if (_windows != null) return _windows.stopScan();
     _checkUsable();
     _scanGeneration++;
     await _invoke<void>('stopScan');
   }
 
   Future<void> connect(String id) async {
+    if (_windows != null) return _windows.connect(id);
     _checkUsable();
     if (_connecting || _connected) {
       throw const NativeBleException('已有连接或正在连接，请先断开。');
@@ -232,12 +231,15 @@ class NativeBle implements EspInkTransport {
   }
 
   @override
-  Future<void> writeCtrl(Uint8List value) => _write('writeCtrl', value);
+  Future<void> writeCtrl(Uint8List value) =>
+      _windows?.writeCtrl(value) ?? _write('writeCtrl', value);
   @override
-  Future<void> writeData(Uint8List value) => _write('writeData', value);
+  Future<void> writeData(Uint8List value) =>
+      _windows?.writeData(value) ?? _write('writeData', value);
 
   @override
   Future<void> disconnect() async {
+    if (_windows != null) return _windows.disconnect();
     _generation++;
     _scanGeneration++;
     if (_disposed || !supported) return;
@@ -246,6 +248,7 @@ class NativeBle implements EspInkTransport {
   }
 
   Future<void> openBluetoothSettings() async {
+    if (_windows != null) return _windows.openBluetoothSettings();
     _checkUsable();
     await _invoke<void>('openBluetoothSettings');
   }
@@ -261,7 +264,11 @@ class NativeBle implements EspInkTransport {
       );
     }
     try {
-      await disconnect();
+      if (_windows != null) {
+        await _windows.dispose();
+      } else {
+        await disconnect();
+      }
     } finally {
       await _subscription?.cancel();
       _subscription = null;

@@ -41,3 +41,8 @@ ESP-IDF5.2.2 Docker实际编译/链接成功，app445136B，静态D/IRAM102162B�
 本轮未连接、擦除或刷写ESP，也未安装真实手机或检验物理屏幕。新并行功能需要APP与B2.0.1同时使用；旧B2.0.0仍兼容但保持刷完再读。已有B2分区选app.bin走OTA，无需清图库；R/B1不能直接用此OTA跨分区升级，merged全量镜像与erase会覆盖数据。
 
 真实BLE吞吐、通知丢失、射频/Flash/SPI并发、A0/A1面板、运行堆与电源稳定性仍待[硬件步骤](hardware-check.md)。窗口通知丢失时可能由15秒状态轮询补发现；窗口关闭时未完成的下载会丢弃部分数据后重读。没有把模拟通过写成实机验收。
+
+
+## 1.0.8+9 Windows x64（2026-11-21）
+
+新增 Windows runner、系统选图、WinRT BLE 和 GitHub Actions Windows 编译；Android 原生桥保留。`universal_ble`固定3.4.0，Windows以真实MTU分片、EVT订阅完成才连接就绪，CTRL/DATA串行。Windows选图新增10项回归，PNG桌面保存3项、Windows BLE 22项（含真实接口委派）已进入最终套件。Windows不嵌JVM，跳过Android间接JNI的可选探测。Linux最终 **424项全部通过**（51秒），Dart分析No issues found；三个Windows边界文件55项联合通过。首轮399日志与中间分析记录保留，最终结果以linux-tests.log/analyze.log为准。Windows实际编译与首帧启动尚待云端结果，完成结果将另存构建报告并追加下文。

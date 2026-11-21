@@ -1,12 +1,15 @@
-# ESP-INK · Flutter Android
+# ESP-INK · Flutter Android / Windows
 
-四彩墨水屏的 Android 伴侣应用。界面采用 Google Material 3：浅色、蓝色主色、柔和圆角和三栏导航。源码位于本仓库，设备通过B2协议连接；接口参考见 `docs/reference/B2/`。
+四彩墨水屏的 Android / Windows 伴侣应用。界面采用 Google Material 3：浅色、蓝色主色、柔和圆角和三栏导航。源码位于本仓库，设备通过B2协议连接；接口参考见 `docs/reference/B2/`。
 
-源码、实际编译目录、安装包、设备固件及文档均集中在本APP目录，不使用软链接。当前版本为 **1.0.7+8**，安装包为 `releases/ESP-INK-1.0.7-android.apk`。本版配合 **ESP_INK B2.0.1**，在物理刷屏期间继续读取图库缩略图和高清，读图进度不覆盖刷屏状态；存并显示时严格验证追加身份并保留旧高清缓存。旧B2.0.0继续兼容，但需等刷屏结束再读取新图。模式选择、C1/C2、自动效果、删图缓存保留及MTU517限长修复继续保留。见[交付说明](docs/交付说明.md)、[刷屏期间读取图库](docs/刷屏期间读取图库.md)和[验证记录](docs/VERIFICATION.md)。
+源码、实际编译目录、发布包、设备固件及文档均集中在本 APP 目录，不使用软链接。当前源码 **1.0.8+9** 新增 Windows x64：系统选图/另存 PNG、WinRT 蓝牙、中文字体和完整桌面运行库打包，使用说明见 [Windows 使用与构建](docs/Windows使用与构建.md)。Android 现有发布包仍为 1.0.7+8；1.0.8 的 Windows 构建状态见 [验证记录](docs/VERIFICATION.md)。
+
+配合 **ESP_INK B2.0.1**，支持物理刷屏期间继续读取图库缩略图和高清，读图进度不覆盖刷屏状态；存并显示时严格验证追加身份并保留旧高清缓存。旧 B2.0.0 继续兼容。模式选择、C1/C2、自动效果、删图缓存保留及 MTU517 限长修复继续保留。见 [交付说明](docs/交付说明.md)和[刷屏期间读取图库](docs/刷屏期间读取图库.md)。
 
 ## 下载与仓库
 
-- [最新安装包与源码归档](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/tag/v1.0.7)：ESP-INK 1.0.7，Android 7.0及以上；安装包为测试签名。
+- [Windows x64 1.0.8 发布页](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/tag/v1.0.8)、[下载完整 Windows ZIP](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.8/ESP-INK-1.0.8-windows-x64.zip)。完整解压后运行 ESP-INK.exe。
+- [Android 1.0.7 安装包与源码归档](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/tag/v1.0.7)：ESP-INK 1.0.7，Android 7.0及以上；安装包为测试签名。
 - [直接下载APK](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.7/ESP-INK-1.0.7-android.apk)、[完整源码压缩包](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.7/ESP-INK-Flutter-source.tar.gz)、[成品SHA256](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.7/SHA256SUMS)。
 - [B2.0.1 OTA应用镜像](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.7/ESP_INK-B2.0.1-app.bin)：已有B2分区使用，完整源码与构建脚本在firmware/B2.0.1/source。
 - 克隆后可按下方Docker步骤构建。仓库包含源码、字体许可、文档、测试、Gradle wrapper及验证记录；`build/`和`releases/`在本地保留，由Git忽略。下载文件放入本地`releases/`后，交付文档中的成品相对链接即可使用。
@@ -35,7 +38,7 @@ C1、C2均采用竖屏上方固定预览、下方滚动参数，横屏左右并�
 
 本项目的照片/便签交互、四色图像风格与抖动算法参考 [atunverse/moink（墨印 · MoInk）](https://github.com/atunverse/moink)，感谢原作者。原项目名称、来源路径及相关署名保留在参考资料和历史记录中。
 
-**ESP-INK 是本仓库的 Flutter Android 客户端名称，不代表 MoInk 官方应用。** BLE 对接以本仓库保存的 B2 协议资料为准；具体来源见 [参考资料说明](docs/reference/README.md)。
+**ESP-INK 是本仓库的 Flutter 客户端名称，不代表 MoInk 官方应用。** BLE 对接以本仓库保存的 B2 协议资料为准；具体来源见 [参考资料说明](docs/reference/README.md)。
 
 ## 已实现
 
@@ -43,7 +46,7 @@ C1、C2均采用竖屏上方固定预览、下方滚动参数，横屏左右并�
 - **便签**：主页底部面板选择便签，直接进入C2，提供黑、白、黄、红四种底色和文字工具；独立于拍立得保留文字对象，支持添加、修改、删除、拖动、缩放与旋转。回A后点“调整图片”仍进入C2。
 - **文字**：内置黑体、宋体、等宽三套字体；字号、加粗、换行宽度、四色文字/描边、透明或四色文字底色。文字在图片量化后叠加，不参与图像风格化与抖动。
 - **图像处理**：自然暖调、全面暖色、灰度、原色直出，8种抖动、3种色域、色阶和精细参数。在墨水屏效果模式或效果调整页中自动更新，连续修改合并处理；原图裁切继续直接显示彩色照片。效果调整页竖屏固定上方预览、下方独立滚动参数，横屏左右分栏，调到底部仍能看到效果。更新期间保留上一张效果并标明更新中；换照片不沿用上一张。
-- **连接**：Android 原生 BLE、按服务 UUID 发现设备、动态权限申请、服务/特征发现、EVT 订阅、MTU 协商、握手和主动状态查询。不需要 Wi-Fi 配网或系统配对。
+- **连接**：Android 原生 BLE / Windows WinRT BLE、按服务 UUID 发现设备、动态权限申请、服务/特征发现、EVT 订阅、MTU 协商、握手和主动状态查询。不需要 Wi-Fi 配网或系统配对。
 - **传输**：768×552 / 105984 bytes；按设备返回的 chunk 分片，u16序号上限、末片长度、CRC、GAP/INCOMPLETE有限恢复；接收阶段可取消；排队后分别等待 STORE_DONE / DISPLAY_DONE。
 - **设备图库**：先逐卡读取缩略图，设备和APP空闲，或B2.0.1提供安全刷屏窗口时，自动补读768×552完整画面。前台查看、发送、删除、设置等操作可取消后台后续分片并优先执行；离页、后台和断线停止自动读取，失败不会无限重试。确认APP单次追加或删除成功、完整元数据映射与单步revision符合时保留未变图片的缩略图和高清缓存；删除前方图片后，缓存随逻辑编号前移。外部删除、覆盖、异常版本变化、清空和换设备继续失效保护。
 - **保存图库图片**：先读取CRC通过的768×552完整帧，再导出PNG，绝不把缩略图当完整图保存。Android 10及以上保存到相册 `Pictures/ESP-INK`，不申请读取图库权限；Android 7–9只在保存时请求旧存储写权限，拒绝与保存错误均明确提示。网页发起浏览器下载，是否完成需检查下载列表；桌面运行环境调用系统另存文件。真实BLE回读与手机相册保存仍待真机验证。
@@ -52,6 +55,19 @@ C1、C2均采用竖屏上方固定预览、下方滚动参数，横屏左右并�
 - **本地演示**：可在没有设备时体验创作和模拟图库，界面明确标为“本地演示”；不会把演示操作发送到设备。
 
 图片和文字功能参考旧page，原参考HTML副本此次未找到（不影响编译和已有图像金标测试），功能对应与差异见 [页面功能对照](docs/page-feature-map.md)。设备接口文档也已收进本目录：[API](docs/reference/B2/API.md)、[APP接入指南](docs/reference/B2/APP-INTEGRATION.md)，以上为保留的B2.0.0/api=1参考副本；当前B2.0.1窗口协议见[随附固件API](firmware/B2.0.1/source/docs/API.md)。当前固件出厂接线为整合板 `gpio_preset=2`，已有有效NVS配置会保留；GPIO档位与A0/A1屏型独立。没有实体设备的离线测试不等于真实蓝牙与墨水屏验收。完整记录在 [docs/VERIFICATION.md](docs/VERIFICATION.md)。实时原图、全屏裁切与最终图像处理共用同一套几何变换和解码逻辑，最终持有的彩色代理图最长边2400且不放大小图；Web引擎探测尺寸时可能临时完整解码，这一上限不代表所有平台的解码峰值内存；异步解码与处理结果通过代次/草稿版本号保护，旧照片或旧效果不会覆盖新编辑。
+
+## Windows x64 Release
+
+Windows 构建需要 Windows 10/11 x64、Flutter 3.47.8 和 Visual Studio 2022 的“使用 C++ 的桌面开发”工作负载。也可在本仓库 Actions 的 **Windows x64 Release** 工作流中点击 Run workflow，在 Windows runner 编译、测试、检查启动并下载完整 ZIP：
+
+```powershell
+flutter pub get --enforce-lockfile
+flutter test
+flutter build windows --release --target-platform windows-x64
+pwsh -File tool/package_windows.ps1 -SmokeTest
+```
+
+成品为 `releases/windows/ESP-INK-1.0.8-windows-x64.zip`。完整解压后双击 `ESP-INK.exe`；不要单独移动 exe。图像创作不需要连接设备，真实设备功能需要电脑有 BLE 蓝牙适配器。未做实体 Windows 电脑/蓝牙硬件验收，详见[Windows 说明](docs/Windows使用与构建.md)。
 
 ## 构建 Android APK
 
@@ -103,7 +119,7 @@ flutter analyze
 - `lib/core/protocol.dart`：命令队列、回执与事件、设置、图片/图库/OTA协议。
 - `lib/core/frame_codec.dart`：CRC与180°方向契约的2bpp编解码。
 - `lib/core/image_export.dart`、`android/.../EspInkImageExportBridge.kt`：图库完整PNG导出、Android相册保存与其他平台保存入口。
-- `lib/core/native_ble.dart`、`android/.../EspInkBleBridge.kt`：Android蓝牙适配；GATT回调驱动串行队列。
+- `lib/core/native_ble.dart`、`android/.../EspInkBleBridge.kt`：平台入口和 Android 蓝牙适配；`windows_ble.dart` 提供 Windows WinRT 单连接、真实 MTU 与串行写入。
 - `test/`：固件文档报文金标、模拟链路故障、112组原JS图像金标、分层渲染和界面检查。
 - `tool/`：可移植的Docker工具链与构建入口。
 - `build/`：真实编译目录，无软链接，包含Android中间文件与Web预览。

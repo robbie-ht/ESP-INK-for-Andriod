@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -11,8 +10,8 @@ Future<void> showConnectionSheet(
   BuildContext context,
   EspInkController c,
 ) async {
-  final android = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
-  if (android && !c.scanning && !c.connected) unawaited(c.scan());
+  final bluetoothSupported = c.bluetoothSupported;
+  if (bluetoothSupported && !c.scanning && !c.connected) unawaited(c.scan());
   await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -62,18 +61,18 @@ Future<void> showConnectionSheet(
                   ],
                 ),
                 const SizedBox(height: 24),
-                if (!android)
+                if (!bluetoothSupported)
                   const SectionCard(
                     color: sectionFill,
                     padding: EdgeInsets.all(18),
                     child: Text(
-                      '蓝牙连接请使用 Android 手机安装版。这里可以编辑画面，或体验本地演示。',
+                      '蓝牙连接请使用 Android 或 Windows 版。这里可以编辑画面，或体验本地演示。',
                       style: TextStyle(color: mutedText),
                     ),
                   ),
-                if (android) ...[
+                if (bluetoothSupported) ...[
                   const Text(
-                    '按一下设备按键唤醒，并保持设备在手机附近。',
+                    '按一下设备按键唤醒，并保持设备在附近。',
                     style: TextStyle(color: mutedText),
                   ),
                   const SizedBox(height: 16),

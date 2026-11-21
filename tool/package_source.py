@@ -28,17 +28,18 @@ ROOT_FILES = (
     ".gitignore", ".metadata", "README.md", "analysis_options.yaml",
     "pubspec.yaml", "pubspec.lock",
 )
-SOURCE_DIRS = ("android", "lib", "test", "assets", "tool", "docs", "web", "firmware")
+SOURCE_DIRS = ("android", "windows", ".github", "lib", "test", "assets", "tool", "docs", "web", "firmware")
 EXCLUDED_DIRS = {
     ".git", ".hg", ".svn", ".idea", ".vscode", ".dart_tool",
     ".gradle", ".kotlin", ".cxx", ".pub", ".pub-cache", ".build",
-    "build", "coverage", "releases", "node_modules", "__pycache__",
+    "build", "coverage", "releases", "node_modules", "__pycache__", "ephemeral",
 }
 EXCLUDED_NAMES = {
     "local.properties", "key.properties", ".DS_Store",
     ".flutter-plugins", ".flutter-plugins-dependencies",
     "GeneratedPluginRegistrant.java", "GeneratedPluginRegistrant.kt",
-    "generated_plugin_registrant.dart",
+    "generated_plugin_registrant.dart", "generated_plugin_registrant.cc",
+    "generated_plugin_registrant.h", "generated_plugins.cmake",
 }
 EXCLUDED_SUFFIXES = {
     ".iml", ".ipr", ".iws", ".pyc", ".pyo", ".swp", ".class",

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -129,5 +131,93 @@ void main() {
         isA<ImageExportException>().having((e) => e.code, 'code', 'cancelled'),
       ),
     );
+  });
+
+  group('Windows PNG export', () {
+    const selectorChannel = MethodChannel('plugins.flutter.io/file_selector');
+    late Directory temporary;
+    late String selectedPath;
+    late List<MethodCall> selectorCalls;
+
+    setUp(() async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+      await Directory('build').create(recursive: true);
+      temporary = await Directory('build').createTemp('图片 导出 测试-');
+      selectedPath = '${temporary.path}/保存 结果.png';
+      selectorCalls = [];
+      messenger.setMockMethodCallHandler(selectorChannel, (call) async {
+        selectorCalls.add(call);
+        return selectedPath;
+      });
+    });
+
+    tearDown(() async {
+      messenger.setMockMethodCallHandler(selectorChannel, null);
+      await temporary.delete(recursive: true);
+    });
+
+    // The real selector adapter and XFile writer run; no OS dialog is opened.
+    test(
+      'writes the complete PNG to the selected Unicode path with spaces',
+      () async {
+        final result = await saveGalleryImage(png, fileName: '墨水屏 图库-1.png');
+        expect(result, '已保存到：$selectedPath');
+        final written = await File(selectedPath).readAsBytes();
+        expect(written, orderedEquals(png));
+        final decoded = img.decodePng(written)!;
+        expect((decoded.width, decoded.height), (8, 8));
+        expect(
+          calls,
+          isEmpty,
+          reason: 'Windows must not use Android MediaStore',
+        );
+        expect(selectorCalls.single.method, 'getSavePath');
+        final arguments =
+            selectorCalls.single.arguments as Map<Object?, Object?>;
+        expect(arguments['suggestedName'], '墨水屏 图库-1.png');
+        expect(arguments['confirmButtonText'], '保存图片');
+        final groups = arguments['acceptedTypeGroups'] as List<Object?>;
+        final pngGroup = groups.single as Map<Object?, Object?>;
+        expect(pngGroup['extensions'], ['png']);
+        expect(pngGroup['mimeTypes'], ['image/png']);
+      },
+    );
+
+    test(
+      'cancelling the save dialog creates no file and reports cancellation',
+      () async {
+        messenger.setMockMethodCallHandler(selectorChannel, (call) async {
+          selectorCalls.add(call);
+          return null;
+        });
+        await expectLater(
+          saveGalleryImage(png, fileName: '取消保存.png'),
+          throwsA(
+            isA<ImageExportException>()
+                .having((e) => e.code, 'code', 'cancelled')
+                .having((e) => e.message, 'message', '已取消保存。'),
+          ),
+        );
+        expect(await temporary.list().toList(), isEmpty);
+        expect(selectorCalls.single.method, 'getSavePath');
+        expect(calls, isEmpty);
+      },
+    );
+
+    test('an actual write error returns a readable failure without reporting success', () async {
+      selectedPath = '${temporary.path}/不存在的目录/不能保存.png';
+      await expectLater(
+        saveGalleryImage(png, fileName: '不能保存.png'),
+        throwsA(
+          isA<ImageExportException>()
+              .having((e) => e.code, 'code', 'save_failed')
+              .having((e) => e.message, 'message', '图片保存失败，请检查目标位置与可用空间后重试。'),
+        ),
+      );
+      expect(await File(selectedPath).exists(), isFalse);
+      expect(await temporary.list().toList(), isEmpty);
+      expect(selectorCalls.single.method, 'getSavePath');
+      expect(calls, isEmpty);
+    });
   });
 }

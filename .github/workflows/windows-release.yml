@@ -1,0 +1,108 @@
+name: Windows x64 Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      flutter_version:
+        description: Exact stable Flutter SDK version
+        required: true
+        default: '3.47.8'
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      ESP_INK_FLUTTER_VERSION: ${{ inputs.flutter_version }}
+      CI: 'true'
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Validate SDK input
+        run: |
+          if ($env:ESP_INK_FLUTTER_VERSION -notmatch '^\d+\.\d+\.\d+$') {
+            throw 'flutter_version must be an exact numeric stable version.'
+          }
+          New-Item -ItemType Directory -Path build/windows-ci-logs -Force | Out-Null
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          channel: stable
+          flutter-version: ${{ inputs.flutter_version }}
+          architecture: x64
+          cache: true
+
+      - name: Verify SDK and Windows toolchain
+        run: |
+          $versionJson = & flutter --version --machine
+          if ($LASTEXITCODE -ne 0) { throw 'flutter --version failed.' }
+          $versionJson | Set-Content build/windows-ci-logs/flutter-version.json -Encoding utf8NoBOM
+          $version = $versionJson | ConvertFrom-Json
+          if ($version.frameworkVersion -ne $env:ESP_INK_FLUTTER_VERSION) { throw 'Unexpected Flutter SDK version.' }
+          & flutter config --enable-windows-desktop
+          if ($LASTEXITCODE -ne 0) { throw 'Could not enable the Windows target.' }
+          & flutter doctor -v 2>&1 | Tee-Object build/windows-ci-logs/flutter-doctor.log
+          # Other platform toolchains are not required by this Windows job.
+          exit 0
+
+      - name: Resolve locked dependencies
+        run: |
+          & flutter pub get --enforce-lockfile 2>&1 | Tee-Object build/windows-ci-logs/pub-get.log
+          if ($LASTEXITCODE -ne 0) { throw 'Locked dependency resolution failed.' }
+
+      - name: Analyze
+        run: |
+          & dart analyze lib test 2>&1 | Tee-Object build/windows-ci-logs/analyze.log
+          if ($LASTEXITCODE -ne 0) { throw 'Static analysis failed.' }
+
+      - name: Run tests
+        run: |
+          & flutter test --reporter expanded 2>&1 | Tee-Object build/windows-ci-logs/tests.log
+          if ($LASTEXITCODE -ne 0) { throw 'Flutter tests failed.' }
+
+      - name: Build Windows x64 Release
+        run: |
+          & flutter build windows --release --target-platform windows-x64 2>&1 | Tee-Object build/windows-ci-logs/build.log
+          if ($LASTEXITCODE -ne 0) { throw 'Windows Release compilation failed.' }
+
+      - name: Verify and package complete Release
+        id: package
+        run: ./tool/package_windows.ps1 -SmokeTest
+
+      - name: Upload Windows ZIP and verification
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: ${{ steps.package.outputs.artifact_name }}
+          path: |
+            releases/windows/*.zip
+            releases/windows/*.sha256
+            releases/windows/*.build.json
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+
+      - name: Upload build and startup logs
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: windows-x64-logs-${{ github.run_id }}
+          path: |
+            build/windows-ci-logs/
+            releases/windows/startup.*.log
+          if-no-files-found: warn
+          retention-days: 14

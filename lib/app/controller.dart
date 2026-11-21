@@ -310,7 +310,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
         final map = jsonDecode(stored) as Map<String, dynamic>;
         draft = ComposerDraft.fromJson(map);
       }
-      if (!kIsWeb && _ble.supported) {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
         final recoveryGeneration = _photoSelectionGeneration;
         final lost = await ImagePicker().retrieveLostData();
         if (!lost.isEmpty && lost.files?.isNotEmpty == true) {
@@ -528,22 +528,40 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
   /// accepted. Cancellation/failure preserves the previous draft.
   Future<bool> pickPhoto() async {
     if (_disposed || _pickingPhoto) return false;
-    _photoSelectionGeneration++;
+    final generation = ++_photoSelectionGeneration;
     _pickingPhoto = true;
     _notify();
     try {
-      final file = await ImagePicker().pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 2048,
-        maxHeight: 2048,
-        imageQuality: 95,
-      );
-      if (file == null || _disposed) return false;
+      final file = !kIsWeb && defaultTargetPlatform == TargetPlatform.windows
+          ? await openFile(
+              acceptedTypeGroups: const [
+                XTypeGroup(
+                  label: '照片',
+                  extensions: ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'gif'],
+                ),
+              ],
+              confirmButtonText: '选择照片',
+            )
+          : await ImagePicker().pickImage(
+              source: ImageSource.gallery,
+              maxWidth: 2048,
+              maxHeight: 2048,
+              imageQuality: 95,
+            );
+      if (file == null ||
+          _disposed ||
+          generation != _photoSelectionGeneration) {
+        return false;
+      }
+      if (await file.length() > 24 * 1024 * 1024) {
+        throw ArgumentError('图片过大，请选择小于24 MB的照片');
+      }
       final bytes = await file.readAsBytes();
-      if (_disposed) return false;
+      if (_disposed || generation != _photoSelectionGeneration) return false;
       _acceptPhotoBytes(bytes);
       return true;
     } catch (e) {
+      if (_disposed || generation != _photoSelectionGeneration) return false;
       _log('$e');
       _say('无法打开这张照片：$e');
       return false;
@@ -557,7 +575,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
     if (demo) await leaveDemo();
     if (busy || connecting) return;
     if (!_ble.supported) {
-      _say('蓝牙连接请使用 Android 手机安装包；当前预览可体验本地创作。');
+      _say('蓝牙连接请使用 Android 或 Windows 版；当前预览可体验本地创作。');
       return;
     }
     scanning = true;
