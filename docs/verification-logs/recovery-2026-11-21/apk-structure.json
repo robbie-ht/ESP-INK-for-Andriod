@@ -1,0 +1,21 @@
+{
+  "version": "1.0.2+3",
+  "origin": "fresh release build from recovered source, not recovered old binary",
+  "gradle_seconds": 72.9,
+  "bytes": 105079749,
+  "sha256": "d6a4e07ba845a5d57b0aec3fb2259f2edda03e108a9666631f42ba26c8debcdb",
+  "zip_entries": 379,
+  "zip_crc_all_pass": true,
+  "abis": [
+    "arm64-v8a",
+    "armeabi-v7a",
+    "x86_64"
+  ],
+  "release_matches_build": true,
+  "source_inputs_unchanged": 81,
+  "certificate_matches_old_apk": true,
+  "certificate_sha256": "6b487c9d967a408332050c6d2ad48f88b4b40612eb99b6712e5c2713feb06eaa",
+  "v2_signature_valid": true,
+  "min_api": 24,
+  "target_api": 36
+}

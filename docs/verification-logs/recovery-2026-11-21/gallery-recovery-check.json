@@ -1,0 +1,52 @@
+{
+  "lib/app/controller.dart": {
+    "sha256": "9d14f4e6ce65356385d4601ddf73da21a796940a90d613653aeea442eddd8001",
+    "expected": "9d14f4e6ce65356385d4601ddf73da21a796940a90d613653aeea442eddd8001",
+    "matches": true
+  },
+  "lib/ui/gallery_page.dart": {
+    "sha256": "fb94521f2957c10c285e3d8b4d2e1499bab35806e6f19057cac46c7874720563",
+    "expected": "fb94521f2957c10c285e3d8b4d2e1499bab35806e6f19057cac46c7874720563",
+    "matches": true
+  },
+  "lib/core/image_export.dart": {
+    "sha256": "02b5c40b8c30b32eeb549a83ba41cc47449f0dc529b5a3c1d6c304cc2eb0be60",
+    "expected": "02b5c40b8c30b32eeb549a83ba41cc47449f0dc529b5a3c1d6c304cc2eb0be60",
+    "matches": true
+  },
+  "android/app/src/main/AndroidManifest.xml": {
+    "sha256": "4e968e192ea322e5d71923dad87e47b6e9c2ee304a91b15525b145ca6a2b0cf4",
+    "expected": "4e968e192ea322e5d71923dad87e47b6e9c2ee304a91b15525b145ca6a2b0cf4",
+    "matches": true
+  },
+  "android/app/src/main/kotlin/app/moink/moink_app/MainActivity.kt": {
+    "sha256": "de73e28c4044c8629408f91270229ef7731c2d7e433f29811cbfb14d61dc7715",
+    "expected": "de73e28c4044c8629408f91270229ef7731c2d7e433f29811cbfb14d61dc7715",
+    "matches": true
+  },
+  "android/app/src/main/kotlin/app/moink/moink_app/MoinkImageExportBridge.kt": {
+    "sha256": "21e169a92a4a4e455d3e521441193b7efb5b2e9c72777699324d29f5d1a2bf28",
+    "expected": "21e169a92a4a4e455d3e521441193b7efb5b2e9c72777699324d29f5d1a2bf28",
+    "matches": true
+  },
+  "test/controller_test.dart": {
+    "sha256": "bc1be3e9478a09585a440b8a0c802ad9d4be4bc0b6532b42bd6ce4d09f649afd",
+    "expected": "bc1be3e9478a09585a440b8a0c802ad9d4be4bc0b6532b42bd6ce4d09f649afd",
+    "matches": true
+  },
+  "test/gallery_controller_test.dart": {
+    "sha256": "1c3a6db87ff2d24045e8a45a24941cb77911f97fd15964541fa1507727918044",
+    "expected": "1c3a6db87ff2d24045e8a45a24941cb77911f97fd15964541fa1507727918044",
+    "matches": true
+  },
+  "test/gallery_preview_test.dart": {
+    "sha256": "6674dfbd8be20f5a4b16b64f983b6290e5856d3ae931bb02acd6e4392471c014",
+    "expected": "6674dfbd8be20f5a4b16b64f983b6290e5856d3ae931bb02acd6e4392471c014",
+    "matches": true
+  },
+  "test/image_export_test.dart": {
+    "sha256": "b1c20c40ab0b1516fe18fb408a1ce8dd069efbf1242c31e86c26d2fcfb46b4cd",
+    "expected": "b1c20c40ab0b1516fe18fb408a1ce8dd069efbf1242c31e86c26d2fcfb46b4cd",
+    "matches": true
+  }
+}

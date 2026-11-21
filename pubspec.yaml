@@ -1,0 +1,30 @@
+name: moink_app
+description: MoInk 墨印 · 四彩墨水屏伴侣
+publish_to: none
+version: 1.0.3+4
+environment:
+  sdk: ^3.13.7
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  image: ^4.5.4
+  image_picker: ^1.2.4
+  file_selector: ^1.0.4
+  shared_preferences: ^2.5.3
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: NotoSansSC
+      fonts:
+        - asset: assets/fonts/NotoSansSC-Regular.otf
+    - family: NotoSerifSC
+      fonts:
+        - asset: assets/fonts/NotoSerifSC-Regular.otf
+    - family: NotoSansMonoSC
+      fonts:
+        - asset: assets/fonts/NotoSansMonoSC-Regular.otf

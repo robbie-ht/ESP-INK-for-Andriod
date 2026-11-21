@@ -1,0 +1,32 @@
+00:00 +0: loading /home/descfly/桌面/ESP32/APP/test/gallery_controller_test.dart
+00:00 +0: real JPEG and packed 2bpp thumbnail responses become usable previews
+00:00 +1: identical queued reads deduplicate and full frames never downgrade
+00:00 +2: read failures remain visible and a retry can succeed
+00:00 +3: a malformed encoded thumbnail returns an error rather than a broken image
+00:00 +4: an already cached demo picture remains usable during a device job
+00:00 +5: preload yields to an explicitly opened slot and stops after leaving gallery
+00:00 +6: a user refresh cancels preload before another thumbnail
+00:00 +7: user operation 35 is queued ahead of background thumbnails
+00:00 +8: user operation 36 is queued ahead of background thumbnails
+00:00 +9: user operation 37 is queued ahead of background thumbnails
+00:00 +10: send during prefetch uploads the draft captured when the user clicked
+00:00 +11: revisions invalidate cached previews and old slot identities
+00:00 +12: a late read from a disconnected device cannot populate a new device
+00:00 +13: confirmed append preserves downloaded full frames with new identities
+00:01 +14: confirmed append revision wrap skips zero and retains full frames
+00:01 +15: append with a changed old prefix cannot retain a full-frame cache
+00:01 +16: external append does not reuse old cache merely because metadata matches
+00:01 +17: saved append retains cache even when the independent display fails
+00:01 +18: deleting logical slot never transfers the old full cache to the new occupant
+00:01 +19: gallery automatically fetches thumbnails first then full frames
+00:02 +20: leaving gallery stops a background full read after its in-flight block
+00:02 +21: background full read yields to user operation at the next block
+00:03 +22: background failure is shown once instead of retrying forever
+00:04 +23: a temporarily invalid voltage keeps the last connection reading and marks it stale
+00:04 +24: a device busy response stops the remaining automatic full-frame reads
+00:06 +25: same-revision metadata replacement cannot reuse a stale full frame
+00:06 +26: real low-battery event payload updates the current voltage directly
+00:06 +27: idle status poll updates voltage and resumes full frames after device busy
+00:22 +28: background idle wait cannot steal a foreground job through a microtask gap
+00:23 +29: foreground read rechecks idle after its await before taking the device
+00:23 +30: All tests passed!

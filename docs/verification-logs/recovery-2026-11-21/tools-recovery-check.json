@@ -1,0 +1,57 @@
+{
+  "restored": {
+    "tool/docker/README.md": {
+      "from": "/home/descfly/Documents/Codex/2026-11-17/new-chat/outputs/flutter-android-docker/README.md",
+      "sha256": "0963a347452c4e8f907766da9ed78d725519eb40c547b21dfe05cba05a1e584e"
+    },
+    "tool/docker/VERIFICATION.md": {
+      "from": "/home/descfly/Documents/Codex/2026-11-17/new-chat/outputs/flutter-android-docker/VERIFICATION.md",
+      "sha256": "9bcbaf2590a3980f0299e58a7ca1ace3dec036095c5fd086279fe6965b0b49f2"
+    },
+    "tool/docker/smoke-test.sh": {
+      "from": "/home/descfly/Documents/Codex/2026-11-17/new-chat/outputs/flutter-android-docker/smoke-test.sh",
+      "sha256": "39fb85216b0ed7b423c7fe1cc39a1e775def8095bd3329e4c7ec8e42ec964e89"
+    },
+    "tool/generate_image_filter_vectors.cjs": {
+      "from": "/home/descfly/Documents/Codex/2026-11-17/new-chat/work/image-filters/reference-vectors.cjs",
+      "transform": "Exactly the two path localization replacements in root session line 2066",
+      "sha256": "fa064edc2e0f74fc4d09ad9f0bb09cb4be7a968c5e9d5fbf89a21243a755ad2a"
+    },
+    "tool/package_source.py": {
+      "from": "review_container original successful apply_patch lines 654 + 663",
+      "sha256": "87e0ae267ab8b5a7758de0aff257701b6eae41b18f4dec19c8a25591c59d898a"
+    }
+  },
+  "retained": {
+    "tool/build_android.sh": {
+      "from": "untouched full 1.0.0 archive; tool/docker/run.sh already includes successful host_scripts patches 319+327",
+      "sha256": "51011cb15f3925de68c7613c8933199b1447908d2fb31373ff731ea4814c867e"
+    },
+    "tool/docker/.dockerignore": {
+      "from": "untouched full 1.0.0 archive; tool/docker/run.sh already includes successful host_scripts patches 319+327",
+      "sha256": "a80a9141c954548148b2acb4ef04adcc1a7cb0131a6c2cba19c5877531cc957c"
+    },
+    "tool/docker/Dockerfile": {
+      "from": "untouched full 1.0.0 archive; tool/docker/run.sh already includes successful host_scripts patches 319+327",
+      "sha256": "f76d6d8fc539c5d215833a45a487a947d7f430bebd1a3c56d8102f337e0f118b"
+    },
+    "tool/docker/build-app.sh": {
+      "from": "untouched full 1.0.0 archive; tool/docker/run.sh already includes successful host_scripts patches 319+327",
+      "sha256": "43362f6738e0aa4daf8d3e6f8ac0126260c35d02273ea86902d17b0caf0af5cd"
+    },
+    "tool/docker/build-image.sh": {
+      "from": "untouched full 1.0.0 archive; tool/docker/run.sh already includes successful host_scripts patches 319+327",
+      "sha256": "14b21e98367d2dc561a8be707ae51cf0ea9fdc29c0e8faa23539f93c52adedce"
+    },
+    "tool/docker/run.sh": {
+      "from": "untouched full 1.0.0 archive; tool/docker/run.sh already includes successful host_scripts patches 319+327",
+      "sha256": "b7883e4be545f13ccd825a32e3f60fa73089b78392abb38ae0821557d458f2db"
+    }
+  },
+  "checks": {
+    "shell_syntax": "all 5 shell scripts passed bash -n",
+    "python_syntax": "package_source.py AST parsed without execution",
+    "javascript_syntax": "generator passed node --check; not executed because original reference HTML absent"
+  },
+  "missing_optional_reference": "docs/reference/legacy-page/index.html; original HTML is absent. Generator needs this file only for regenerating golden vectors; app build and existing test fixtures do not require it."
+}

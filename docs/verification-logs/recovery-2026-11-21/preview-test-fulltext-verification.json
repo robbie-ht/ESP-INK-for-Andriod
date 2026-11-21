@@ -1,0 +1,12 @@
+{
+  "session_line": 3659,
+  "source": "event_msg item_completed CommandExecution aggregated_output",
+  "complete_command": [
+    "/bin/bash",
+    "-lc",
+    "sed -n '1,280p' test/gallery_read_notification_limit_test.dart"
+  ],
+  "original_sha256": "c46c0145506e1a04e16b31dac468a98194fc282d5fe044b4b650d40a6eb8cf34",
+  "restored_sha256": "c46c0145506e1a04e16b31dac468a98194fc282d5fe044b4b650d40a6eb8cf34",
+  "matches": true
+}

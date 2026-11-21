@@ -1,0 +1,74 @@
+# MoInk 1.0.0 验证记录
+
+日期：2026-11-17。源码位于 `/home/descfly/桌面/ESP32/APP/`。这是面向B2设备的Flutter Android应用，创作页只有拍立得和便签，界面采用Material 3。
+
+## 已完成的检查
+
+| 项目 | 实际结果 | 证据范围 |
+|---|---|---|
+| 静态检查 | `dart analyze lib test` 无问题 | Dart源码与测试；当前宿主Flutter LSP在中文路径有协议异常，因此直接使用Dart分析器 |
+| 自动检查 | `flutter test --no-pub --reporter expanded`，189项全部通过 | 协议/CRC/分片与故障恢复、原生通道模拟、控制器、图像、草稿与UI；不是真实BLE |
+| 参考算法 | 图像相关122项，其中112组原JS金标 | 96组4风格×8抖动×3色域，另16组高级参数/渐变；白边隔离、文字后叠加、PNG与发送像素一致 |
+| Web Release | 实际构建成功 | 用于界面与本地演示；不提供浏览器真实BLE |
+| 浏览器操作 | 390×844与1440×1000实看 | 中文按钮/宋体便签、选图与四色处理、拍立得留白、本地演示追加图库、设备页展开及切页恢复 |
+| Android Release APK | Docker实际构建成功 | 包含Android原生Kotlin BLE桥与所用插件；最终构建60.6秒 |
+| APK结构 | 379个ZIP条目CRC全部通过 | manifest、DEX、三ABI原生库、三套中文字体存在 |
+| APK签名 | `apksigner verify` 成功，v2签名有效 | Android Debug测试证书，非正式发行密钥 |
+| 构建输入 | 72份输入在构建前后SHA256相同 | lib、Android源/配置、字体、锁文件、测试、构建工具及Web源 |
+| 源码交付 | 解包后文件清单和SHA256一致 | 不包含本机build软链、SDK、缓存、local.properties、编辑器状态、私钥或APK |
+
+浏览器截图使用本地输入；山景是为导入检查绘制的测试图，不是内置海报或模板。截图不能证明Android手机上的蓝牙、手势或系统照片选择器已实测。浏览器预览环境使用CPU渲染，不以此判断Android性能。
+
+## APK信息
+
+- 文件：`MoInk-1.0.0-android.apk`
+- applicationId：`app.moink.moink_app`
+- 版本：`1.0.0` / versionCode `1`
+- 大小：101261833 bytes（约96.6 MiB）
+- 最低Android：API24 / Android7.0；target/compile：API36
+- ABI：arm64-v8a、armeabi-v7a、x86_64
+- SHA256：`f5d729aa358ae457dc0e5cb1c03518be8c8e73e340f1dccc23a1e9f10839db20`
+- 字体：NotoSansSC、NotoSerifSC、NotoSansMonoSC，随包附许可
+
+## 复现入口
+
+宿主工具链：Flutter3.47.8 / Dart3.13.7。Docker镜像 `flutter-android:3.47.8`，镜像ID `sha256:161a99114fb9525b3a513f5df8c27fd14bd626356a677aab879322fdccaebb27`，Ubuntu24.04、JDK17、SDK36、BuildTools36.0.0、NDK28.2.13676358。
+
+```bash
+# 在源码根目录
+flutter pub get
+dart analyze lib test
+flutter test --no-pub
+flutter build web --release --no-pub
+
+# Docker编译Android；其他机器先构建镜像
+./tool/docker/build-image.sh
+./tool/build_android.sh apk
+```
+
+本机使用数据盘缓存：`MOINK_CACHE_DIR=/mnt/data/moink-flutter-work/docker-cache ./tool/build_android.sh apk`。宿主与容器的Flutter路径不同，切换后必须在对应环境重新 `flutter pub get`。源码包在其他机器使用普通build目录，未携带本机的绝对软链。
+
+构建期间所用插件额外安装SDK Platform35。工具链报告SDK XML版本3/4兼容警告，但最终构建成功；没有关闭TLS验证。首轮依赖下载曾发生Maven TLS握手中断，Flutter构建器既有重试成功；最终构建没有该下载失败。首次构建仍需要正常访问官方依赖站点。
+
+## 本轮查出并修复的问题
+
+- Android整个特征值最多512字节，DATA还含2字节序号；图片和OTA请求chunk改为最多510。仍接受固件报告maximum512，拒绝超过实际请求的selected值，Dart/Kotlin整包上限一致。依据：[AOSP BluetoothGatt](https://android.googlesource.com/platform/packages/modules/Bluetooth/+/refs/heads/main/framework/java/android/bluetooth/BluetoothGatt.java)。新增边界回归已通过。
+- 展开区域与祖先滚动区曾共用PageStorage标识，恢复时把数字offset当布尔值。新增测试先复现，再用独立键修复；滚动、来回切页和恢复展开状态均通过，最终浏览器操作未再出现该异常。
+- 设备切换清空图库缓存；图片使用本次通过CRC的下载元数据解码。缓存重刷/清残影后更新current；演示删除重排slot。
+- 图像更新串行合并最新请求，旧结果不覆盖新草稿；文字后叠加，不受照片抖动污染。
+- 外部build绝对软链的目标在容器中同路径挂载，避免Gradle无法创建输出目录。
+
+## 参考快照
+
+| 来源 | SHA256 |
+|---|---|
+| `moink-R1.3.4/page/index.html` | `b12c5267d3f3d04dd95360586e40a6ffc801a540f5b88e8f1dfe553e6973df55` |
+| `Moink-APP/docs/API.md` | `8e4f24d61161481ef0bb7065f64d2b923d16514cab13fd01c513c2293b8679e3` |
+| `Moink-APP/docs/APP-INTEGRATION.md` | `b7c30de8ae68ada4ebd46f9e205674fa43fa3991a855c2762c95a4a17a54ee6b` |
+| `Moink-APP/docs/protocol-vectors.json`与本项目fixture | `e509852892f3db0b9e59e4be7099215885597d8235b6a3da9c830042916f065c` |
+
+本轮未改同级固件与旧控制页。开发期间固件在另一聊天更新为整合板preset2出厂，本应用文档及初始值已按最终API对齐，连接时仍读取设备真实配置。
+
+## 尚未完成的验收
+
+没有连接、烧录或操作MoInk实物，也没有在Android手机/模拟器安装运行。真实扫描和权限流程、BLE吞吐/流控、面板颜色与方向、Flash掉电、电源/电流、休眠唤醒和OTA回滚仍需执行 [hardware-check.md](hardware-check.md)。当前APK采用测试签名；正式发布需要自己的发行密钥和相应渠道验收。

@@ -1,0 +1,269 @@
+{
+  "format": "moink-protocol-vectors-v1",
+  "firmware": "B2.0.0",
+  "api": 1,
+  "integer_endianness": "little",
+  "source": "按2026-11-17本地固件源码构造；不是BLE真机抓包，也不代表真机验收。",
+  "representation": "hex是原始字节的可读表示；segments按顺序拼接，repeat_hex重复count次。转换为二进制发送，不发送JSON或hex文本。",
+  "assumptions": [
+    "示例采用MTU517；设置请求本身也能装入MTU23。",
+    "图库快照为可用8槽、初始revision1、只新增一张全白图后的revision2；真实APP必须查询实际版本。",
+    "不同示例不是要求顺序执行的脚本。所有CTRL须先订阅EVT；改变状态的操作须处于相应允许状态。"
+  ],
+  "crc_vectors": [
+    {
+      "input_ascii": "123456789",
+      "input_hex": "31 32 33 34 35 36 37 38 39",
+      "crc16_hex": "29B1",
+      "crc16_wire_hex": "B1 29",
+      "crc32_hex": "CBF43926",
+      "crc32_wire_hex": "26 39 F4 CB"
+    }
+  ],
+  "payloads": [
+    {
+      "id": "white_frame",
+      "width": 768,
+      "height": 552,
+      "format": "packed2bpp",
+      "repeat_hex": "55",
+      "count": 105984,
+      "crc16_hex": "2698",
+      "crc16_wire_hex": "98 26"
+    },
+    {
+      "id": "white_thumbnail",
+      "width": 192,
+      "height": 138,
+      "format": "packed2bpp",
+      "repeat_hex": "55",
+      "count": 6624,
+      "crc16_hex": "0B4A",
+      "crc16_wire_hex": "4A 0B"
+    }
+  ],
+  "chunk_cases": [
+    {
+      "mtu": 517,
+      "chunk_used": 512,
+      "payload_length": 105984,
+      "packet_count": 207,
+      "last_payload_length": 512
+    },
+    {
+      "mtu": 185,
+      "chunk_used": 180,
+      "payload_length": 105984,
+      "packet_count": 589,
+      "last_payload_length": 144
+    },
+    {
+      "mtu": 23,
+      "chunk_used": 18,
+      "payload_length": 105984,
+      "packet_count": 5888,
+      "last_payload_length": 18
+    }
+  ],
+  "messages": [
+    {
+      "id": "ping_request",
+      "channel": "CTRL",
+      "note": "请求协议与版本，cmd_seq=1",
+      "length": 2,
+      "hex": "01 01"
+    },
+    {
+      "id": "ping_response",
+      "channel": "EVT",
+      "note": "PING 成功响应",
+      "length": 11,
+      "hex": "01 01 00 01 06 42 32 2E 30 2E 30"
+    },
+    {
+      "id": "white_frame_begin",
+      "channel": "CTRL",
+      "note": "全白整帧显示，flags=0，MTU=517",
+      "length": 15,
+      "hex": "10 05 00 00 03 28 02 00 9E 01 00 98 26 00 02"
+    },
+    {
+      "id": "white_frame_begin_response",
+      "channel": "EVT",
+      "note": "实际 chunk_used=512",
+      "length": 7,
+      "hex": "01 05 00 00 02 00 02"
+    },
+    {
+      "id": "white_frame_data_first",
+      "channel": "DATA",
+      "note": "data_seq=0，512 字节全白数据",
+      "length": 514,
+      "segments": [
+        {
+          "hex": "00 00"
+        },
+        {
+          "repeat_hex": "55",
+          "count": 512
+        }
+      ]
+    },
+    {
+      "id": "white_frame_data_last",
+      "channel": "DATA",
+      "note": "data_seq=206，末片同样为512字节",
+      "length": 514,
+      "segments": [
+        {
+          "hex": "CE 00"
+        },
+        {
+          "repeat_hex": "55",
+          "count": 512
+        }
+      ]
+    },
+    {
+      "id": "white_frame_end",
+      "channel": "CTRL",
+      "note": "接收结束，cmd_seq=6",
+      "length": 2,
+      "hex": "12 06"
+    },
+    {
+      "id": "white_frame_end_queued",
+      "channel": "EVT",
+      "note": "仅表示 queued=1",
+      "length": 4,
+      "hex": "01 06 00 01"
+    },
+    {
+      "id": "white_frame_display_done",
+      "channel": "EVT",
+      "note": "上传显示成功事件",
+      "length": 3,
+      "hex": "81 01 00"
+    },
+    {
+      "id": "white_store_only_begin",
+      "channel": "CTRL",
+      "note": "flags=6，只保存到空图库，无自定义缩略图",
+      "length": 15,
+      "hex": "10 07 06 00 03 28 02 00 9E 01 00 98 26 00 02"
+    },
+    {
+      "id": "white_store_only_begin_response",
+      "channel": "EVT",
+      "note": "chunk_used=512",
+      "length": 7,
+      "hex": "01 07 00 00 02 00 02"
+    },
+    {
+      "id": "white_store_only_end",
+      "channel": "CTRL",
+      "note": "需先重新发送207片图片",
+      "length": 2,
+      "hex": "12 08"
+    },
+    {
+      "id": "white_store_only_end_queued",
+      "channel": "EVT",
+      "note": "只存图已排队",
+      "length": 4,
+      "hex": "01 08 00 01"
+    },
+    {
+      "id": "white_store_only_done",
+      "channel": "EVT",
+      "note": "假定原图库为空，保存成功，slot=0/count=1/current=255；没有DISPLAY_DONE",
+      "length": 6,
+      "hex": "81 06 00 00 01 FF"
+    },
+    {
+      "id": "settings_sleep_wake",
+      "channel": "CTRL",
+      "note": "空闲180秒深睡，3600秒定时唤醒换图",
+      "length": 20,
+      "hex": "04 09 02 04 B4 00 00 00 03 01 00 04 04 10 0E 00 00 09 01 01"
+    },
+    {
+      "id": "settings_sleep_wake_response",
+      "channel": "EVT",
+      "note": "4个TLV成功，flags=0",
+      "length": 7,
+      "hex": "01 09 00 04 00 00 00"
+    },
+    {
+      "id": "gallery_info",
+      "channel": "CTRL",
+      "note": "查询图库",
+      "length": 2,
+      "hex": "22 0F"
+    },
+    {
+      "id": "gallery_info_response",
+      "channel": "EVT",
+      "note": "构造快照：1项，未显示，8槽，revision=2",
+      "length": 10,
+      "hex": "01 0F 00 01 FF 08 02 00 00 00"
+    },
+    {
+      "id": "gallery_list",
+      "channel": "CTRL",
+      "note": "从0最多读8项",
+      "length": 4,
+      "hex": "26 10 00 08"
+    },
+    {
+      "id": "gallery_list_response",
+      "channel": "EVT",
+      "note": "构造快照：revision=2，全白帧及自动全白缩略图",
+      "length": 31,
+      "hex": "01 10 00 02 00 00 00 00 01 00 00 03 28 02 00 9E 01 00 98 26 01 C0 00 8A 00 E0 19 00 00 4A 0B"
+    },
+    {
+      "id": "gallery_read_thumb_first",
+      "channel": "CTRL",
+      "note": "slot0缩略图，offset0/requested498/revision2",
+      "length": 14,
+      "hex": "27 11 00 01 00 00 00 00 F2 01 02 00 00 00"
+    },
+    {
+      "id": "gallery_read_thumb_first_response",
+      "channel": "EVT",
+      "note": "MTU517，首片498字节全白缩略图",
+      "length": 514,
+      "segments": [
+        {
+          "hex": "01 11 00 00 01 00 00 00 00 E0 19 00 00 4A 0B 01"
+        },
+        {
+          "repeat_hex": "55",
+          "count": 498
+        }
+      ]
+    },
+    {
+      "id": "transfer_gap",
+      "channel": "EVT",
+      "note": "期望DATA分片100",
+      "length": 5,
+      "hex": "81 05 00 64 00"
+    },
+    {
+      "id": "frame_end_incomplete",
+      "channel": "EVT",
+      "note": "FRAME_END未收满，cmd_seq=6，期望分片100",
+      "length": 5,
+      "hex": "01 06 09 64 00"
+    },
+    {
+      "id": "frame_end_crc_retry",
+      "channel": "EVT",
+      "note": "FRAME_END CRC错误，从分片0重发完整载荷",
+      "length": 5,
+      "hex": "01 06 08 00 00"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+# MoInk 1.0.2 源码恢复验证
+
+日期：2026-11-21。此前APP目录被删除，本轮从完整1.0.0源码包、原始工具补丁/文本写入记录和原构建输入SHA恢复1.0.2+3。旧1.0.0验证记录已单独保留，不当作本轮重新验证。
+
+- 78份未变的1.0.1输入与原SHA精确一致；另外恢复原始MTU限长/版本变更和新增回归文件，共81份编译/测试输入。
+- 271项Flutter测试全部重新通过，Dart分析无问题。[测试日志](verification-logs/recovery-2026-11-21/recovered-tests.log)、[分析日志](verification-logs/recovery-2026-11-21/recovered-analyze.log)、[逐文件清单](verification-logs/recovery-2026-11-21/final-source-hashes.json)。
+- 包含实时原图裁切、图库缩略图/大图、完整PNG导出和MTU517分片修复。真实MTU不伪报，每次图库数据请求不超过496字节，完整通知不超过512。
+- Android安装包已实际重新构建（Gradle72.9秒），版本1.0.2/code3、379项ZIP CRC通过，v2签名有效且与原APK证书一致。新产物与删除前APK的SHA不同，详情见[恢复记录](RECOVERY-2026-11-21.md)。
+
+离线恢复与模型测试不等于实体手机BLE/相册保存验收。固件源码未修改、未刷设备。更完整的恢复方法和缺失参考材料说明见[恢复记录](RECOVERY-2026-11-21.md)。

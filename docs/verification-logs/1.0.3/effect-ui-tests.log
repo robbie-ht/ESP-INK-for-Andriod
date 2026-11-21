@@ -1,0 +1,27 @@
+00:00 +0: loading /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart
+00:00 +0: /home/descfly/桌面/ESP32/APP/test/ink_effect_editor_test.dart: effect preview stays visible while controls scroll at Size(390.0, 844.0)
+00:00 +1: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:00 +2: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: pending dot conversion keeps the decoded source photograph visible
+00:00 +3: /home/descfly/桌面/ESP32/APP/test/voltage_status_ui_test.dart: voltage labels distinguish a valid sample from a retained sample
+00:00 +4: /home/descfly/桌面/ESP32/APP/test/voltage_status_ui_test.dart: voltage labels distinguish a valid sample from a retained sample
+00:00 +5: /home/descfly/桌面/ESP32/APP/test/gallery_preview_test.dart: cards preload once, show each read state and offer a download
+00:00 +6: /home/descfly/桌面/ESP32/APP/test/gallery_preview_test.dart: cards preload once, show each read state and offer a download
+00:00 +7: /home/descfly/桌面/ESP32/APP/test/gallery_preview_test.dart: cards preload once, show each read state and offer a download
+00:00 +8: /home/descfly/桌面/ESP32/APP/test/gallery_preview_test.dart: cards preload once, show each read state and offer a download
+00:01 +9: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: geometry edits paint immediately and reuse the decoded source
+00:01 +10: /home/descfly/桌面/ESP32/APP/test/gallery_preview_test.dart: opening the viewer is immediate while the device read is pending
+00:01 +11: /home/descfly/桌面/ESP32/APP/test/live_preview_test.dart: main effect mode refreshes edits and keeps its last result visible
+00:01 +12: /home/descfly/桌面/ESP32/APP/test/gallery_preview_test.dart: read failure is visible in the viewer and retry recovers
+00:01 +13: /home/descfly/桌面/ESP32/APP/test/gallery_preview_test.dart: read failure is visible in the viewer and retry recovers
+00:01 +14: /home/descfly/桌面/ESP32/APP/test/gallery_preview_test.dart: full frame failure retains the thumbnail and can retry full detail
+00:01 +15: /home/descfly/桌面/ESP32/APP/test/gallery_preview_test.dart: double tap zooms and restores, with pan available while enlarged
+00:01 +16: /home/descfly/桌面/ESP32/APP/test/gallery_preview_test.dart: changed gallery identity hides the old image and ignores a late read
+00:01 +17: /home/descfly/桌面/ESP32/APP/test/gallery_preview_test.dart: landscape leaves image and scrollable controls side by side
+00:01 +18: /home/descfly/桌面/ESP32/APP/test/gallery_preview_test.dart: an open thumbnail upgrades to background full frame without resetting zoom
+00:02 +19: /home/descfly/桌面/ESP32/APP/test/gallery_preview_test.dart: download reads the full image and displays the real export result
+00:02 +20: /home/descfly/桌面/ESP32/APP/test/gallery_preview_test.dart: failed full read never exports the cached thumbnail
+00:02 +21: /home/descfly/桌面/ESP32/APP/test/gallery_preview_test.dart: export errors stay visible and retry can save successfully
+00:02 +22: /home/descfly/桌面/ESP32/APP/test/gallery_preview_test.dart: a thumbnail returned for a full request is never saved
+00:02 +23: /home/descfly/桌面/ESP32/APP/test/gallery_preview_test.dart: download entry opens directly into full read and prevents reentry
+00:02 +24: /home/descfly/桌面/ESP32/APP/test/gallery_preview_test.dart: background reading keeps show and refresh actions available
+00:03 +25: All tests passed!

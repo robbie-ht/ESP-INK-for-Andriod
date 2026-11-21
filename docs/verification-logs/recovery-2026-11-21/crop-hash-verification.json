@@ -1,0 +1,68 @@
+[
+  {
+    "file": "lib/app/artwork.dart",
+    "matches": true,
+    "expected": "bfbcae0c9c9b72256a518b582de08867d2fabd3e96d7260a7a4ca015133e2954",
+    "actual": "bfbcae0c9c9b72256a518b582de08867d2fabd3e96d7260a7a4ca015133e2954"
+  },
+  {
+    "file": "lib/app/image_processor.dart",
+    "matches": true,
+    "expected": "e740294a93ef61d327b1fc494716ea7a9805c98b67b795e4e7de11e7b693f724",
+    "actual": "e740294a93ef61d327b1fc494716ea7a9805c98b67b795e4e7de11e7b693f724"
+  },
+  {
+    "file": "lib/app/photo_decode.dart",
+    "matches": true,
+    "expected": "72dcf9e0261479b91258b3a54d7f7da1316c2afd423324f548474d858493153c",
+    "actual": "72dcf9e0261479b91258b3a54d7f7da1316c2afd423324f548474d858493153c"
+  },
+  {
+    "file": "lib/app/photo_geometry.dart",
+    "matches": true,
+    "expected": "b4fd16e0ba14a6faa2b1ac03eea2dfa2854c0c13228d4c6f6e3822c56457fd5f",
+    "actual": "b4fd16e0ba14a6faa2b1ac03eea2dfa2854c0c13228d4c6f6e3822c56457fd5f"
+  },
+  {
+    "file": "lib/ui/composer_settings.dart",
+    "matches": true,
+    "expected": "51be3902758acb00076639d04b0c9a707d5cc54569d1a133a2b55ad9697db61a",
+    "actual": "51be3902758acb00076639d04b0c9a707d5cc54569d1a133a2b55ad9697db61a"
+  },
+  {
+    "file": "lib/ui/photo_crop_editor.dart",
+    "matches": true,
+    "expected": "5dab7965cc5280c163517c37334a70458ba9c80abe5513ce220cd48686a750d0",
+    "actual": "5dab7965cc5280c163517c37334a70458ba9c80abe5513ce220cd48686a750d0"
+  },
+  {
+    "file": "test/image_processor_test.dart",
+    "matches": true,
+    "expected": "60c989fe71b6d69d6864c60e9c0b318440c60e4e719ad405093cf1146b7839a4",
+    "actual": "60c989fe71b6d69d6864c60e9c0b318440c60e4e719ad405093cf1146b7839a4"
+  },
+  {
+    "file": "test/photo_crop_editor_test.dart",
+    "matches": true,
+    "expected": "332692117d0235874b13614c4f81f88380e5ec4bbc9b97ec717d8ecd81e8dd8c",
+    "actual": "332692117d0235874b13614c4f81f88380e5ec4bbc9b97ec717d8ecd81e8dd8c"
+  },
+  {
+    "file": "test/photo_decode_test.dart",
+    "matches": true,
+    "expected": "1ad330ceb049ab347e31133e49273f655e482749de8c8deb547e02bc34ce4ddf",
+    "actual": "1ad330ceb049ab347e31133e49273f655e482749de8c8deb547e02bc34ce4ddf"
+  },
+  {
+    "file": "test/photo_geometry_test.dart",
+    "matches": true,
+    "expected": "321035099e59192f040340097579e20b00289fc2c89f99f4725232eb5f05e8fe",
+    "actual": "321035099e59192f040340097579e20b00289fc2c89f99f4725232eb5f05e8fe"
+  },
+  {
+    "file": "test/ui_test.dart",
+    "matches": true,
+    "expected": "f940268b4d99993d20170dd460d899accc0bbd3da13589f162f0df071c51cc93",
+    "actual": "f940268b4d99993d20170dd460d899accc0bbd3da13589f162f0df071c51cc93"
+  }
+]

@@ -1,0 +1,20 @@
+{
+  "version": "1.0.3+4",
+  "apk": "releases/MoInk-1.0.3-android.apk",
+  "bytes": 105112561,
+  "sha256": "d3720a5ae77ec1b6a10de552187b4d20a3fad8785a9334bb09a38177dc72cfe5",
+  "copy_matches_build": true,
+  "zip_entries": 379,
+  "all_zip_crcs_valid": true,
+  "abis": [
+    "arm64-v8a",
+    "armeabi-v7a",
+    "x86_64"
+  ],
+  "font_entries": [
+    "assets/flutter_assets/assets/fonts/NotoSansMonoSC-Regular.otf",
+    "assets/flutter_assets/assets/fonts/NotoSansSC-Regular.otf",
+    "assets/flutter_assets/assets/fonts/NotoSerifSC-Regular.otf",
+    "assets/flutter_assets/fonts/MaterialIcons-Regular.otf"
+  ]
+}
