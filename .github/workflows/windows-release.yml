@@ -81,7 +81,7 @@ jobs:
 
       - name: Build Windows x64 Release
         run: |
-          & flutter build windows --release --target-platform windows-x64 2>&1 | Tee-Object build/windows-ci-logs/build.log
+          & flutter build windows --release 2>&1 | Tee-Object build/windows-ci-logs/build.log
           if ($LASTEXITCODE -ne 0) { throw 'Windows Release compilation failed.' }
 
       - name: Verify and package complete Release

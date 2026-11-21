@@ -1,0 +1,19 @@
+windows	Build Windows x64 Release	﻿2026-11-21T10:56:02.4164569Z ##[group]Run & flutter build windows --release --target-platform windows-x64 2>&1 | Tee-Object build/windows-ci-logs/build.log
+windows	Build Windows x64 Release	2026-11-21T10:56:02.4165791Z ^[[36;1m& flutter build windows --release --target-platform windows-x64 2>&1 | Tee-Object build/windows-ci-logs/build.log^[[0m
+windows	Build Windows x64 Release	2026-11-21T10:56:02.4166666Z ^[[36;1mif ($LASTEXITCODE -ne 0) { throw 'Windows Release compilation failed.' }^[[0m
+windows	Build Windows x64 Release	2026-11-21T10:56:02.4202278Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+windows	Build Windows x64 Release	2026-11-21T10:56:02.4202554Z env:
+windows	Build Windows x64 Release	2026-11-21T10:56:02.4202703Z   ESP_INK_FLUTTER_VERSION: 3.47.8
+windows	Build Windows x64 Release	2026-11-21T10:56:02.4202883Z   CI: true
+windows	Build Windows x64 Release	2026-11-21T10:56:02.4203106Z   FLUTTER_ROOT: C:\hostedtoolcache\windows\flutter\stable-3.47.8-x64/flutter
+windows	Build Windows x64 Release	2026-11-21T10:56:02.4203432Z   PUB_CACHE: C:\Users\runneradmin\AppData\Local\Pub\Cache
+windows	Build Windows x64 Release	2026-11-21T10:56:02.4203660Z ##[endgroup]
+windows	Build Windows x64 Release	2026-11-21T10:56:03.2458283Z ^[[31;1mCould not find an option named "--target-platform".^[[0m
+windows	Build Windows x64 Release	2026-11-21T10:56:03.2473130Z ^[[31;1m^[[0m
+windows	Build Windows x64 Release	2026-11-21T10:56:03.2503992Z ^[[31;1mRun 'flutter -h' (or 'flutter <command> -h') for available flutter commands and options.^[[0m
+windows	Build Windows x64 Release	2026-11-21T10:56:03.3487535Z ^[[31;1mException: ^[[0mD:\a\_temp\79a05fae-47e8-42ee-a3cf-fe5ef4573a0e.ps1:3^[[0m
+windows	Build Windows x64 Release	2026-11-21T10:56:03.3488188Z ^[[31;1m^[[0m^[[36;1mLine |^[[0m
+windows	Build Windows x64 Release	2026-11-21T10:56:03.3488943Z ^[[31;1m^[[0m^[[36;1m^[[36;1m   3 | ^[[0m … ($LASTEXITCODE -ne 0) { ^[[36;1mthrow 'Windows Release compilation failed.'^[[0m }^[[0m
+windows	Build Windows x64 Release	2026-11-21T10:56:03.3489830Z ^[[31;1m^[[0m^[[36;1m^[[36;1m^[[0m^[[36;1m^[[0m^[[36;1m     | ^[[31;1m                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^[[0m
+windows	Build Windows x64 Release	2026-11-21T10:56:03.3491302Z ^[[31;1m^[[0m^[[36;1m^[[36;1m^[[0m^[[36;1m^[[0m^[[36;1m^[[31;1m^[[31;1m^[[36;1m     | ^[[31;1mWindows Release compilation failed.^[[0m
+windows	Build Windows x64 Release	2026-11-21T10:56:03.3878480Z ##[error]Process completed with exit code 1.

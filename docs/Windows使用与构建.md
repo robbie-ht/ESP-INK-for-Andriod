@@ -27,9 +27,11 @@ Windows 不能请求固定 MTU517，系统返回多少便使用多少；即使�
 flutter config --enable-windows-desktop
 flutter pub get --enforce-lockfile
 flutter test
-flutter build windows --release --target-platform windows-x64
+flutter build windows --release
 pwsh -File tool/package_windows.ps1 -SmokeTest
 ```
+
+Flutter3.47.8 的 Windows 命令按主机架构构建，未提供 `--target-platform` 参数；本工作流使用 x64 runner，并在打包时逐个验证 AMD64 PE。
 
 实际编译目录：`build/windows/x64/runner/Release/`；ZIP、SHA256、构建报告输出到 `releases/windows/`。Windows 不嵌入 JVM，CMake 跳过 Android image_picker 间接依赖 jni 的可选 Java 探测，用户不需要 JDK。
 

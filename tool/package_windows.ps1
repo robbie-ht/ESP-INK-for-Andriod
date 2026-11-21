@@ -5,7 +5,7 @@ Package an already-built Windows x64 Release, with app-local MSVC runtimes.
 .EXAMPLE
 pwsh -File tool/package_windows.ps1 -SmokeTest
 .NOTES
-Run flutter build windows --release --target-platform windows-x64 first.
+Run flutter build windows --release first.
 This script does not install tools, build the app, or publish a release.
 #>
 [CmdletBinding()]

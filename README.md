@@ -63,7 +63,7 @@ Windows 构建需要 Windows 10/11 x64、Flutter 3.47.8 和 Visual Studio 2022 �
 ```powershell
 flutter pub get --enforce-lockfile
 flutter test
-flutter build windows --release --target-platform windows-x64
+flutter build windows --release
 pwsh -File tool/package_windows.ps1 -SmokeTest
 ```
 
