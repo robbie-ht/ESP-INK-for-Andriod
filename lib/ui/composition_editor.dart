@@ -15,15 +15,15 @@ Future<void> showCompositionEditor(
   BuildContext context,
   EspInkController controller,
 ) async {
+  final kind = controller.draft.kind;
   controller.setInkPreviewActive(true);
   try {
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
         fullscreenDialog: true,
-        builder: (_) => _CompositionEditor(
-          key: const ValueKey('composition-editor'),
-          controller: controller,
-        ),
+        builder: (_) => kind == CompositionKind.photo
+            ? _PhotoCompositionEditor(controller: controller)
+            : _NoteCompositionEditor(controller: controller),
       ),
     );
   } finally {
@@ -31,9 +31,38 @@ Future<void> showCompositionEditor(
   }
 }
 
-class _CompositionEditor extends StatefulWidget {
-  const _CompositionEditor({super.key, required this.controller});
+class _PhotoCompositionEditor extends StatelessWidget {
+  const _PhotoCompositionEditor({required this.controller});
   final EspInkController controller;
+
+  @override
+  Widget build(BuildContext context) => _CompositionEditor(
+    key: const ValueKey('composition-editor'),
+    controller: controller,
+    kind: CompositionKind.photo,
+  );
+}
+
+class _NoteCompositionEditor extends StatelessWidget {
+  const _NoteCompositionEditor({required this.controller});
+  final EspInkController controller;
+
+  @override
+  Widget build(BuildContext context) => _CompositionEditor(
+    key: const ValueKey('composition-editor'),
+    controller: controller,
+    kind: CompositionKind.note,
+  );
+}
+
+class _CompositionEditor extends StatefulWidget {
+  const _CompositionEditor({
+    super.key,
+    required this.controller,
+    required this.kind,
+  });
+  final EspInkController controller;
+  final CompositionKind kind;
 
   @override
   State<_CompositionEditor> createState() => _CompositionEditorState();
@@ -41,6 +70,9 @@ class _CompositionEditor extends StatefulWidget {
 
 class _CompositionEditorState extends State<_CompositionEditor> {
   EspInkController get c => widget.controller;
+  bool get _photoMode => widget.kind == CompositionKind.photo;
+  List<TextLayer> get _textLayers =>
+      _photoMode ? c.draft.photoTexts : c.draft.noteTexts;
   String? _selectedId;
   bool _inkPreview = true;
   bool _picking = false;
@@ -49,9 +81,8 @@ class _CompositionEditorState extends State<_CompositionEditor> {
   Offset? _gestureStart;
 
   TextLayer? get _selected =>
-      c.draft.textLayers.where((text) => text.id == _selectedId).firstOrNull;
-  bool get _emptyPhoto =>
-      c.draft.kind == CompositionKind.photo && c.draft.photoBytes == null;
+      _textLayers.where((text) => text.id == _selectedId).firstOrNull;
+  bool get _emptyPhoto => _photoMode && c.draft.photoBytes == null;
 
   void _change(ComposerDraft value) => c.updateDraft(value);
 
@@ -64,13 +95,13 @@ class _CompositionEditorState extends State<_CompositionEditor> {
   }
 
   void _setLayers(List<TextLayer> layers) => _change(
-    c.draft.kind == CompositionKind.photo
+    _photoMode
         ? c.draft.copyWith(photoTexts: layers)
         : c.draft.copyWith(noteTexts: layers),
   );
 
   void _updateLayer(TextLayer layer) => _setLayers([
-    for (final text in c.draft.textLayers) text.id == layer.id ? layer : text,
+    for (final text in _textLayers) text.id == layer.id ? layer : text,
   ]);
 
   void _selectText(TextLayer layer) {
@@ -98,7 +129,7 @@ class _CompositionEditorState extends State<_CompositionEditor> {
     final result = await showTextEditorSheet(context, old);
     if (!mounted || result == null) return;
     if (old == null) {
-      _setLayers([...c.draft.textLayers, result]);
+      _setLayers([..._textLayers, result]);
     } else {
       _updateLayer(result);
     }
@@ -110,8 +141,11 @@ class _CompositionEditorState extends State<_CompositionEditor> {
 
   @override
   Widget build(BuildContext context) => InkEffectEditor(
+    key: ValueKey(
+      _photoMode ? 'composition-editor-photo' : 'composition-editor-note',
+    ),
     controller: c,
-    title: '调整图片',
+    title: _photoMode ? '调整拍立得' : '调整便签',
     canExit: !_picking,
     previewBuilder: _preview,
     controlsBuilder: _controls,
@@ -129,7 +163,7 @@ class _CompositionEditorState extends State<_CompositionEditor> {
             ButtonSegment(
               value: false,
               icon: const Icon(Icons.photo_outlined, size: 17),
-              label: Text(c.draft.kind == CompositionKind.photo ? '原图' : '画面'),
+              label: Text(_photoMode ? '原图' : '画面'),
             ),
             const ButtonSegment(
               value: true,
@@ -214,7 +248,7 @@ class _CompositionEditorState extends State<_CompositionEditor> {
 
   TextLayer? _hit(Offset logical) {
     if (!c.draft.textEnabled) return null;
-    for (final layer in c.draft.textLayers.reversed) {
+    for (final layer in _textLayers.reversed) {
       final delta = logical - Offset(layer.x, layer.y);
       final angle = -layer.rotation * math.pi / 180;
       final local = Offset(
@@ -241,9 +275,7 @@ class _CompositionEditorState extends State<_CompositionEditor> {
           }
           final hadSelection = _selected != null;
           setState(() => _selectedId = null);
-          if (!_inkPreview &&
-              !hadSelection &&
-              c.draft.kind == CompositionKind.photo) {
+          if (!_inkPreview && !hadSelection && _photoMode) {
             unawaited(showPhotoGeometrySheet(context, c));
           }
         },
@@ -294,7 +326,10 @@ class _CompositionEditorState extends State<_CompositionEditor> {
                 gaplessPlayback: true,
               )
             else
-              SourceArtworkCanvas(draft: c.draft, onReselect: _pickPhoto),
+              SourceArtworkCanvas(
+                draft: c.draft,
+                onReselect: _photoMode ? _pickPhoto : null,
+              ),
             if (_selected != null && c.draft.textEnabled && !_inkPreview)
               IgnorePointer(
                 child: CustomPaint(painter: _SelectionPainter(_selected!)),
@@ -308,29 +343,7 @@ class _CompositionEditorState extends State<_CompositionEditor> {
   Widget _controls(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      SegmentedButton<CompositionKind>(
-        key: const ValueKey('composition-kind'),
-        showSelectedIcon: false,
-        segments: const [
-          ButtonSegment(
-            value: CompositionKind.photo,
-            icon: Icon(Icons.photo_camera_outlined, size: 17),
-            label: Text('拍立得'),
-          ),
-          ButtonSegment(
-            value: CompositionKind.note,
-            icon: Icon(Icons.sticky_note_2_outlined, size: 17),
-            label: Text('便签'),
-          ),
-        ],
-        selected: {c.draft.kind},
-        onSelectionChanged: (value) {
-          setState(() => _selectedId = null);
-          _change(c.draft.copyWith(kind: value.first, textEnabled: true));
-        },
-      ),
-      const SizedBox(height: 18),
-      if (c.draft.kind == CompositionKind.photo) ...[
+      if (_photoMode) ...[
         OutlinedButton.icon(
           key: const ValueKey('composition-pick-photo'),
           onPressed: _picking ? null : _pickPhoto,
@@ -365,7 +378,7 @@ class _CompositionEditorState extends State<_CompositionEditor> {
       const Divider(),
       const SizedBox(height: 10),
       _textControls(),
-      if (c.draft.kind == CompositionKind.photo) ...[
+      if (_photoMode) ...[
         const SizedBox(height: 20),
         const Divider(),
         const SizedBox(height: 15),
@@ -441,15 +454,14 @@ class _CompositionEditorState extends State<_CompositionEditor> {
     children: [
       SectionTitle(
         '画面上的文字',
-        subtitle: '${c.draft.textLayers.length} 个文字对象',
+        subtitle: '${_textLayers.length} 个文字对象',
         trailing: IconButton.filledTonal(
           tooltip: '添加文字',
           onPressed: () => _editText(null),
           icon: const Icon(Icons.add_rounded, size: 20),
         ),
       ),
-      if (c.draft.kind == CompositionKind.photo &&
-          c.draft.textLayers.isNotEmpty)
+      if (_photoMode && _textLayers.isNotEmpty)
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           dense: true,
@@ -457,17 +469,15 @@ class _CompositionEditorState extends State<_CompositionEditor> {
           value: c.draft.textEnabled,
           onChanged: (value) => _change(c.draft.copyWith(textEnabled: value)),
         ),
-      if (c.draft.textLayers.isEmpty)
+      if (_textLayers.isEmpty)
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 16),
           child: Text(
-            c.draft.kind == CompositionKind.note
-                ? '从一句想写下的话开始。'
-                : '给照片加上一句文字，或一个日期。',
+            !_photoMode ? '从一句想写下的话开始。' : '给照片加上一句文字，或一个日期。',
             style: const TextStyle(fontSize: 12, color: mutedText),
           ),
         ),
-      for (final text in c.draft.textLayers)
+      for (final text in _textLayers)
         Padding(
           padding: const EdgeInsets.only(top: 9),
           child: Material(
@@ -504,9 +514,7 @@ class _CompositionEditorState extends State<_CompositionEditor> {
           child: TextButton.icon(
             onPressed: () {
               _setLayers(
-                c.draft.textLayers
-                    .where((text) => text.id != _selectedId)
-                    .toList(),
+                _textLayers.where((text) => text.id != _selectedId).toList(),
               );
               setState(() => _selectedId = null);
             },

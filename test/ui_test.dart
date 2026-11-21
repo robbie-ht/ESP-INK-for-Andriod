@@ -23,6 +23,7 @@ class UiController extends EspInkController {
   Future<bool> pickPhoto() async {
     updateDraft(
       draft.copyWith(
+        kind: CompositionKind.photo,
         photoBytes: Uint8List.fromList(
           img.encodePng(img.Image(width: 4, height: 4)),
         ),
@@ -81,7 +82,7 @@ void main() {
       final c = UiController();
       await launch(tester, c, const Size(390, 844));
       expect(find.byType(NavigationBar), findsOneWidget);
-      expect(find.text('选择一张照片'), findsOneWidget);
+      expect(find.byKey(const ValueKey('select-photo')), findsOneWidget);
       expect(find.text('海报'), findsNothing);
       expect(find.text('日出慢行'), findsNothing);
       expect(c.draft.photoBytes, isNull);
@@ -108,12 +109,32 @@ void main() {
       expect(find.byType(NavigationRail), findsOneWidget);
       expect(find.byType(NavigationBar), findsNothing);
       expect(find.byKey(const ValueKey('preview-mode')), findsNothing);
-      await tester.ensureVisible(find.byKey(const ValueKey('adjust-photo')));
-      await tester.tap(find.byKey(const ValueKey('adjust-photo')));
+      Future<void> chooseMode(String key) async {
+        final select = find.byKey(const ValueKey('select-photo'));
+        await tester.ensureVisible(select);
+        await tester.tap(select);
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const ValueKey('composition-mode-sheet')),
+          findsOneWidget,
+        );
+        await tester.tap(find.byKey(ValueKey(key)));
+        await tester.pump();
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 50)),
+        );
+        await tester.pumpAndSettle();
+      }
+
+      await chooseMode('choose-note-mode');
+      expect(
+        find.byKey(const ValueKey('composition-editor-note')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const ValueKey('composition-kind')), findsNothing);
+      expect(find.byKey(const ValueKey('open-photo-crop')), findsNothing);
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('composition-editor')), findsOneWidget);
-      await tester.tap(find.text('便签').last);
-      await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('添加文字'));
       await tester.pumpAndSettle();
       await tester.enterText(
@@ -126,12 +147,35 @@ void main() {
       expect(c.draft.kind, CompositionKind.note);
       expect(c.draft.noteTexts.single.text, '想记住这一天');
       expect(c.draft.photoTexts, isEmpty);
-      await tester.tap(find.text('拍立得').first);
+      await tester.tap(find.text('完成'));
       await tester.pumpAndSettle();
+      await chooseMode('choose-photo-mode');
+      expect(
+        find.byKey(const ValueKey('composition-editor-photo')),
+        findsOneWidget,
+      );
       expect(c.draft.textLayers, isEmpty);
-      await tester.tap(find.text('便签').last);
+      await tester.ensureVisible(find.byTooltip('添加文字'));
+      await tester.tap(find.byTooltip('添加文字'));
       await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const ValueKey('layer-text-input')),
+        '照片独立文字',
+      );
+      await tester.ensureVisible(find.text('添加到画面'));
+      await tester.tap(find.text('添加到画面'));
+      await tester.pump();
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pumpAndSettle();
+      expect(c.draft.photoTexts.single.text, '照片独立文字');
+      await tester.tap(find.text('完成'));
+      await tester.pumpAndSettle();
+      await chooseMode('choose-note-mode');
       expect(c.draft.noteTexts.single.text, '想记住这一天');
+      expect(c.draft.photoTexts.single.text, '照片独立文字');
+      expect(c.draft.textLayers.single.text, '想记住这一天');
       expect(tester.takeException(), isNull);
     },
   );

@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-21",
+  "version": "1.0.6+7",
+  "platform": "Flutter Web release, CUA browser UI",
+  "url": "http://127.0.0.1:8787/",
+  "viewport": [
+    390,
+    844
+  ],
+  "observations": [
+    "A preview opens bottom sheet with separate photo and note options; no picker until choosing photo",
+    "Note directly opens C2, title Adjust Note, with background and text tools only",
+    "Selecting yellow background updates effect automatically; note text is retained",
+    "Done returns A with note; Adjust directly reopens C2 with same yellow background and text, no mode sheet",
+    "A preview mode sheet marks note as current; choosing photo opens actual browser file chooser",
+    "Local fixture selection enters C1 with photo/crop/padding/filter/text tools and no note-type switch",
+    "Photo has zero text objects while note kept one object, matching separate draft lists",
+    "Done returns A with final photo; Adjust directly reopens C1 with the same result"
+  ],
+  "selected_fixture": "docs/previews/1.0.3/test-landscape.png",
+  "screenshots": {
+    "a-home.jpg": "9b919ee6dfba8115a9b71459e1f1e3f332de18e1f59e7213cf1e426fa3f8c200",
+    "a-mode-sheet.jpg": "8d073a2dd56b2c94bff0f175921a9dec81423732d8afafbe0515aae5c7d56b8e",
+    "a-note.jpg": "8672a3cfe91c0ba852f59431137b9c42c08accd390ee33e2b0f39d0ec7b102ee",
+    "a-photo.jpg": "ae5dad3c40a974117dc1770492d6e0c58eb51278024695b633b8ea8da0b47348",
+    "c1-photo.jpg": "8fa03988f8e1ef5b23a2072628ffe1bef80bf3714432402c326951d68d8cd605",
+    "c1-reopened.jpg": "8fa03988f8e1ef5b23a2072628ffe1bef80bf3714432402c326951d68d8cd605",
+    "c2-note.jpg": "e97cd0595367fe8f61c31b96f6a694dca048be673fcdfb92e8b8464fad8774bf",
+    "c2-reopened.jpg": "b537c325e3b731d0c3b7b1d2a50bddd529f84d95f57fc64fa2710f1ae2638dd2"
+  },
+  "boundaries": [
+    "Actual browser mode/photo flow only; Android picker and activity recovery tested with mocks",
+    "Deletion cache uses protocol/controller regression, no physical BLE validation",
+    "CPU fallback warning is not Android performance evidence"
+  ]
+}

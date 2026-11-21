@@ -22,7 +22,7 @@ void main() {
   }
 
   testWidgets(
-    'voltage labels distinguish a valid sample from a retained sample',
+    'retained voltage stays visible without the removed sampling caption',
     (tester) async {
       final c = _VoltageController()..batteryMv = 3870;
       await launch(tester, c);
@@ -32,7 +32,8 @@ void main() {
       c.notifyListeners();
       await tester.pump();
       expect(find.text('3.87 V'), findsOneWidget);
-      expect(find.text('上次有效读数，正在等待新采样'), findsOneWidget);
+      expect(find.textContaining('上次有效读数'), findsNothing);
+      expect(find.textContaining('正在等待新采样'), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );

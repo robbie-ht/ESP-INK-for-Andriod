@@ -40,6 +40,7 @@ class _Device {
   _Device(this.pictures);
   final List<_Picture> pictures;
   int revision = 1;
+  int current = 255;
 }
 
 /// Uses actual INFO/LIST/READ response layouts, CRCs, JPEG and rotated 2bpp.
@@ -50,6 +51,7 @@ class _GalleryBle extends NativeBle {
   final _events = StreamController<Uint8List>.broadcast(sync: true);
   final _links = StreamController<bool>.broadcast(sync: true);
   final commands = <int>[];
+  final commandPackets = <Uint8List>[];
   final reads = <(int, int)>[];
   _Device? _device;
   bool _connected = false;
@@ -63,6 +65,11 @@ class _GalleryBle extends NativeBle {
   int _uploadFlags = 0;
   bool displayFails = false;
   void Function(_Device)? afterAppend;
+  void Function(_Device)? afterDelete;
+  int? deleteEventSlot, deleteEventCount, deleteEventCurrent;
+  int? nextInfoCount, nextInfoRevision;
+  int deleteCompletionStatus = StatusCode.ok;
+  bool mutateOnDeleteFailure = false;
   final uploaded = BytesBuilder(copy: false);
   int _uploadSequence = 0, _uploadCrc = 0;
   @override
@@ -97,6 +104,7 @@ class _GalleryBle extends NativeBle {
   Future<void> writeCtrl(Uint8List p) async {
     if (!_connected) throw StateError('Disconnected');
     commands.add(p[0]);
+    commandPackets.add(Uint8List.fromList(p));
     final d = _device!;
     switch (p[0]) {
       case Op.ping:
@@ -138,7 +146,10 @@ class _GalleryBle extends NativeBle {
           1,
         ]);
       case Op.galleryInfo:
-        _reply(p, [d.pictures.length, 255, 8, ..._le32(d.revision)]);
+        final infoCount = nextInfoCount ?? d.pictures.length;
+        final infoRevision = nextInfoRevision ?? d.revision;
+        nextInfoCount = nextInfoRevision = null;
+        _reply(p, [infoCount, d.current, 8, ..._le32(infoRevision)]);
       case Op.galleryList:
         final start = p[2];
         final count = math.min(p[3], d.pictures.length - start);
@@ -199,25 +210,37 @@ class _GalleryBle extends NativeBle {
         final gate = holdNextShow;
         holdNextShow = null;
         if (gate != null) await gate.future;
+        d.current = p[2] == 255
+            ? (d.current == 255 ? 0 : (d.current + 1) % d.pictures.length)
+            : p[2];
         _events.add(Uint8List.fromList([0x81, EventId.displayDone, 4]));
         _reply(p, []);
       case Op.galleryDelete:
-        d.pictures.removeAt(p[2]);
-        d.revision++;
+        if (deleteCompletionStatus == StatusCode.ok || mutateOnDeleteFailure) {
+          d.pictures.removeAt(p[2]);
+          d.revision = d.revision == 0xffffffff ? 1 : d.revision + 1;
+          if (d.current == p[2]) {
+            d.current = 255;
+          } else if (d.current != 255 && d.current > p[2]) {
+            d.current--;
+          }
+          afterDelete?.call(d);
+        }
         _events.add(
           Uint8List.fromList([
             0x81,
             EventId.storeDone,
-            0,
-            p[2],
-            d.pictures.length,
-            255,
+            deleteCompletionStatus,
+            deleteEventSlot ?? p[2],
+            deleteEventCount ?? d.pictures.length,
+            deleteEventCurrent ?? d.current,
           ]),
         );
         _reply(p, []);
       case Op.galleryClear:
         d.pictures.clear();
         d.revision++;
+        d.current = 255;
         _events.add(
           Uint8List.fromList([0x81, EventId.storeDone, 0, 255, 0, 255]),
         );
@@ -629,6 +652,265 @@ void main() {
     final fresh = await controller.readGalleryPreview(0, fullFrame: true);
     expect(fresh.png, isNot(orderedEquals(full.png!)));
   });
+
+  test('deleting picture two retains picture one HD without read or display commands', () async {
+    a.current = 0;
+    await controller.refreshGallery();
+    final full = await controller.readGalleryPreview(0, fullFrame: true);
+    final oldIdentity = controller.galleryItemIdentity(0);
+    final observedPngs = <Uint8List?>[];
+    void observeSurvivor() {
+      final survivor = controller.gallery
+          .where((item) => item.slot == 0)
+          .firstOrNull;
+      if (survivor != null) observedPngs.add(survivor.png);
+    }
+
+    controller.addListener(observeSurvivor);
+    ble.commands.clear();
+    ble.commandPackets.clear();
+    ble.reads.clear();
+    controller.setTab(1);
+
+    await controller.deleteGallery(1);
+    expect(controller.gallery, hasLength(1));
+    expect(controller.gallery.single.png, same(full.png));
+    expect(controller.gallery.single.current, isTrue);
+    expect(controller.galleryItemIdentity(0), isNot(oldIdentity));
+    expect(controller.galleryPreviewStatus(0).fullFrame, isTrue);
+    final cached = await controller.readGalleryPreview(0, fullFrame: true);
+    expect(cached.png, same(full.png));
+    expect(cached.fullFrame, isTrue);
+    await Future<void>.delayed(const Duration(milliseconds: 650));
+    await _flush();
+    controller.removeListener(observeSurvivor);
+
+    expect(observedPngs, isNotEmpty);
+    expect(
+      observedPngs,
+      everyElement(same(full.png)),
+      reason: 'Every notified snapshot must retain the same PNG, without a temporary empty card',
+    );
+    expect(ble.reads, isEmpty);
+    expect(ble.commands, [
+      Op.galleryDelete,
+      Op.galleryInfo,
+      Op.galleryInfo,
+      Op.galleryList,
+    ]);
+    expect(ble.commandPackets.first[2], 1);
+    expect(
+      ble.commands,
+      everyElement(
+        isIn([
+          Op.galleryDelete,
+          Op.galleryInfo,
+          Op.galleryList,
+          Op.galleryRead,
+        ]),
+      ),
+    );
+    controller.setTab(0);
+  });
+
+  test('deleting slot zero migrates two distinct HD previews and current to shifted identities', () async {
+    a.pictures.add(_Picture(format: 1, color: 0));
+    a.current = 2;
+    await controller.refreshGallery();
+    final deleted = await controller.readGalleryPreview(0, fullFrame: true);
+    final second = await controller.readGalleryPreview(1, fullFrame: true);
+    final third = await controller.readGalleryPreview(2, fullFrame: true);
+    expect(second.png, isNot(orderedEquals(third.png!)));
+    final secondIdentity = controller.galleryItemIdentity(1);
+    final thirdIdentity = controller.galleryItemIdentity(2);
+    ble.reads.clear();
+    ble.commands.clear();
+    controller.setTab(1);
+
+    await controller.deleteGallery(0);
+    expect(controller.gallery.map((item) => item.slot), [0, 1]);
+    expect(controller.gallery[0].png, same(second.png));
+    expect(controller.gallery[1].png, same(third.png));
+    expect(controller.gallery[0].png, isNot(same(deleted.png)));
+    expect(controller.gallery[0].current, isFalse);
+    expect(controller.gallery[1].current, isTrue);
+    expect(controller.galleryItemIdentity(0), isNot(secondIdentity));
+    expect(controller.galleryItemIdentity(1), isNot(thirdIdentity));
+    for (final slot in [0, 1]) {
+      expect(controller.galleryPreviewStatus(slot).fullFrame, isTrue);
+      expect(
+        (await controller.readGalleryPreview(slot, fullFrame: true)).fullFrame,
+        isTrue,
+      );
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 650));
+    await _flush();
+    expect(ble.reads, isEmpty);
+    expect(ble.commands, isNot(contains(Op.galleryShow)));
+    expect(ble.commands, isNot(contains(Op.cacheShow)));
+    expect(ble.commands, isNot(contains(Op.ghostClear)));
+    expect(ble.commands, isNot(contains(Op.frameEnd)));
+    controller.setTab(0);
+  });
+
+  test(
+    'deleting the current slot does not mark another cached image as displayed',
+    () async {
+      a.current = 1;
+      await controller.refreshGallery();
+      final full = await controller.readGalleryPreview(0, fullFrame: true);
+      await controller.deleteGallery(1);
+      expect(controller.gallery.single.png, same(full.png));
+      expect(controller.gallery.single.current, isFalse);
+      expect(controller.galleryPreviewStatus(0).fullFrame, isTrue);
+    },
+  );
+
+  test(
+    'delete revision wrap skips zero while preserving verified HD',
+    () async {
+      a.revision = 0xffffffff;
+      await controller.refreshGallery();
+      final full = await controller.readGalleryPreview(0, fullFrame: true);
+      await controller.deleteGallery(1);
+      expect(a.revision, 1);
+      expect(controller.gallery.single.png, same(full.png));
+      expect(controller.galleryPreviewStatus(0).fullFrame, isTrue);
+    },
+  );
+
+  test('deleting the last cached image produces an empty gallery without refreshing the panel', () async {
+    await controller.deleteGallery(1);
+    a.current = 0;
+    await controller.refreshGallery();
+    await controller.readGalleryPreview(0, fullFrame: true);
+    ble.commands.clear();
+    ble.reads.clear();
+    controller.setTab(1);
+    await controller.deleteGallery(0);
+    await Future<void>.delayed(const Duration(milliseconds: 650));
+    await _flush();
+    expect(controller.gallery, isEmpty);
+    expect(controller.galleryItemIdentity(0), isNull);
+    expect(controller.galleryPreviewStatus(0).fullFrame, isFalse);
+    expect(controller.galleryPreviewStatus(0).loading, isFalse);
+    expect(ble.reads, isEmpty);
+    expect(ble.commands, [Op.galleryDelete, Op.galleryInfo, Op.galleryInfo]);
+    controller.setTab(0);
+  });
+
+  test('a shifted thumbnail survives deletion and remains eligible for automatic HD', () async {
+    final thumbnail = await controller.readGalleryPreview(1);
+    await controller.deleteGallery(0);
+    expect(controller.gallery.single.png, same(thumbnail.png));
+    expect(controller.galleryPreviewStatus(0).fullFrame, isFalse);
+    ble.commands.clear();
+    ble.reads.clear();
+    controller.setTab(1);
+    await Future<void>.delayed(const Duration(milliseconds: 650));
+    await _flush();
+    expect(ble.reads, [(0, 0)]);
+    expect(controller.galleryPreviewStatus(0).fullFrame, isTrue);
+    expect(img.decodePng(controller.gallery.single.png!)?.width, 768);
+    expect(
+      ble.commands,
+      everyElement(isIn([Op.galleryInfo, Op.galleryList, Op.galleryRead])),
+    );
+    controller.setTab(0);
+  });
+
+  for (final mismatch in [
+    'slot',
+    'count',
+    'current',
+    'revision',
+    'extra mutation',
+    'INFO count',
+    'INFO revision',
+  ]) {
+    test(
+      'delete proof rejects inconsistent $mismatch instead of retaining old HD',
+      () async {
+        await controller.readGalleryPreview(0, fullFrame: true);
+        switch (mismatch) {
+          case 'slot':
+            ble.deleteEventSlot = 0;
+          case 'count':
+            ble.deleteEventCount = 2;
+          case 'current':
+            ble.deleteEventCurrent = 0;
+          case 'revision':
+            ble.afterDelete = (device) => device.revision++;
+          case 'extra mutation':
+            ble.afterDelete = (device) =>
+                device.pictures.add(_Picture(color: 2));
+          case 'INFO count':
+            ble.afterDelete = (device) => ble.nextInfoCount = 2;
+          case 'INFO revision':
+            ble.afterDelete = (device) =>
+                ble.nextInfoRevision = device.revision + 1;
+        }
+        await controller.deleteGallery(1);
+        expect(controller.gallery.first.png, isNull);
+        expect(controller.galleryPreviewStatus(0).fullFrame, isFalse);
+      },
+    );
+  }
+
+  test(
+    'same frame CRC cannot validate deletion when thumbnail identity changed',
+    () async {
+      final original = a.pictures[0];
+      await controller.readGalleryPreview(0, fullFrame: true);
+      ble.afterDelete = (device) {
+        device.pictures[0] = _Picture(format: 1, color: 2)
+          ..frame = original.frame
+          ..frameCrc = original.frameCrc;
+      };
+      await controller.deleteGallery(1);
+      expect(a.pictures.single.frameCrc, original.frameCrc);
+      expect(controller.gallery.single.png, isNull);
+      expect(controller.galleryPreviewStatus(0).fullFrame, isFalse);
+      final fresh = await controller.readGalleryPreview(0);
+      expect(fresh.fullFrame, isFalse);
+      expect(img.decodePng(fresh.png!)?.width, 8);
+    },
+  );
+
+  test('external deletion without this app completion cannot migrate cached previews', () async {
+    await controller.readGalleryPreview(0, fullFrame: true);
+    a.pictures.removeAt(1);
+    a.revision++;
+    await controller.refreshGallery();
+    expect(controller.gallery.single.png, isNull);
+    expect(controller.galleryPreviewStatus(0).fullFrame, isFalse);
+  });
+
+  test(
+    'failed deletion cannot grant a shifted preview a verified cache identity',
+    () async {
+      final first = await controller.readGalleryPreview(0, fullFrame: true);
+      final second = await controller.readGalleryPreview(1, fullFrame: true);
+      final oldIdentity = controller.galleryItemIdentity(0);
+      ble.deleteCompletionStatus = StatusCode.flashError;
+      ble.mutateOnDeleteFailure = true;
+      await controller.deleteGallery(0);
+      expect(controller.message, isNot('画面已删除'));
+      // A failure may keep the pre-operation snapshot pending an explicit sync;
+      // it must never claim that the surviving old slot 1 is already verified.
+      if (controller.galleryItemIdentity(0) == oldIdentity) {
+        expect(controller.gallery.first.png, same(first.png));
+        expect(controller.gallery.first.png, isNot(same(second.png)));
+      } else {
+        expect(controller.gallery.first.png, isNull);
+        expect(controller.galleryPreviewStatus(0).fullFrame, isFalse);
+      }
+      await controller.refreshGallery();
+      expect(controller.gallery, hasLength(1));
+      expect(controller.gallery.single.png, isNull);
+      expect(controller.galleryPreviewStatus(0).fullFrame, isFalse);
+    },
+  );
 
   test(
     'gallery automatically fetches thumbnails first then full frames',

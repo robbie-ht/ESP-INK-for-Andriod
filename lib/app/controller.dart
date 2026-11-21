@@ -52,6 +52,20 @@ class _GalleryAppendProof {
   final List<Map<String, dynamic>> before;
 }
 
+class _GalleryDeleteProof {
+  const _GalleryDeleteProof(
+    this.client,
+    this.generation,
+    this.before,
+    this.slot,
+    this.current,
+  );
+  final EspInkClient client;
+  final int generation, slot;
+  final int? current;
+  final List<Map<String, dynamic>> before;
+}
+
 class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
   EspInkController({NativeBle? nativeBle, ArtworkProcessor? artworkProcessor})
     : _ble = nativeBle ?? NativeBle(),
@@ -83,6 +97,14 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
     if (!_recoveredPhotoNeedsAdjustment) return false;
     _recoveredPhotoNeedsAdjustment = false;
     return true;
+  }
+
+  /// An explicit note choice supersedes any still-pending photo recovery.
+  void selectNoteComposition() {
+    if (_disposed) return;
+    _photoSelectionGeneration++;
+    _recoveredPhotoNeedsAdjustment = false;
+    updateDraft(draft.copyWith(kind: CompositionKind.note, textEnabled: true));
   }
 
   bool _queued = false;
@@ -787,7 +809,54 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
         items.last['slot'] == proof.before.length;
   }
 
-  Future<void> _loadGallery({_GalleryAppendProof? append}) async {
+  bool _verifiedDelete(
+    _GalleryDeleteProof? proof,
+    Map<String, dynamic> info,
+    List<Map<String, dynamic>> items,
+  ) {
+    if (proof == null ||
+        proof.client != _client ||
+        proof.generation != _galleryGeneration ||
+        proof.before.isEmpty ||
+        proof.slot < 0 ||
+        proof.slot >= proof.before.length ||
+        items.length != proof.before.length - 1 ||
+        _galleryMetadata.length != proof.before.length ||
+        info['count'] != items.length ||
+        info['current'] != proof.current) {
+      return false;
+    }
+    final revision = proof.before.first['revision'] as int;
+    final nextRevision = revision == 0xffffffff ? 1 : revision + 1;
+    if (info['revision'] != nextRevision) return false;
+    for (var i = 0; i < proof.before.length; i++) {
+      if (proof.before[i]['slot'] != i ||
+          proof.before[i]['revision'] != revision ||
+          !mapEquals(_galleryMetadata[i], proof.before[i])) {
+        return false;
+      }
+    }
+    for (var slot = 0; slot < items.length; slot++) {
+      final oldSlot = slot < proof.slot ? slot : slot + 1;
+      final fresh = Map<String, dynamic>.of(items[slot])
+        ..remove('revision')
+        ..remove('slot');
+      final previous = Map<String, dynamic>.of(proof.before[oldSlot])
+        ..remove('revision')
+        ..remove('slot');
+      if (items[slot]['slot'] != slot ||
+          items[slot]['revision'] != nextRevision ||
+          !mapEquals(previous, fresh)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  Future<void> _loadGallery({
+    _GalleryAppendProof? append,
+    _GalleryDeleteProof? delete,
+  }) async {
     final client = _client;
     final generation = _galleryGeneration;
     if (client == null) return;
@@ -804,10 +873,20 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
         for (final item in _galleryMetadata) item['slot']: item,
       };
       final preserveAppend = _verifiedAppend(append, items);
+      final preserveDelete = _verifiedDelete(delete, info, items);
       final previousFullFrames = Map<int, String>.of(_galleryFullFrames);
+      final previousFullAttempts = Set<String>.of(_galleryFullAttempts);
+      final previousThumbnailAttempts = Set<String>.of(
+        _galleryThumbnailAttempts,
+      );
+      final previousStatuses = Map<int, GalleryPreviewStatus>.of(
+        _galleryStatuses,
+      );
       final previousIdentities = {
         for (final item in gallery) item.slot: galleryItemIdentity(item.slot),
       };
+      int previousSlot(int slot) =>
+          preserveDelete && slot >= delete!.slot ? slot + 1 : slot;
       _galleryMetadata = items;
       gallery = items
           .map(
@@ -816,10 +895,11 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
               title: '画面 ${(m['slot'] as int) + 1}',
               current: m['slot'] == info['current'],
               png:
-                  mapEquals(previousMetadata[m['slot']], m) ||
+                  preserveDelete ||
+                      mapEquals(previousMetadata[m['slot']], m) ||
                       (preserveAppend &&
                           previousMetadata.containsKey(m['slot']))
-                  ? old[m['slot']]?.png
+                  ? old[previousSlot(m['slot'] as int)]?.png
                   : null,
             ),
           )
@@ -829,6 +909,38 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
           if (entry.value == previousIdentities[entry.key] &&
               _galleryItem(entry.key)?.png != null) {
             _galleryFullFrames[entry.key] = galleryItemIdentity(entry.key)!;
+          }
+        }
+      }
+      if (preserveDelete) {
+        _galleryFullFrames.clear();
+        _galleryFullAttempts.clear();
+        _galleryThumbnailAttempts.clear();
+        _galleryStatuses.clear();
+        _galleryStatusOwners.clear();
+        for (final item in gallery) {
+          final oldSlot = previousSlot(item.slot);
+          final oldIdentity = previousIdentities[oldSlot];
+          final identity = galleryItemIdentity(item.slot)!;
+          final status = previousStatuses[oldSlot];
+          final full =
+              oldIdentity != null &&
+              previousFullFrames[oldSlot] == oldIdentity &&
+              item.png != null;
+          if (full) _galleryFullFrames[item.slot] = identity;
+          if (status?.loading != true) {
+            if (previousFullAttempts.contains(oldIdentity)) {
+              _galleryFullAttempts.add(identity);
+            }
+            if (previousThumbnailAttempts.contains(oldIdentity)) {
+              _galleryThumbnailAttempts.add(identity);
+            }
+          }
+          if (status != null || full) {
+            _galleryStatuses[item.slot] = GalleryPreviewStatus(
+              fullFrame: full,
+              error: status?.loading == true ? null : status?.error,
+            );
           }
         }
       }
@@ -848,7 +960,9 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
       _galleryStatuses.removeWhere((slot, _) {
         final fresh = items.where((item) => item['slot'] == slot).firstOrNull;
         return fresh == null ||
-            (!preserveAppend && !mapEquals(previousMetadata[slot], fresh));
+            (!preserveAppend &&
+                !preserveDelete &&
+                !mapEquals(previousMetadata[slot], fresh));
       });
       if (preserveAppend) {
         for (final item in gallery) {
@@ -1504,8 +1618,36 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
           ),
       ];
     } else {
-      await _client!.galleryDelete(slot);
-      await _loadGallery();
+      final client = _client!;
+      final generation = _galleryGeneration;
+      final before = [
+        for (final item in _galleryMetadata) Map<String, dynamic>.of(item),
+      ];
+      final result = await client.galleryDelete(slot);
+      if (_disposed || generation != _galleryGeneration || client != _client) {
+        return;
+      }
+      final count = before.length - 1;
+      final current = result['current'];
+      final validCurrent =
+          current == null ||
+          (current is int && current >= 0 && current < count);
+      final confirmed =
+          result['status'] == 0 &&
+          result['slot'] == slot &&
+          result['count'] == count &&
+          validCurrent;
+      await _loadGallery(
+        delete: confirmed
+            ? _GalleryDeleteProof(
+                client,
+                generation,
+                before,
+                slot,
+                current as int?,
+              )
+            : null,
+      );
     }
     _say(demo ? '已从本地演示移除' : '画面已删除');
   });

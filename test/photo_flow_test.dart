@@ -53,6 +53,11 @@ const _select = ValueKey('select-photo');
 const _adjust = ValueKey('adjust-photo');
 const _editor = ValueKey('composition-editor');
 const _mode = ValueKey('preview-mode');
+const _modeSheet = ValueKey('composition-mode-sheet');
+const _choosePhoto = ValueKey('choose-photo-mode');
+const _chooseNote = ValueKey('choose-note-mode');
+const _photoEditor = ValueKey('composition-editor-photo');
+const _noteEditor = ValueKey('composition-editor-note');
 
 // Tiny source images still decode outside fake async. Finish that work before
 // settling route animations; a pending picker itself must only be pumped.
@@ -92,6 +97,37 @@ Future<void> _openAdjust(WidgetTester tester) async {
   await _settleUi(tester);
   expect(find.byKey(_editor), findsOneWidget);
   expect(find.byKey(_mode), findsOneWidget);
+  expect(find.byKey(_modeSheet), findsNothing);
+}
+
+Future<void> _openModeSheet(WidgetTester tester) async {
+  await tester.ensureVisible(find.byKey(_select));
+  await tester.tap(find.byKey(_select));
+  await _settleUi(tester);
+  expect(find.byKey(_modeSheet), findsOneWidget);
+  expect(find.byKey(_choosePhoto), findsOneWidget);
+  expect(find.byKey(_chooseNote), findsOneWidget);
+  expect(find.byKey(_editor), findsNothing);
+}
+
+Future<void> _selectPhotoMode(
+  WidgetTester tester, {
+  bool selectionPending = false,
+}) async {
+  await _openModeSheet(tester);
+  await tester.tap(find.byKey(_choosePhoto));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 400));
+  await tester.pump();
+  if (!selectionPending) await _settleUi(tester);
+}
+
+Future<void> _selectNoteMode(WidgetTester tester) async {
+  await _openModeSheet(tester);
+  await tester.tap(find.byKey(_chooseNote));
+  await _settleUi(tester);
+  expect(find.byKey(_noteEditor), findsOneWidget);
+  expect(find.byKey(_photoEditor), findsNothing);
 }
 
 Future<void> _finishAdjust(WidgetTester tester) async {
@@ -107,12 +143,16 @@ void main() {
     'a successful album selection opens exactly one adjustment page',
     (tester) async {
       final c = await _launch(tester);
-      await tester.tap(find.byKey(_select));
+      await _openModeSheet(tester);
+      expect(c.picks, 0);
+      await tester.tap(find.byKey(_choosePhoto));
       await _settleUi(tester);
 
       expect(c.picks, 1);
       expect(c.draft.photoBytes, isNotNull);
       expect(find.byKey(_editor), findsOneWidget);
+      expect(find.byKey(_photoEditor), findsOneWidget);
+      expect(find.byKey(_noteEditor), findsNothing);
       expect(find.byKey(_mode), findsOneWidget);
       expect(find.byKey(_select), findsNothing);
       expect(tester.takeException(), isNull);
@@ -130,8 +170,7 @@ void main() {
         );
         final c = await _launch(tester, draft: original);
         c.selection = Completer<bool>();
-        await tester.tap(find.byKey(_select));
-        await tester.pump();
+        await _selectPhotoMode(tester, selectionPending: true);
         expect(c.picks, 1);
         c.selection!.complete(false);
         await _settleUi(tester);
@@ -150,8 +189,7 @@ void main() {
     (tester) async {
       final c = await _launch(tester);
       c.selection = Completer<bool>();
-      await tester.tap(find.byKey(_select));
-      await tester.pump();
+      await _selectPhotoMode(tester, selectionPending: true);
       await tester.tap(find.byKey(_select));
       await tester.tap(find.byKey(_adjust));
       await tester.pump();
@@ -165,8 +203,7 @@ void main() {
       await _finishAdjust(tester);
 
       c.selection = null;
-      await tester.tap(find.byKey(_select));
-      await _settleUi(tester);
+      await _selectPhotoMode(tester);
       expect(c.picks, 2);
       expect(find.byKey(_editor), findsOneWidget);
       expect(tester.takeException(), isNull);
@@ -246,9 +283,7 @@ void main() {
     tester,
   ) async {
     final c = await _launch(tester);
-    await _openAdjust(tester);
-    await tester.tap(find.text('便签').last);
-    await _settleUi(tester);
+    await _selectNoteMode(tester);
 
     expect(c.picks, 0);
     expect(c.draft.kind, CompositionKind.note);
@@ -289,6 +324,155 @@ void main() {
       expect(c.picks, 1);
       expect(c.previewReady, isTrue);
       expect(c.inkPreviewActive, isFalse);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'dismissing the composition mode sheet preserves the entire draft',
+    (tester) async {
+      final original = ComposerDraft(
+        kind: CompositionKind.note,
+        photoBytes: _photo(),
+        zoom: 2.2,
+        adjustments: const ImageAdjustments(brightness: 27),
+        photoTexts: const [TextLayer(id: 'photo', text: '照片文字')],
+        noteTexts: const [TextLayer(id: 'note', text: '便签文字')],
+      );
+      final c = await _launch(tester, draft: original);
+      await _openModeSheet(tester);
+      expect(c.picks, 0);
+      expect(c.draft, same(original));
+      await tester.binding.handlePopRoute();
+      await _settleUi(tester);
+
+      expect(find.byKey(_modeSheet), findsNothing);
+      expect(find.byKey(_editor), findsNothing);
+      expect(c.picks, 0);
+      expect(c.draft, same(original));
+      await _openAdjust(tester);
+      expect(find.byKey(_noteEditor), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  for (final kind in CompositionKind.values) {
+    testWidgets('${kind.name} adjustment page exposes only its own tools', (
+      tester,
+    ) async {
+      final c = await _launch(
+        tester,
+        draft: ComposerDraft(kind: kind, photoBytes: _photo()),
+      );
+      await _openAdjust(tester);
+      final photo = kind == CompositionKind.photo;
+      final page = find.byKey(photo ? _photoEditor : _noteEditor);
+      Finder onPage(Finder finder) =>
+          find.descendant(of: page, matching: finder);
+      expect(page, findsOneWidget);
+      expect(find.byKey(photo ? _noteEditor : _photoEditor), findsNothing);
+      expect(onPage(find.text(photo ? '调整拍立得' : '调整便签')), findsOneWidget);
+      expect(find.byKey(const ValueKey('composition-kind')), findsNothing);
+      expect(onPage(find.byTooltip('添加文字')), findsOneWidget);
+      expect(
+        onPage(find.byKey(const ValueKey('composition-pick-photo'))),
+        photo ? findsOneWidget : findsNothing,
+      );
+      expect(
+        onPage(find.byKey(const ValueKey('open-photo-crop'))),
+        photo ? findsOneWidget : findsNothing,
+      );
+      expect(onPage(find.text('照片留白')), photo ? findsOneWidget : findsNothing);
+      expect(onPage(find.text('图像调整')), photo ? findsOneWidget : findsNothing);
+      expect(onPage(find.text('便签底色')), photo ? findsNothing : findsOneWidget);
+      expect(
+        c.picks,
+        0,
+        reason: 'Adjust resumes the current mode without opening the album',
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets(
+    'finishing a note then adjusting again resumes C2 without another mode choice',
+    (tester) async {
+      final c = await _launch(tester);
+      await _selectNoteMode(tester);
+      c.updateDraft(
+        c.draft.copyWith(
+          background: 2,
+          noteTexts: const [
+            TextLayer(id: 'remember-note', text: '记住这张便签', color: 3),
+          ],
+        ),
+      );
+      await _finishAdjust(tester);
+      expect(c.draft.kind, CompositionKind.note);
+      expect(c.previewReady, isTrue);
+      await _openAdjust(tester);
+
+      expect(find.byKey(_noteEditor), findsOneWidget);
+      expect(find.byKey(_modeSheet), findsNothing);
+      expect(c.picks, 0);
+      expect(c.draft.background, 2);
+      expect(c.draft.noteTexts.single.text, '记住这张便签');
+      expect(c.draft.noteTexts.single.color, 3);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'photo and note text objects remain independent across A mode choices',
+    (tester) async {
+      final c = await _launch(
+        tester,
+        draft: ComposerDraft(
+          photoBytes: _photo(),
+          photoTexts: const [
+            TextLayer(id: 'photo-text', text: '拍立得文字', size: 36, color: 3),
+          ],
+          noteTexts: const [
+            TextLayer(id: 'note-text', text: '便签文字', size: 62, color: 0),
+          ],
+        ),
+      );
+      await _selectNoteMode(tester);
+      expect(c.picks, 0);
+      expect(c.draft.textLayers.single.id, 'note-text');
+      c.updateDraft(
+        c.draft.copyWith(
+          noteTexts: [
+            c.draft.noteTexts.single.copyWith(text: '只改便签', size: 72, color: 2),
+          ],
+        ),
+      );
+      await _finishAdjust(tester);
+
+      await _selectPhotoMode(tester);
+      expect(find.byKey(_photoEditor), findsOneWidget);
+      expect(c.draft.textLayers.single.id, 'photo-text');
+      expect(c.draft.photoTexts.single.text, '拍立得文字');
+      expect(c.draft.photoTexts.single.size, 36);
+      expect(c.draft.noteTexts.single.text, '只改便签');
+      c.updateDraft(
+        c.draft.copyWith(
+          photoTexts: [
+            c.draft.photoTexts.single.copyWith(text: '只改拍立得', size: 42),
+          ],
+        ),
+      );
+      await _finishAdjust(tester);
+      await _selectNoteMode(tester);
+
+      expect(c.picks, 1);
+      expect(c.draft.textLayers.single.id, 'note-text');
+      expect(c.draft.noteTexts.single.text, '只改便签');
+      expect(c.draft.noteTexts.single.size, 72);
+      expect(c.draft.noteTexts.single.color, 2);
+      expect(c.draft.photoTexts.single.text, '只改拍立得');
+      expect(c.draft.photoTexts.single.size, 42);
+      expect(c.draft.photoTexts.single.color, 3);
       expect(tester.takeException(), isNull);
     },
   );

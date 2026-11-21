@@ -176,7 +176,7 @@ class DevicePage extends StatelessWidget {
                     : c.batteryMv == null
                     ? '等待有效采样，空闲时重读'
                     : c.batteryReadingStale
-                    ? '上次有效读数，正在等待新采样'
+                    ? null
                     : '空闲时自动更新',
               ),
             ),

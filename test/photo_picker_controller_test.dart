@@ -269,4 +269,96 @@ void main() {
     expect(controller.recoveredPhotoNeedsAdjustment, isFalse);
     expect(controller.consumeRecoveredPhotoAdjustment(), isFalse);
   });
+
+  test(
+    'an explicit note choice supersedes a pending Android photo recovery',
+    () async {
+      final recovery = Completer<Object?>();
+      final retrieving = Completer<void>();
+      handler = (call) {
+        if (call.method == 'retrieve') {
+          retrieving.complete();
+          return recovery.future;
+        }
+        return Future.value(selectedFile.path);
+      };
+      controller.updateDraft(
+        original.copyWith(
+          kind: CompositionKind.photo,
+          photoTexts: [TextLayer(id: 'photo', text: '保留照片文字')],
+          noteTexts: [TextLayer(id: 'note', text: '保留便签文字')],
+        ),
+      );
+      final initializing = controller.init();
+      await retrieving.future;
+      final before = controller.draft;
+      final expected = before.toJson()..['kind'] = CompositionKind.note.index;
+      controller.selectNoteComposition();
+      expect(controller.draft.kind, CompositionKind.note);
+      recovery.complete(lostPhoto(recoveredFile));
+      await initializing;
+      expect(controller.draft.toJson(), expected);
+      expect(controller.draft.photoBytes, same(before.photoBytes));
+      expect(controller.draft.photoTexts, same(before.photoTexts));
+      expect(controller.draft.noteTexts, same(before.noteTexts));
+      expect(controller.recoveredPhotoNeedsAdjustment, isFalse);
+      expect(controller.consumeRecoveredPhotoAdjustment(), isFalse);
+      expect(calls.map((call) => call.method), ['retrieve']);
+    },
+  );
+
+  test('choosing note clears recovered navigation while preserving the photo draft', () async {
+    handler = (call) async => call.method == 'retrieve'
+        ? lostPhoto(recoveredFile)
+        : selectedFile.path;
+    await controller.init();
+    expect(controller.recoveredPhotoNeedsAdjustment, isTrue);
+    controller.updateDraft(
+      controller.draft.copyWith(
+        zoom: 2.2,
+        rotation: 14,
+        mirror: true,
+        photoTexts: [TextLayer(id: 'photo', text: '照片里的文字')],
+        noteTexts: [TextLayer(id: 'note', text: '便签里的文字')],
+      ),
+    );
+    final before = controller.draft;
+    final expected = before.toJson()..['kind'] = CompositionKind.note.index;
+    controller.selectNoteComposition();
+    expect(controller.draft.toJson(), expected);
+    expect(controller.draft.photoBytes, same(before.photoBytes));
+    expect(controller.draft.photoBytes, orderedEquals(recoveredBytes));
+    expect(controller.draft.photoTexts, same(before.photoTexts));
+    expect(controller.draft.noteTexts, same(before.noteTexts));
+    expect(controller.draft.adjustments, same(before.adjustments));
+    expect(controller.recoveredPhotoNeedsAdjustment, isFalse);
+    expect(controller.consumeRecoveredPhotoAdjustment(), isFalse);
+  });
+
+  test(
+    'choosing note enables its saved text after photo overlays were hidden',
+    () {
+      controller.updateDraft(
+        original.copyWith(
+          kind: CompositionKind.photo,
+          textEnabled: false,
+          photoTexts: [TextLayer(id: 'photo-hidden', text: '保留照片叠加文字')],
+          noteTexts: [TextLayer(id: 'note-visible', text: '重新显示已有便签文字')],
+        ),
+      );
+      final before = controller.draft;
+      final expected = before.toJson()
+        ..['kind'] = CompositionKind.note.index
+        ..['textEnabled'] = true;
+      controller.selectNoteComposition();
+      expect(controller.draft.toJson(), expected);
+      expect(controller.draft.kind, CompositionKind.note);
+      expect(controller.draft.textEnabled, isTrue);
+      expect(controller.draft.textLayers.single.text, '重新显示已有便签文字');
+      expect(controller.draft.photoTexts, same(before.photoTexts));
+      expect(controller.draft.noteTexts, same(before.noteTexts));
+      expect(controller.draft.photoBytes, same(before.photoBytes));
+      expect(controller.draft.adjustments, same(before.adjustments));
+    },
+  );
 }

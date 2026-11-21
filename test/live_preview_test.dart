@@ -96,6 +96,11 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pump();
     expect(find.byKey(const ValueKey('composition-editor')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('composition-editor-photo')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('composition-editor-note')), findsNothing);
     await _waitFor(tester, _editorKey('live-source-paint'));
     // C starts in effect mode. Its controlled conversion remains pending while
     // the decoded original stays visible, so do not settle the busy spinner.
