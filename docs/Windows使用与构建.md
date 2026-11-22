@@ -1,10 +1,10 @@
 # ESP-INK Windows 使用与构建
 
-版本：1.0.8+9 / Windows x64，2026-11-21。
+版本：1.0.9+10 / Windows x64，2026-11-22。
 
 ## 使用
 
-1. 下载 `ESP-INK-1.0.8-windows-x64.zip`，完整解压到一个可写文件夹。
+1. 下载 `ESP-INK-1.0.9-windows-x64.zip`，完整解压到一个可写文件夹。
 2. 双击文件夹中的 `ESP-INK.exe`。保持旁边的 DLL、data 和 licenses 文件夹完整，不要在压缩包内运行。
 3. 主页选择拍立得后从 Windows 文件选择器选图，进入 C1 调整；便签进入 C2。中文字体已打包。图库完整 PNG 通过系统“另存为”保存。
 4. 真实设备：开启电脑蓝牙，按设备按键唤醒，在 APP 连接窗口扫描并选择设备。电脑需要支持 BLE；Windows 管理蓝牙适配器和 MTU 协商。遇到关闭/不可用提示可点蓝牙设置。不要求先在系统设置配对。
@@ -45,7 +45,7 @@ Linux 可以分析、运行 Flutter 测试、打源码包；不能直接生成 W
 
 ## 验证边界
 
-本轮Linux/Windows各424项、静态分析、实际Release编译、30文件/14PE/版本/独立解包SHA和中文空格路径首帧启动检查通过。详细证据见 [VERIFICATION](VERIFICATION.md)。CI 窗口启动与包结构验证不等于实体 Windows 蓝牙、真实屏幕传输/图库/OTA、中文输入和不同 DPI 验收；没有连接或刷写设备。固件独立发布于 [ESP_INK B2.0.1](https://github.com/robbie-ht/ESP_INK/releases/tag/B2.0.1)。
+1.0.8曾完成双平台424项、实际Release与解包启动检查；1.0.9新增OTA修复的最终结果见 [VERIFICATION](VERIFICATION.md)。CI 窗口启动与包结构验证不等于实体 Windows 蓝牙、真实屏幕传输/图库/OTA、中文输入和不同 DPI 验收；没有连接或刷写设备。固件独立发布于 [ESP_INK B2.0.1](https://github.com/robbie-ht/ESP_INK/releases/tag/B2.0.1)。
 
 ## 依赖与许可证
 

@@ -1,0 +1,140 @@
+Resolving dependencies...
+Downloading packages...
+  cross_file 0.3.5+5 (0.4.0 available)
+  cupertino_icons 1.0.9 (2.0.0 available)
+  image_picker_ios 0.8.13+15 (0.8.13+16 available)
+  jni 1.1.2 (1.2.1 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.3 (1.19.0 available)
+  petitparser 7.0.2 (7.1.0 available)
+  shared_preferences_foundation 2.5.7 (2.6.2 available)
+  test_api 0.7.12 (0.7.15 available)
+  vector_math 2.4.0 (2.4.4 available)
+  xml 7.0.1 (7.1.0 available)
+Got dependencies!
+11 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart
+00:00 +0: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: actual selector and protocol send the selected app with truthful OTA phases
+00:00 +0 -1: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: actual selector and protocol send the selected app with truthful OTA phases [E]
+  Expected: [{'label': 'ESP32 应用固件', 'extensions': ['bin']}]
+    Actual: [
+              {
+                'label': 'ESP32 应用固件',
+                'extensions': ['bin'],
+                'mimeTypes': null,
+                'uniformTypeIdentifiers': null,
+                'webWildCards': null,
+                'macUTIs': null
+              }
+            ]
+     Which: at location [0] is {
+              'label': 'ESP32 应用固件',
+              'extensions': ['bin'],
+              'mimeTypes': null,
+              'uniformTypeIdentifiers': null,
+              'webWildCards': null,
+              'macUTIs': null
+            } which has different length and has extra map key 'mimeTypes'
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/ota_controller_test.dart 237:5                 main.<fn>
+  
+00:00 +0 -1: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: cancelled selector releases the guard without starting OTA
+00:00 +1 -1: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: picker guard suppresses duplicate dialogs and other manual device jobs
+00:00 +1 -2: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: picker guard suppresses duplicate dialogs and other manual device jobs [E]
+  Expected: true
+    Actual: <false>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/ota_controller_test.dart 268:5                 main.<fn>
+  
+00:00 +1 -2: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: Android-style picker lifecycle resume cannot race OTA with refresh
+00:00 +1 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: Android-style picker lifecycle resume cannot race OTA with refresh [E]
+  Expected: empty
+    Actual: [[2, 7], [3, 8], [34, 9], [34, 10], [38, 11, 0, 1]]
+  resume must not start GET_STATUS/settings refresh
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/ota_controller_test.dart 288:5                 main.<fn>
+  
+00:00 +1 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: a reconnect while the picker is open cannot send the old selection to B
+00:00 +2 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: session is rechecked after async file length
+00:00 +3 -3: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: golden PING wire, matching seq, and serial CTRL queue
+00:00 +4 -3: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: golden PING wire, matching seq, and serial CTRL queue
+00:00 +5 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: a late file error after reconnect cannot overwrite the new device message
+00:00 +6 -3: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: timed out seq stays retired after sequence wrap and late response
+00:00 +7 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:00 +8 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:00 +9 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:00 +10 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:00 +11 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:00 +12 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:00 +13 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:00 +14 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:00 +15 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:00 +16 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:00 +17 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:00 +18 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:00 +19 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:00 +20 -3: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: store-only waits only STORE_DONE, not DISPLAY_DONE
+00:00 +21 -3: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: store-only waits only STORE_DONE, not DISPLAY_DONE
+00:00 +22 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: disposed controller ignores a pending picker without notifying or transferring
+00:00 +23 -3: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: partial store/display outcome is exposed independently
+00:00 +24 -3: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: partial store/display outcome is exposed independently
+00:00 +25 -3: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: partial store/display outcome is exposed independently
+00:00 +26 -3: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: partial store/display outcome is exposed independently
+00:00 +27 -3: /home/descfly/桌面/ESP32/APP/test/protocol_test.dart: partial store/display outcome is exposed independently
+00:00 +28 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +29 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +30 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +31 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +32 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +33 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +34 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +35 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +36 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +37 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +38 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +39 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +40 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +41 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +42 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +43 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +44 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +45 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +46 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +47 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +48 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +49 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +50 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +51 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +52 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +53 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +54 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +55 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +56 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +57 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +58 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +59 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +60 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +61 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +62 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +63 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +64 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +65 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +66 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +67 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +68 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +69 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:01 +70 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:15 +71 -3: /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: disconnect after END reports unknown submission and never retries or reboots
+00:15 +72 -3: Some tests failed.
+
+Failing tests:
+  /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: Android-style picker lifecycle resume cannot race OTA with refresh
+  /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: actual selector and protocol send the selected app with truthful OTA phases
+  /home/descfly/桌面/ESP32/APP/test/ota_controller_test.dart: picker guard suppresses duplicate dialogs and other manual device jobs

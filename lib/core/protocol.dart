@@ -912,14 +912,43 @@ class EspInkClient {
     }
   });
 
-  /// Verifies the B2 slot-size bound and ESP image header magic/chip_id.
-  /// This is not a cryptographic authenticity or partition-layout check.
+  /// Checks the B2 size bound and ESP32-C3 application image structure.
+  /// Segment bounds, the first segment's app descriptor and the checksum/hash
+  /// storage must exist. This does not verify their checksum/hash values,
+  /// cryptographic authenticity, hardware settings or partition compatibility.
   static void validateOtaImage(Uint8List image) {
     if (image.length < 1024 || image.length > 0x160000) {
       throw ArgumentError('应用镜像应为1024..1441792字节');
     }
     if (image[0] != 0xe9 || _u16(image, 12) != 5) {
       throw ArgumentError('需要ESP32-C3应用镜像，不能使用合并固件');
+    }
+    final segmentCount = image[1];
+    if (segmentCount < 1 || segmentCount > 16 || image[23] > 1) {
+      throw ArgumentError('ESP应用镜像头无效，请选择完整的应用bin');
+    }
+    var offset = 24; // esp_image_header_t, followed by 8-byte segment headers.
+    for (var segment = 0; segment < segmentCount; segment++) {
+      if (offset > image.length - 8) {
+        throw ArgumentError('应用镜像段头被截断，请重新获取完整文件');
+      }
+      final length = _u32(image, offset + 4);
+      offset += 8;
+      if (length > image.length - offset) {
+        throw ArgumentError('应用镜像段数据被截断，请重新获取完整文件');
+      }
+      // IDF puts esp_app_desc_t (256 bytes) at the start of the first segment.
+      // Bootloaders share E9/chip_id but do not contain this app descriptor.
+      if (segment == 0 && (length < 256 || _u32(image, offset) != 0xabcd5432)) {
+        throw ArgumentError('需要ESP32-C3应用bin，不能使用bootloader、分区表或合并固件');
+      }
+      offset += length;
+    }
+    // ESP's checksum occupies the final byte of a 16-byte aligned block.
+    // A header with hash_appended=1 additionally needs its 32-byte SHA256 field.
+    final requiredLength = (offset | 15) + 1 + (image[23] == 1 ? 32 : 0);
+    if (requiredLength > image.length) {
+      throw ArgumentError('应用镜像校验尾部被截断，请重新获取完整文件');
     }
   }
 
@@ -1059,7 +1088,13 @@ class EspInkClient {
             );
           }
         } else {
-          _exact(reply.payload, 0, 'OTA_END');
+          if (reply.payload.isNotEmpty) {
+            throw EspInkException(
+              'OTA_END',
+              '校验回执无效，启动槽结果待确认',
+              resultUnknown: true,
+            );
+          }
         }
         _receivingData = false;
         return;

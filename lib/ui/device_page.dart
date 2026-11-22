@@ -314,8 +314,8 @@ class DevicePage extends StatelessWidget {
         _row(
           Icons.system_update_alt_rounded,
           '更新固件',
-          '选择应用 .bin 文件',
-          enabled ? () => _ota(context) : null,
+          c.pickingOta ? '正在选择或读取固件…' : '选择应用 .bin 文件',
+          enabled && !c.pickingOta ? () => _ota(context) : null,
         ),
       ],
     ),
@@ -731,7 +731,7 @@ class DevicePage extends StatelessWidget {
         ),
         const SizedBox(height: 18),
         FilledButton.icon(
-          onPressed: checked && c.connected
+          onPressed: checked && c.connected && !c.pickingOta
               ? () {
                   Navigator.pop(context);
                   c.pickAndUpgrade();

@@ -57,3 +57,16 @@ ESP-IDF5.2.2 Docker实际编译/链接成功，app445136B，静态D/IRAM102162B�
 下载回Linux后独立复查外部/内部SHA、30文件CRC、14PE架构、版本/编译提交报告，全通过；实际Windows Release文件已复制到APP/build/windows/x64/runner/Release/，源码、成品及文档继续为APP内实文件。临时Windows插件软链接已清理，SDK/依赖缓存正常由工具链管理。发布时仅增加文档和验证记录；Dart/Windows/pubspec等构建输入SHA未改变，具体数量见input-check.json。
 
 本轮不构建新Android APK，已发布1.0.7 APK及旧源包保留。Windows实体蓝牙适配器、真实设备图库/传输/OTA、不同DPI/中文输入未实机验收；CI首帧启动不是这些功能的验收，没有刷写任何设备。
+
+
+## 1.0.9+10 OTA入口与异常保护（2026-11-22，验证中）
+
+本次用户仅报告OTA有问题，尚未补平台、错误/阶段和所选bin。已核对ESP_INK远端仍为B2.0.1/main3a1dd16，正常分片/CRC/END契约一致；没有证据断言用户本次根因或正常OTA必失败。
+
+修复APP入口：图库高清读取不再导致OTA静默返回；选择文件阶段抑制生命周期resume刷新、状态poll和自动补读竞争，保留单一升级流程；文件length/read与_job等待后绑定原client/连接代次，换设备不发旧bin；接收/BEGIN不确定与END提交不确定分别呈现。镜像校验增加真实段边界/app_desc/尾部储位检查，提前拒bootloader；未校验checksum/hash值、签名、硬件或分区布局，最终设备仍裁决。OTA_END非法成功载荷标记unknown，禁止继续修改且无ABORT/自动重发。
+
+协议58项通过，含14项新增OTA回归；控制器新增18项通过，首轮测试适配问题及最终通过记录分开保留。未重新构建设备固件、未连接/刷写硬件，实体手机/Windows OTA、Flash、bootloader回滚未验。完成的APP整体测试和安装包构建结果追加下文。
+
+1.0.9最终Linux统一测试：456项全部通过，51秒；其中新增14项协议、18项控制器回归；`dart analyze lib test`：No issues found。日志位于 `verification-logs/1.0.9/flutter-tests.log` 与 `analyze.log`，112份编译/测试输入已留SHA快照。Android/Windows构建仍在进行中。
+
+Android最终assembleRelease105.2秒通过：`releases/ESP-INK-1.0.9-android.apk`，105977193字节，SHA256=10deb05191490beced995bf23d48d3a18b00741b8eaa1c79f5741c10f18920d6；379条ZIP CRC、原包ID、1.0.9/code10、min24/target36、三ABI与APK v2原开发证书全部通过，112份输入未变化。Windows正在构建；Android真实BLE/系统文件提供器和设备OTA仍未实机。

@@ -67,9 +67,21 @@ int u32(Uint8List p, int o) =>
 Uint8List hex(String s) => Uint8List.fromList(
   s.split(' ').map((s) => int.parse(s, radix: 16)).toList(),
 );
-Uint8List firmware([int size = 1025]) => Uint8List(size)
-  ..[0] = 0xe9
-  ..[12] = 5;
+Uint8List firmware([int size = 1025]) {
+  // One segment with a complete app descriptor and aligned checksum storage.
+  // Preserve deliberately odd image lengths for exact final-fragment tests.
+  final image = Uint8List(size)
+    ..[0] = 0xe9
+    ..[1] = 1
+    ..[12] = 5;
+  final fields = ByteData.sublistView(image);
+  final segmentLength = ((size - 48) ~/ 16) * 16;
+  fields.setUint32(24, 0x3c000020, Endian.little);
+  fields.setUint32(28, segmentLength, Endian.little);
+  fields.setUint32(32, 0xabcd5432, Endian.little);
+  image[(32 + segmentLength) | 15] = 0xef;
+  return image;
+}
 
 void main() {
   late FakeTransport t;
@@ -104,6 +116,19 @@ void main() {
         case Op.frameAbort:
           t.reply(q);
           break;
+      }
+    };
+  }
+
+  void normalOta({int? chunk}) {
+    t.onCtrl = (q) {
+      if (q[0] == Op.otaBegin) {
+        t.reply(q, 0, [
+          ...le16(chunk ?? u16(q, 10)),
+          ...le16(math.min(t.mtu - 5, 512)),
+        ]);
+      } else {
+        t.reply(q);
       }
     };
   }
@@ -566,6 +591,68 @@ void main() {
     expect(t.ctrl, isEmpty);
   });
   test(
+    'OTA accepts the packaged real C3 app with six segments and SHA storage',
+    () {
+      final image = File('firmware/B2.0.1/moink_B2.0.1_app.bin')
+          .readAsBytesSync();
+      expect(image[1], 6);
+      expect(image[23], 1);
+      expect(() => EspInkClient.validateOtaImage(image), returnsNormally);
+    },
+  );
+  test(
+    'OTA rejects packaged bootloader, partition and merged files before BEGIN',
+    () async {
+      for (final name in [
+        'bootloader.bin',
+        'partition-table.bin',
+        'moink_B2.0.1_merged.bin',
+      ]) {
+        final image = File('firmware/B2.0.1/$name').readAsBytesSync();
+        await expectLater(c.ota(image), throwsArgumentError, reason: name);
+      }
+      expect(t.ctrl, isEmpty);
+      expect(t.data, isEmpty);
+    },
+  );
+  test('OTA rejects forged segment counts, descriptor and hash flag', () {
+    final badImages = <Uint8List>[
+      firmware()..[1] = 0,
+      firmware()..[1] = 17,
+      firmware()..[23] = 2,
+      firmware()..[32] = 0,
+      Uint8List(1025)
+        ..[0] = 0xe9
+        ..[12] = 5,
+    ];
+    final shortDescriptor = firmware();
+    ByteData.sublistView(shortDescriptor).setUint32(28, 255, Endian.little);
+    badImages.add(shortDescriptor);
+    for (final image in badImages) {
+      expect(() => EspInkClient.validateOtaImage(image), throwsArgumentError);
+    }
+  });
+  test(
+    'OTA rejects truncated segment headers, data, checksum or SHA storage',
+    () {
+      final segmentHeader = firmware()..[1] = 2;
+      ByteData.sublistView(segmentHeader).setUint32(28, 988, Endian.little);
+      final segmentData = firmware();
+      ByteData.sublistView(segmentData)
+          .setUint32(28, 0xffffffff, Endian.little);
+      final missingChecksum = Uint8List.sublistView(firmware(2049), 0, 2047);
+      final missingHash = firmware(2049)..[23] = 1;
+      for (final image in [
+        segmentHeader,
+        segmentData,
+        missingChecksum,
+        missingHash,
+      ]) {
+        expect(() => EspInkClient.validateOtaImage(image), throwsArgumentError);
+      }
+    },
+  );
+  test(
     'OTA uses image CRC32 and actual chunk, without padding final fragment',
     () async {
       t.onCtrl = (q) {
@@ -649,6 +736,184 @@ void main() {
         ),
       );
       expect(t.ctrl.where((q) => q[0] == Op.otaAbort), isEmpty);
+    },
+  );
+  test('OTA GAP resumes the same session at the requested sequence', () async {
+    normalOta();
+    var gapSent = false;
+    t.onData = (q) {
+      if (u16(q, 0) == 2 && !gapSent) {
+        gapSent = true;
+        t.event(EventId.transferGap, 0, le16(1));
+      }
+    };
+    await c.ota(firmware(2049));
+    expect(t.data.map((q) => u16(q, 0)), [0, 1, 2, 1, 2, 3, 4]);
+    expect(t.ctrl.map((q) => q[0]), [Op.otaBegin, Op.otaEnd]);
+  });
+  test(
+    'OTA INCOMPLETE retries the tail without BEGIN or whole-image CRC restart',
+    () async {
+      normalOta();
+      final previous = t.onCtrl!;
+      final image = firmware(2049);
+      final total = (image.length + c.chunkSize - 1) ~/ c.chunkSize;
+      var ends = 0;
+      t.onCtrl = (q) {
+        if (q[0] == Op.otaEnd && ends++ == 0) {
+          t.reply(q, StatusCode.incomplete, le16(total - 1));
+        } else {
+          return previous(q);
+        }
+      };
+      await c.ota(image);
+      expect(t.ctrl.map((q) => q[0]), [Op.otaBegin, Op.otaEnd, Op.otaEnd]);
+      expect(t.data.map((q) => u16(q, 0)), [0, 1, 2, 3, 4, 4]);
+      expect(t.data.last.sublist(2), image.sublist((total - 1) * c.chunkSize));
+    },
+  );
+  test(
+    'OTA persistent GAP is bounded and aborts the receiving session once',
+    () async {
+      normalOta();
+      t.onData = (q) => t.event(EventId.transferGap, 0, le16(0));
+      await expectLater(c.ota(firmware()), throwsA(isA<EspInkException>()));
+      expect(t.ctrl.map((q) => q[0]), [Op.otaBegin, Op.otaAbort]);
+      expect(t.data.length, lessThan(12));
+    },
+  );
+  test('OTA cancellation while receiving sends ABORT without END', () async {
+    normalOta();
+    final cancellation = TransferCancellation();
+    t.onData = (q) => cancellation.cancel();
+    await expectLater(
+      c.ota(firmware(), cancellation: cancellation),
+      throwsA(isA<EspInkCancelled>()),
+    );
+    expect(t.ctrl.map((q) => q[0]), [Op.otaBegin, Op.otaAbort]);
+  });
+  test(
+    'OTA cancellation at finalizing cannot abort an accepted boot-slot change',
+    () async {
+      normalOta();
+      final cancellation = TransferCancellation();
+      final phases = <TransferPhase>[];
+      await c.ota(
+        firmware(),
+        cancellation: cancellation,
+        onPhase: (phase) {
+          phases.add(phase);
+          if (phase == TransferPhase.finalizing) cancellation.cancel();
+        },
+      );
+      expect(phases.last, TransferPhase.queued);
+      expect(t.ctrl.map((q) => q[0]), [Op.otaBegin, Op.otaEnd]);
+    },
+  );
+  test(
+    'OTA END without a response is uncertain, never ABORTed or retried',
+    () async {
+      normalOta();
+      final previous = t.onCtrl!;
+      t.onCtrl = (q) {
+        if (q[0] != Op.otaEnd) return previous(q);
+      };
+      await expectLater(
+        c.ota(firmware()),
+        throwsA(
+          isA<EspInkException>().having(
+            (e) => e.resultUnknown,
+            'unknown',
+            true,
+          ),
+        ),
+      );
+      expect(c.resultUncertain, isTrue);
+      expect(t.ctrl.map((q) => q[0]), [Op.otaBegin, Op.otaEnd]);
+      await expectLater(c.reboot(), throwsA(isA<EspInkException>()));
+      expect(t.ctrl.length, 2);
+    },
+  );
+  test('OTA disconnect before END response leaves boot outcome unknown without ABORT', () async {
+    normalOta();
+    final previous = t.onCtrl!;
+    t.onCtrl = (q) {
+      if (q[0] == Op.otaEnd) {
+        unawaited(t.disconnect());
+      } else {
+        return previous(q);
+      }
+    };
+    await expectLater(
+      c.ota(firmware()),
+      throwsA(
+        isA<EspInkException>().having((e) => e.resultUnknown, 'unknown', true),
+      ),
+    );
+    expect(t.ctrl.map((q) => q[0]), [Op.otaBegin, Op.otaEnd]);
+  });
+  test('OTA END success survives the immediately following expected reboot disconnect', () async {
+    normalOta();
+    final previous = t.onCtrl!;
+    final phases = <TransferPhase>[];
+    t.onCtrl = (q) {
+      previous(q);
+      if (q[0] == Op.otaEnd) scheduleMicrotask(() => t.disconnect());
+    };
+    await c.ota(firmware(), onPhase: phases.add);
+    await Future<void>.delayed(Duration.zero);
+    expect(t.isConnected, isFalse);
+    expect(phases.last, TransferPhase.queued);
+    expect(t.ctrl.map((q) => q[0]), [Op.otaBegin, Op.otaEnd]);
+  });
+  test(
+    'OTA END OK with invalid payload is uncertain and blocks later mutations',
+    () async {
+      normalOta();
+      final previous = t.onCtrl!;
+      t.onCtrl = (q) {
+        if (q[0] == Op.otaEnd) {
+          t.reply(q, StatusCode.ok, [1]);
+        } else {
+          return previous(q);
+        }
+      };
+      await expectLater(
+        c.ota(firmware()),
+        throwsA(
+          isA<EspInkException>()
+              .having((e) => e.operation, 'operation', 'OTA_END')
+              .having((e) => e.resultUnknown, 'unknown', true),
+        ),
+      );
+      expect(c.resultUncertain, isTrue);
+      expect(t.ctrl.map((q) => q[0]), [Op.otaBegin, Op.otaEnd]);
+      await expectLater(c.reboot(), throwsA(isA<EspInkException>()));
+      expect(t.ctrl.length, 2);
+    },
+  );
+  test(
+    'OTA verification failure requires a new BEGIN and is not retried in-place',
+    () async {
+      normalOta();
+      final previous = t.onCtrl!;
+      t.onCtrl = (q) {
+        if (q[0] == Op.otaEnd) {
+          t.reply(q, StatusCode.otaVerify);
+        } else {
+          return previous(q);
+        }
+      };
+      await expectLater(
+        c.ota(firmware()),
+        throwsA(
+          isA<EspInkException>()
+              .having((e) => e.status, 'status', StatusCode.otaVerify)
+              .having((e) => e.resultUnknown, 'unknown', false),
+        ),
+      );
+      expect(c.resultUncertain, isFalse);
+      expect(t.ctrl.map((q) => q[0]), [Op.otaBegin, Op.otaEnd]);
     },
   );
   void gallery({

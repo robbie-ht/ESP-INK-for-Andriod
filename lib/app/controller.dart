@@ -109,6 +109,9 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
   final Map<int, Future<ProcessedArtwork>> _processing = {};
   bool _disposed = false;
   bool _pickingPhoto = false;
+  bool _pickingOta = false;
+  int _connectionGeneration = 0;
+  bool get pickingOta => _pickingOta;
   int _photoSelectionGeneration = 0;
   bool _recoveredPhotoNeedsAdjustment = false;
   bool get pickingPhoto => _pickingPhoto;
@@ -597,6 +600,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> connect(String id) async {
     if (connecting || busy) return;
+    _connectionGeneration++;
     connecting = true;
     _notify();
     try {
@@ -836,6 +840,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
               (_foregroundJobToken == null || _displayReadJobActive)));
 
   bool get _galleryReadCanStart =>
+      !_pickingOta &&
       !connecting &&
       _pendingGalleryMutations == 0 &&
       _activeGalleryReadToken == null &&
@@ -871,6 +876,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
     if (_disposed ||
         !connected ||
         connecting ||
+        _pickingOta ||
         busy ||
         _foregroundJobToken != null ||
         !_galleryDeviceReadable ||
@@ -994,7 +1000,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
   void _scheduleStatusPoll() {
     _statusPollTimer?.cancel();
     _statusPollTimer = null;
-    if (_disposed || !_appActive || !connected) return;
+    if (_disposed || !_appActive || !connected || _pickingOta) return;
     _statusPollTimer = Timer(const Duration(seconds: 15), () async {
       _statusPollTimer = null;
       final client = _client;
@@ -1002,6 +1008,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
       if (!_disposed &&
           _appActive &&
           connected &&
+          !_pickingOta &&
           (!busy || (_displayReadJobActive && _displayJobQueued)) &&
           !connecting &&
           !_statusPolling &&
@@ -1154,7 +1161,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
     final generation = _galleryGeneration;
     if (client == null) return;
     bool foregroundAcquired() =>
-        onlyWithoutForeground && _foregroundJobToken != null;
+        onlyWithoutForeground && (_foregroundJobToken != null || _pickingOta);
     try {
       if (foregroundAcquired()) return;
       if (windowAppend != null && !_windowAppendAvailable(windowAppend)) {
@@ -1765,6 +1772,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
 
   bool _canStartGalleryBackground(int generation, int epoch) =>
       !_disposed &&
+      !_pickingOta &&
       _appActive &&
       generation == _galleryGeneration &&
       epoch == _galleryBackgroundEpoch &&
@@ -1776,6 +1784,7 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
   void _scheduleGalleryBackground() {
     _galleryBackgroundTimer?.cancel();
     if (_disposed ||
+        _pickingOta ||
         !_appActive ||
         tabIndex != 1 ||
         !connected ||
@@ -2191,41 +2200,144 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
   });
 
   Future<void> pickAndUpgrade() async {
-    if (!_ready() || busy) return;
+    if (_disposed || _pickingOta || !_ready()) return;
     if (demo) {
       _say('固件升级需要连接真实设备，本地演示不会传送固件。');
       return;
     }
+    if (_foregroundJobToken != null || (busy && !galleryReading)) {
+      _say('固件升级尚未开始，请等待当前操作完成后重试。');
+      return;
+    }
+    if (_otaSubmitted) {
+      _say('固件升级已受理，请等待设备重启后重连核对版本，暂勿重复升级。');
+      return;
+    }
+    final client = _client!;
+    if (client.resultUncertain) {
+      _say('上一设备操作结果待确认。请先重新连接核对设备状态与固件版本，暂勿重复升级。');
+      return;
+    }
+    final generation = _connectionGeneration;
+    bool sameConnection() =>
+        !_disposed &&
+        !demo &&
+        client == _client &&
+        generation == _connectionGeneration;
+    bool connectedSession() => sameConnection() && connected && !connecting;
+    _pickingOta = true;
+    _stopGalleryBackground();
+    _scheduleStatusPoll();
+    _notify();
     try {
       final file = await openFile(
         acceptedTypeGroups: [
           const XTypeGroup(label: 'ESP32 应用固件', extensions: ['bin']),
         ],
       );
-      if (file == null) return;
+      if (file == null || !connectedSession()) return;
       final length = await file.length();
+      if (!connectedSession()) return;
       if (length < 1024 || length > 0x160000) {
         throw ArgumentError('请选择1024至1441792字节的ESP32-C3应用镜像，不要选择合并全量固件。');
       }
       final bytes = await file.readAsBytes();
+      if (!connectedSession()) return;
+      var started = false;
       await _job('准备升级固件', () async {
+        // _job may have waited for an in-flight gallery response to drain.
+        if (!connectedSession()) return;
+        started = true;
         _cancellation = TransferCancellation();
         _queued = false;
-        await _client!.ota(
-          bytes,
-          cancellation: _cancellation,
-          onProgress: (v) {
-            progress = v;
-            _notify();
-          },
-          onPhase: _transferPhase,
-        );
-        _otaSubmitted = true;
-        _say('固件校验已通过，设备即将重启。请重连核对版本，新固件运行约45秒后确认；期间请保持供电。');
-      });
+        TransferPhase? otaPhase;
+        try {
+          await client.ota(
+            bytes,
+            cancellation: _cancellation,
+            onProgress: (v) {
+              if (!connectedSession()) return;
+              progress = v;
+              _notify();
+            },
+            onPhase: (value) {
+              if (!sameConnection()) return;
+              otaPhase = value;
+              _queued = value != TransferPhase.receiving;
+              phase = switch (value) {
+                TransferPhase.receiving => '正在传输固件',
+                TransferPhase.finalizing => '正在校验固件，等待设备受理',
+                TransferPhase.queued => '固件已受理，等待设备重启',
+                TransferPhase.completed => '固件传输已完成',
+              };
+              // The protocol emits queued only after a valid OTA_END RSP.
+              if (value == TransferPhase.queued) _otaSubmitted = true;
+              _notify();
+            },
+          );
+          if (sameConnection()) {
+            _say('固件校验已通过，设备即将重启。请重连核对版本，新固件运行约45秒后确认；期间请保持供电。');
+          }
+        } catch (error) {
+          if (!sameConnection()) return;
+          _log('固件升级：$error');
+          _say(_otaError(error, otaPhase));
+        }
+      }, forOta: true);
+      if (!started && sameConnection() && !connected) {
+        _say('设备已断开，固件升级尚未开始。重新连接后再选择应用固件。');
+      }
     } catch (e) {
-      _say(_readable(e));
+      if (sameConnection()) {
+        _log('选择固件：$e');
+        _say('无法读取应用固件：${_otaError(e, null)}');
+      }
+    } finally {
+      _pickingOta = false;
+      _notify();
+      _scheduleStatusPoll();
+      _scheduleGalleryBackground();
     }
+  }
+
+  String _otaError(Object error, TransferPhase? phase) {
+    if (error is EspInkCancelled) {
+      return '固件传输已取消，设备接收会话已结束；尚未提交启动切换。';
+    }
+    if (error is EspInkException) {
+      if (error.resultUnknown) {
+        if (error.operation == '作业') {
+          return '上一设备操作结果待确认。请先重新连接核对设备状态与固件版本，暂勿重复升级。';
+        }
+        if (phase == TransferPhase.finalizing ||
+            phase == TransferPhase.queued) {
+          return '固件升级提交结果待确认。请重连核对固件版本并保持供电，暂勿重复升级。';
+        }
+        return phase == TransferPhase.receiving
+            ? '固件接收会话结束回执待确认，尚未发送启动切换提交。请重新连接后再操作。'
+            : '固件升级开始回执待确认，尚未发送启动切换提交。请重新连接确认接收会话已结束后再操作。';
+      }
+      return switch (error.status) {
+        StatusCode.busy => '设备正忙，固件升级未受理。请等待当前设备作业结束后再试。',
+        StatusCode.otaVerify => '固件镜像校验失败。请核对应用 .bin、设备型号与当前分区布局。',
+        StatusCode.crc => '固件传输校验失败，升级未受理。请核对应用文件并重新连接。',
+        StatusCode.flashError => '固件写入失败。请保持供电并重新连接核对设备状态。',
+        StatusCode.lengthMismatch => '固件长度不符，升级未受理。请重新选择完整的应用 .bin。',
+        StatusCode.unsupported => '当前设备或连接不支持此固件升级操作，请核对固件版本与 MTU。',
+        StatusCode.noMem => '设备资源不足，固件升级未完成。请重新连接核对设备状态。',
+        _ =>
+          phase == TransferPhase.finalizing
+              ? '固件提交未获确认。请重新连接核对固件版本，暂勿重复升级。'
+              : '固件传输中断，尚未确认升级受理。请重新连接后核对设备状态。',
+      };
+    }
+    if (phase == TransferPhase.finalizing) {
+      return '固件提交结果待确认。请重新连接核对固件版本，暂勿重复升级。';
+    }
+    return error
+        .toString()
+        .replaceFirst('Invalid argument(s): ', '')
+        .replaceFirst('Exception: ', '');
   }
 
   bool _ready() {
@@ -2234,7 +2346,15 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
     return false;
   }
 
-  Future<void> _job(String label, Future<void> Function() body) async {
+  Future<void> _job(
+    String label,
+    Future<void> Function() body, {
+    bool forOta = false,
+  }) async {
+    if (_pickingOta && !forOta) {
+      _say('正在选择、读取或传送固件，请先完成或取消当前升级流程。');
+      return;
+    }
     if (_foregroundJobToken != null) {
       _say('设备正在处理其他操作，请稍后重试');
       return;
@@ -2343,7 +2463,10 @@ class EspInkController extends ChangeNotifier with WidgetsBindingObserver {
     if (busy && state == AppLifecycleState.paused) {
       _log('APP进入后台，正在执行的蓝牙作业可能被系统暂停');
     }
-    if (state == AppLifecycleState.resumed && connected && !busy) {
+    if (state == AppLifecycleState.resumed &&
+        connected &&
+        !busy &&
+        !_pickingOta) {
       unawaited(refresh());
     }
   }

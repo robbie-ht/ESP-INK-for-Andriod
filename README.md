@@ -2,16 +2,17 @@
 
 四彩墨水屏的 Android / Windows 伴侣应用。界面采用 Google Material 3：浅色、蓝色主色、柔和圆角和三栏导航。源码位于本仓库，设备通过B2协议连接；接口参考见 `docs/reference/B2/`。
 
-源码、实际编译目录、发布包、设备固件及文档均集中在本 APP 目录，不使用软链接。当前源码 **1.0.8+9** 新增 Windows x64：系统选图/另存 PNG、WinRT 蓝牙、中文字体和完整桌面运行库打包，使用说明见 [Windows 使用与构建](docs/Windows使用与构建.md)。Android 现有发布包仍为 1.0.7+8；Windows 已完成实际 Release 编译和中文空格路径解压启动检查，记录见 [验证记录](docs/VERIFICATION.md)。
+源码、实际编译目录、发布包、设备固件及文档均集中在本 APP 目录，不使用软链接。当前源码 **1.0.9+10** 修复 OTA 入口、文件与设备会话绑定、应用镜像结构检查和提交结果保护；详见 [OTA 使用与排查](docs/OTA使用与排查.md)。Android 和 Windows 本轮构建/验证结果见 [验证记录](docs/VERIFICATION.md)。
 
 配合 **ESP_INK B2.0.1**，支持物理刷屏期间继续读取图库缩略图和高清，读图进度不覆盖刷屏状态；存并显示时严格验证追加身份并保留旧高清缓存。旧 B2.0.0 继续兼容。模式选择、C1/C2、自动效果、删图缓存保留及 MTU517 限长修复继续保留。见 [交付说明](docs/交付说明.md)和[刷屏期间读取图库](docs/刷屏期间读取图库.md)。
 
 ## 下载与仓库
 
+- [1.0.9 OTA 修复版](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/tag/v1.0.9)：[Android APK](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.9/ESP-INK-1.0.9-android.apk)、[Windows x64 ZIP](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.9/ESP-INK-1.0.9-windows-x64.zip)。发布状态和验证范围见文档。
 - [Windows x64 1.0.8 发布页](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/tag/v1.0.8)、[下载完整 Windows ZIP](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.8/ESP-INK-1.0.8-windows-x64.zip)。完整解压后运行 ESP-INK.exe。
 - [Android 1.0.7 安装包与源码归档](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/tag/v1.0.7)：ESP-INK 1.0.7，Android 7.0及以上；安装包为测试签名。
 - [直接下载APK](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.7/ESP-INK-1.0.7-android.apk)、[完整源码压缩包](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.7/ESP-INK-Flutter-source.tar.gz)、[成品SHA256](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.7/SHA256SUMS)。
-- [B2.0.1 OTA应用镜像](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.7/ESP_INK-B2.0.1-app.bin)：已有B2分区使用，完整源码与构建脚本在firmware/B2.0.1/source。
+- [B2.0.1 OTA应用镜像](https://github.com/robbie-ht/ESP_INK/releases/download/B2.0.1/moink_B2.0.1_app.bin)：已有B2分区使用，完整源码与构建脚本在firmware/B2.0.1/source。
 - 克隆后可按下方Docker步骤构建。仓库包含源码、字体许可、文档、测试、Gradle wrapper及验证记录；`build/`和`releases/`在本地保留，由Git忽略。下载文件放入本地`releases/`后，交付文档中的成品相对链接即可使用。
 
 ESP-INK 1.0.7继续使用1.0.4至1.0.6的应用ID `io.github.robbieht.espink`，相同签名的安装包可覆盖更新，草稿参数与文字继续保留。独立安装的说明只适用于从旧 **MoInk 1.0.3及更早版本**迁移：旧MoInk的应用ID不同，可与ESP-INK并存，其草稿不会自动迁入；不要因此卸载旧MoInk或删除旧相册文件。
@@ -51,7 +52,7 @@ C1、C2均采用竖屏上方固定预览、下方滚动参数，横屏左右并�
 - **设备图库**：先逐卡读取缩略图，设备和APP空闲，或B2.0.1提供安全刷屏窗口时，自动补读768×552完整画面。前台查看、发送、删除、设置等操作可取消后台后续分片并优先执行；离页、后台和断线停止自动读取，失败不会无限重试。确认APP单次追加或删除成功、完整元数据映射与单步revision符合时保留未变图片的缩略图和高清缓存；删除前方图片后，缓存随逻辑编号前移。外部删除、覆盖、异常版本变化、清空和换设备继续失效保护。
 - **保存图库图片**：先读取CRC通过的768×552完整帧，再导出PNG，绝不把缩略图当完整图保存。Android 10及以上保存到相册 `Pictures/ESP-INK`，不申请读取图库权限；Android 7–9只在保存时请求旧存储写权限，拒绝与保存错误均明确提示。网页发起浏览器下载，是否完成需检查下载列表；桌面运行环境调用系统另存文件。真实BLE回读与手机相册保存仍待真机验证。
 - **设备管理**：电池电压、固件/MTU/状态、名称、屏型、休眠/唤醒/换图、GPIO、缓存、清残影和重启。偶发无效电压不会清空当前连接的最近真实值；空闲定期读取状态，断线清除旧值，不使用虚构默认电压。
-- **OTA**：选择应用 `.bin`，检查 ESP32-C3 头、镜像容量、CRC32和协商片数；传输/校验与重启确认分开呈现。R/B1→B2首次分区迁移仍需USB完整刷入。
+- **OTA**：选择应用 `.bin`，预检 ESP32-C3 应用描述符、段边界/尾部储位和镜像容量，计算传输CRC32并检查协商片数；选择文件期间暂停自动读图/刷新，排空已有读图后再开始，文件绑定发起选择时的设备连接。传输、设备校验、提交受理与重连核对分开提示。R/B1→B2首次分区迁移仍需USB完整刷入。
 - **本地演示**：可在没有设备时体验创作和模拟图库，界面明确标为“本地演示”；不会把演示操作发送到设备。
 
 图片和文字功能参考旧page，原参考HTML副本此次未找到（不影响编译和已有图像金标测试），功能对应与差异见 [页面功能对照](docs/page-feature-map.md)。设备接口文档也已收进本目录：[API](docs/reference/B2/API.md)、[APP接入指南](docs/reference/B2/APP-INTEGRATION.md)，以上为保留的B2.0.0/api=1参考副本；当前B2.0.1窗口协议见[随附固件API](firmware/B2.0.1/source/docs/API.md)。当前固件出厂接线为整合板 `gpio_preset=2`，已有有效NVS配置会保留；GPIO档位与A0/A1屏型独立。没有实体设备的离线测试不等于真实蓝牙与墨水屏验收。完整记录在 [docs/VERIFICATION.md](docs/VERIFICATION.md)。实时原图、全屏裁切与最终图像处理共用同一套几何变换和解码逻辑，最终持有的彩色代理图最长边2400且不放大小图；Web引擎探测尺寸时可能临时完整解码，这一上限不代表所有平台的解码峰值内存；异步解码与处理结果通过代次/草稿版本号保护，旧照片或旧效果不会覆盖新编辑。
@@ -67,7 +68,7 @@ flutter build windows --release
 pwsh -File tool/package_windows.ps1 -SmokeTest
 ```
 
-成品为 `releases/windows/ESP-INK-1.0.8-windows-x64.zip`。完整解压后双击 `ESP-INK.exe`；不要单独移动 exe。图像创作不需要连接设备，真实设备功能需要电脑有 BLE 蓝牙适配器。未做实体 Windows 电脑/蓝牙硬件验收，详见[Windows 说明](docs/Windows使用与构建.md)。
+成品为 `releases/windows/ESP-INK-1.0.9-windows-x64.zip`。完整解压后双击 `ESP-INK.exe`；不要单独移动 exe。图像创作不需要连接设备，真实设备功能需要电脑有 BLE 蓝牙适配器。未做实体 Windows 电脑/蓝牙硬件验收，详见[Windows 说明](docs/Windows使用与构建.md)。
 
 ## 构建 Android APK
 
