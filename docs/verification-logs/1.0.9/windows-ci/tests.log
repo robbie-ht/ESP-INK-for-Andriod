@@ -1,0 +1,474 @@
+Resolving dependencies...
+Downloading packages...
+  cross_file 0.3.5+5 (0.4.0 available)
+  cupertino_icons 1.0.9 (2.0.0 available)
+  image_picker_ios 0.8.13+15 (0.8.13+16 available)
+  jni 1.1.2 (1.2.1 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.3 (1.19.0 available)
+  petitparser 7.0.2 (7.1.0 available)
+  shared_preferences_foundation 2.5.7 (2.6.2 available)
+  test_api 0.7.12 (0.7.15 available)
+  vector_math 2.4.0 (2.4.4 available)
+  xml 7.0.1 (7.1.0 available)
+Got dependencies!
+11 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/controller_test.dart
+00:00 +0: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/controller_test.dart: switching devices discards a cached PNG despite identical revision and slot
+00:00 +1: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/controller_test.dart: thumbnail decode uses metadata from the downloaded revision
+00:00 +2: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/controller_test.dart: showCache refreshes device state and clears gallery current
+00:00 +3: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/controller_test.dart: clearGhost refreshes device state and clears gallery current
+00:00 +4: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/controller_test.dart: demo deletion compacts logical slots and preserves the retained image identity
+00:00 +5: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/display_gallery_lane_test.dart: optional window flags fail closed for old, idle and unknown states
+00:00 +6: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/display_gallery_lane_test.dart: append proof requires its flag and an admitted physical display window
+00:00 +7: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/display_gallery_lane_test.dart: READ completes before display completion for op 35
+00:00 +8: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/display_gallery_lane_test.dart: READ completes before display completion for op 32
+00:00 +9: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/display_gallery_lane_test.dart: READ completes before display completion for op 48
+00:00 +10: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/display_gallery_lane_test.dart: save-and-display can read after store work but before late STORE_DONE
+00:00 +11: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/display_gallery_lane_test.dart: old firmware queues gallery behind complete display job
+00:00 +12: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/display_gallery_lane_test.dart: queued mutation closes admission and runs before a later gallery read
+00:00 +13: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/display_gallery_lane_test.dart: display completion and next mutation drain the read RSP already in flight
+00:00 +14: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/display_gallery_lane_test.dart: closing window drains current response and stops before next READ
+00:00 +15: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/display_gallery_lane_test.dart: expected revision rejects changed upload metadata before reading bytes
+00:00 +16: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/display_gallery_lane_test.dart: a completed status RSP cannot overwrite a newer STATE close notification
+00:00 +17: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/display_gallery_lane_test.dart: a completed status RSP cannot overwrite a newer STATE open notification
+00:00 +18: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/display_gallery_lane_test.dart: a completed status RSP cannot overwrite a newer DISPLAY_DONE notification
+00:00 +19: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/display_gallery_lane_test.dart: a read started by a readiness listener cannot overtake the mutation that notified it
+00:00 +20: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/display_gallery_lane_test.dart: early STATE and DISPLAY_DONE preceding RSP cannot reopen a completed display window
+00:00 +21: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/display_gallery_lane_test.dart: a new mutation cannot reuse a preceding external display window
+00:00 +22: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/display_gallery_lane_test.dart: disconnect fails display, in-flight read and queued mutation without issuing another command
+00:01 +23: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/frame_codec_test.dart: official CRC gold vector
+00:01 +24: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/frame_codec_test.dart: official white full frame and thumbnail CRC vectors
+00:01 +25: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/frame_codec_test.dart: four logical corners land at exact 180 degree wire positions
+00:01 +26: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/frame_codec_test.dart: wire ordering independently known for a two row thumbnail
+00:01 +27: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/frame_codec_test.dart: all solid color encodings and strict validation
+00:02 +28: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: real JPEG and packed 2bpp thumbnail responses become usable previews
+00:02 +29: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: identical queued reads deduplicate and full frames never downgrade
+00:02 +30: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:03 +31: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:04 +32: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:04 +33: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:04 +34: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:04 +35: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:04 +36: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:05 +37: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:05 +38: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:05 +39: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:05 +40: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:05 +41: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:06 +42: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:06 +43: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:06 +44: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:07 +45: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:07 +46: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:07 +47: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:07 +48: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:07 +49: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:07 +50: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:07 +51: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:07 +52: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:07 +53: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:07 +54: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:07 +55: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:07 +56: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:07 +57: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:08 +58: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:08 +59: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:08 +60: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:08 +61: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +62: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +63: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +64: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +65: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +66: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +67: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +68: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +69: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +70: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +71: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +72: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +73: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +74: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +75: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +76: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +77: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +78: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +79: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:09 +80: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +81: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +82: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +83: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +84: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +85: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +86: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +87: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +88: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +89: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +90: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +91: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +92: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +93: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +94: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +95: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +96: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +97: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +98: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +99: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +100: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +101: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +102: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +103: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +104: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +105: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +106: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +107: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +108: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +109: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +110: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +111: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +112: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +113: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +114: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +115: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +116: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +117: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +118: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +119: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +120: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +121: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +122: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +123: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +124: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +125: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +126: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +127: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +128: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +129: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +130: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +131: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +132: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +133: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +134: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +135: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +136: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +137: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +138: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +139: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +140: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +141: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +142: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +143: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +144: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +145: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +146: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +147: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +148: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +149: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +150: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +151: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +152: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +153: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +154: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +155: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +156: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +157: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +158: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +159: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +160: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +161: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +162: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +163: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +164: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +165: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +166: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +167: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +168: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +169: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +170: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +171: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +172: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +173: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +174: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +175: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +176: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +177: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +178: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +179: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +180: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +181: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:10 +182: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:11 +183: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:11 +184: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:11 +185: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:11 +186: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:11 +187: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:11 +188: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:14 +189: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:14 +190: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:14 +191: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:14 +192: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:17 +193: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: read failures remain visible and a retry can succeed
+00:17 +194: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/live_preview_test.dart: a completed dot result cannot switch the user back from source mode
+00:17 +195: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/live_preview_test.dart: a completed dot result cannot switch the user back from source mode
+00:17 +196: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: an already cached demo picture remains usable during a device job
+00:18 +197: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/live_preview_test.dart: geometry edits paint immediately and reuse the decoded source
+00:18 +198: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: preload yields to an explicitly opened slot and stops after leaving gallery
+00:18 +199: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/live_preview_test.dart: composition effect mode refreshes edits and keeps its last result visible
+00:18 +200: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/live_preview_test.dart: composition effect mode refreshes edits and keeps its last result visible
+00:18 +201: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/live_preview_test.dart: composition effect mode refreshes edits and keeps its last result visible
+00:18 +202: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/live_preview_test.dart: composition effect mode refreshes edits and keeps its last result visible
+00:18 +203: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/live_preview_test.dart: composition effect mode refreshes edits and keeps its last result visible
+00:18 +204: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/live_preview_test.dart: composition effect mode refreshes edits and keeps its last result visible
+00:18 +205: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/live_preview_test.dart: composition effect mode refreshes edits and keeps its last result visible
+00:18 +206: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/live_preview_test.dart: composition effect mode refreshes edits and keeps its last result visible
+00:18 +207: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: confirmed append preserves downloaded full frames with new identities
+00:18 +208: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/live_preview_test.dart: an invalid replacement removes the old photograph and offers reselect
+00:18 +209: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: confirmed append revision wrap skips zero and retains full frames
+00:18 +210: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: append with a changed old prefix cannot retain a full-frame cache
+00:19 +211: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: external append does not reuse old cache merely because metadata matches
+00:19 +212: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: saved append retains cache even when the independent display fails
+00:19 +213: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: deleting logical slot never transfers the old full cache to the new occupant
+00:19 +214: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: deleting picture two retains picture one HD without read or display commands
+00:19 +215: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: deleting picture two retains picture one HD without read or display commands
+00:19 +216: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: deleting picture two retains picture one HD without read or display commands
+00:19 +217: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: deleting picture two retains picture one HD without read or display commands
+00:20 +218: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: deleting slot zero migrates two distinct HD previews and current to shifted identities
+00:20 +219: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: deleting slot zero migrates two distinct HD previews and current to shifted identities
+00:20 +220: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: deleting slot zero migrates two distinct HD previews and current to shifted identities
+00:20 +221: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: deleting slot zero migrates two distinct HD previews and current to shifted identities
+00:20 +222: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: deleting slot zero migrates two distinct HD previews and current to shifted identities
+00:20 +223: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: deleting slot zero migrates two distinct HD previews and current to shifted identities
+00:20 +224: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: deleting slot zero migrates two distinct HD previews and current to shifted identities
+00:20 +225: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: deleting slot zero migrates two distinct HD previews and current to shifted identities
+00:20 +226: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: deleting slot zero migrates two distinct HD previews and current to shifted identities
+00:20 +227: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: deleting slot zero migrates two distinct HD previews and current to shifted identities
+00:21 +228: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: deleting the current slot does not mark another cached image as displayed
+00:21 +229: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: delete revision wrap skips zero while preserving verified HD
+00:21 +230: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: deleting the last cached image produces an empty gallery without refreshing the panel
+00:21 +231: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: actual selector and protocol send the selected app with truthful OTA phases
+00:21 +232: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: a shifted thumbnail survives deletion and remains eligible for automatic HD
+00:21 +233: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: a shifted thumbnail survives deletion and remains eligible for automatic HD
+00:21 +234: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: a shifted thumbnail survives deletion and remains eligible for automatic HD
+00:21 +235: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: a shifted thumbnail survives deletion and remains eligible for automatic HD
+00:21 +236: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: a shifted thumbnail survives deletion and remains eligible for automatic HD
+00:22 +237: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: a shifted thumbnail survives deletion and remains eligible for automatic HD
+00:22 +238: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: a shifted thumbnail survives deletion and remains eligible for automatic HD
+00:22 +239: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: a shifted thumbnail survives deletion and remains eligible for automatic HD
+00:22 +240: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:22 +241: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:22 +242: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:22 +243: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:22 +244: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:22 +245: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:22 +246: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:23 +247: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:23 +248: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: in-flight full gallery read drains before OTA starts instead of silently returning
+00:23 +249: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: external deletion without this app completion cannot migrate cached previews
+00:23 +250: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: external deletion without this app completion cannot migrate cached previews
+00:23 +251: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: external deletion without this app completion cannot migrate cached previews
+00:23 +252: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: invalid app structure is rejected before OTA_BEGIN with firmware-specific text
+00:23 +253: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: failed deletion cannot grant a shifted preview a verified cache identity
+00:23 +254: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: failed deletion cannot grant a shifted preview a verified cache identity
+00:23 +255: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: failed deletion cannot grant a shifted preview a verified cache identity
+00:23 +256: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: failed deletion cannot grant a shifted preview a verified cache identity
+00:23 +257: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:24 +258: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:24 +259: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:25 +260: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:26 +261: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:26 +262: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:28 +263: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:28 +264: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:28 +265: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ota_controller_test.dart: missing BEGIN reply times out as start-session unknown without sending END
+00:38 +266: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:38 +267: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:38 +268: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:40 +269: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:40 +270: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:41 +271: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:41 +272: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:41 +273: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:41 +274: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:42 +275: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:42 +276: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:42 +277: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:42 +278: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:42 +279: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:43 +280: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:43 +281: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:43 +282: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:43 +283: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:43 +284: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:43 +285: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:43 +286: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: idle status poll updates voltage and resumes full frames after device busy
+00:44 +287: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: background idle wait cannot steal a foreground job through a microtask gap
+00:45 +288: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:45 +289: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:45 +290: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:45 +291: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:46 +292: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:46 +293: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:46 +294: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: a successful album selection opens exactly one adjustment page
+00:46 +295: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: B2.0.1 show display wait permits a verified read without replacing foreground status
+00:46 +296: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: album cancellation stays on A without a photograph
+00:46 +297: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: album cancellation stays on A without a photograph
+00:46 +298: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: album cancellation stays on A without a photograph
+00:47 +299: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: album cancellation stays on A without a photograph
+00:47 +300: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: legacy firmware display wait cannot read until the display finishes
+00:47 +301: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: album cancellation stays on A with an old photograph
+00:47 +302: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: album cancellation stays on A with an old photograph
+00:47 +303: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: album cancellation stays on A with an old photograph
+00:47 +304: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: album cancellation stays on A with an old photograph
+00:47 +305: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: GET_STATUS and STATE open external refresh reads only for the advertised window
+00:47 +306: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: one flow lock covers pending selection and is released after C
+00:48 +307: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: closing a background display window drains its block and resumes on reopened window
+00:48 +308: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: closing a background display window drains its block and resumes on reopened window
+00:49 +309: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: closing a background display window drains its block and resumes on reopened window
+00:49 +310: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: adjustment is available without choosing a photograph first
+00:49 +311: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: closing a background display window drains its block and resumes on DISPLAY_DONE
+00:50 +312: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: closing a background display window drains its block and resumes on DISPLAY_DONE
+00:50 +313: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: closing a background display window drains its block and resumes on DISPLAY_DONE
+00:51 +314: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: closing a background display window drains its block and resumes on DISPLAY_DONE
+00:51 +315: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: closing a background display window drains its block and resumes on DISPLAY_DONE
+00:51 +316: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: finishing a note then adjusting again resumes C2 without another mode choice
+00:51 +317: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: finishing a note then adjusting again resumes C2 without another mode choice
+00:51 +318: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/gallery_controller_test.dart: display completion and a following deletion drain the pending background reply first
+00:52 +319: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: photo and note text objects remain independent across A mode choices
+00:52 +320: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: photo and note text objects remain independent across A mode choices
+00:52 +321: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_flow_test.dart: photo and note text objects remain independent across A mode choices
+00:53 +322: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_geometry_test.dart: cover encloses every corner for all orientations and large pans
+00:53 +323: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_geometry_test.dart: contain shows the whole original at every angle including pan limits
+00:53 +324: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_geometry_test.dart: inverse transform retains exact source pixel even after mirroring
+00:53 +325: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_geometry_test.dart: pinch, pan and rotation preserve the source pixel below the focal point
+00:53 +326: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_geometry_test.dart: normalization is idempotent and permits reaching a zoomed photo edge
+00:53 +327: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_geometry_test.dart: corner crop preserves image on stage then expands the selected region
+00:53 +328: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_geometry_test.dart: scaled editor viewport and final output resolve the same photo coordinates
+00:53 +329: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_geometry_test.dart: invalid persisted transforms recover while invalid image sizes fail clearly
+00:53 +330: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_geometry_test.dart: real raster painter exactly matches final artwork with rotation, mirror and padding
+00:53 +331: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_geometry_test.dart: rotated cover never rasterizes a transparent hole inside crop
+00:53 +332: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: accepted system photo returns true and resets only photo geometry
+00:54 +333: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: system picker cancellation returns false without changing the draft
+00:54 +334: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: empty photo fails without discarding the existing draft
+00:54 +335: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: unreadable photo fails without discarding the existing draft
+00:54 +336: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: over-limit photo fails without discarding the existing draft
+00:54 +337: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: platform picker exception preserves the draft and releases the guard
+00:54 +338: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: a concurrent pick returns false and opens only one system picker
+00:54 +339: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: Android lost photo is accepted and adjustment navigation is consumed once
+00:54 +340: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: a normal selection clears an unconsumed recovered-photo navigation
+00:54 +341: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: late Android recovery cannot overwrite a newer normal selection
+00:54 +342: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: normal picker completing after recovery wins and clears duplicate navigation
+00:54 +343: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: an explicit note choice supersedes a pending Android photo recovery
+00:54 +344: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: choosing note clears recovered navigation while preserving the photo draft
+00:54 +345: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: choosing note enables its saved text after photo overlays were hidden
+00:54 +346: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: Windows photo selection uses the desktop file selector and accepts its actual photo bytes
+00:54 +347: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: Windows photo selection cancelled desktop selection preserves the existing draft and unlocks retry
+00:54 +348: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: Windows photo selection a empty desktop file preserves the existing draft
+00:54 +349: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: Windows photo selection a missing desktop file preserves the existing draft
+00:54 +350: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: Windows photo selection a oversized desktop file preserves the existing draft
+00:54 +351: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: Windows photo selection desktop dialog failure releases its guard and keeps the draft
+00:54 +352: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: Windows photo selection concurrent desktop selections share a single pending file dialog
+00:54 +353: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: Windows photo selection a late desktop photo cannot overwrite a subsequent note choice
+00:54 +354: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: Windows photo selection initialization never invokes Android lost-data recovery on Windows
+00:54 +355: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/photo_picker_controller_test.dart: Windows photo selection a desktop file dialog may return after the window becomes inactive
+00:55 +356: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/preview_pipeline_test.dart: continuous edits never start dot conversion or block editing
+00:55 +357: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/preview_pipeline_test.dart: a late conversion is discarded without automatically rendering edits
+00:55 +358: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/preview_pipeline_test.dart: concurrent explicit requests for the same edit share one conversion
+00:55 +359: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/preview_pipeline_test.dart: explicit newer requests merge into the latest requested edit
+00:55 +360: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/preview_pipeline_test.dart: editing during demo send cannot change its saved picture or title
+00:55 +361: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/preview_pipeline_test.dart: ink mode renders immediately then debounces fast adjustments
+00:55 +362: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/preview_pipeline_test.dart: slow ink conversion merges edits and discards obsolete results
+00:55 +363: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/preview_pipeline_test.dart: leaving ink mode cancels queued edits but caches the active result
+00:55 +364: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/preview_pipeline_test.dart: changing the source photo clears only the previous source effect
+00:55 +365: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/preview_pipeline_test.dart: send reuses the current ink task and its captured snapshot
+00:55 +366: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/protocol_test.dart: golden PING wire, matching seq, and serial CTRL queue
+00:55 +367: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/protocol_test.dart: timed out seq stays retired after sequence wrap and late response
+00:55 +368: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/protocol_test.dart: write failure seq also stays retired after sequence wrap
+00:55 +369: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/protocol_test.dart: truncated status and incompatible api are rejected
+00:55 +370: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/protocol_test.dart: status preserves signed battery readings and unknown sentinel
+00:55 +371: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/protocol_test.dart: B1 optional wakeShow and B2 wakeShow are parsed separately
+00:55 +372: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/protocol_test.dart: settings golden TLV and whole-transaction validation
+00:55 +373: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/protocol_test.dart: MTU too small rejects a single CTRL instead of splitting it
+00:55 +374: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/protocol_test.dart: modifying RSP timeout is not retried and blocks subsequent modification
+00:55 +375: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/protocol_test.dart: disconnect fails pending command immediately
+00:55 +376: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/protocol_test.dart: frame honors returned chunk and exact short final fragment
+00:56 +377: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/protocol_test.dart: MTU 517 frame negotiates 510 with a device maximum of 512
+00:56 +378: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/protocol_test.dart: frame rejects a selected 512-byte chunk above its request
+00:56 +379: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/protocol_test.dart: store and display completions preceding END RSP are retained
+00:56 +380: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/protocol_test.dart: store-only waits only STORE_DONE, not DISPLAY_DONE
+00:56 +381: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:56 +382: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:56 +383: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:56 +384: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:57 +385: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:57 +386: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:57 +387: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:57 +388: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:57 +389: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:57 +390: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:57 +391: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:57 +392: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:57 +393: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:57 +394: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:57 +395: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:57 +396: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:57 +397: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:57 +398: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:57 +399: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:57 +400: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:57 +401: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: phone starts with an empty photograph and explicit BLE or demo entry
+00:57 +402: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/protocol_test.dart: OTA 65536 sequence limit checked after negotiated BEGIN and aborted
+00:57 +403: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:57 +404: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:57 +405: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:57 +406: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:57 +407: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:57 +408: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:57 +409: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:57 +410: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:58 +411: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:58 +412: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:58 +413: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:58 +414: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:58 +415: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:58 +416: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:58 +417: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:58 +418: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:58 +419: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:58 +420: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:58 +421: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:58 +422: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:58 +423: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:58 +424: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+00:58 +425: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: wide layout offers only photo and note, and adds independently styled text objects
+01:00 +426: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/voltage_status_ui_test.dart: retained voltage stays visible without the removed sampling caption
+01:00 +427: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: demo transmission is explicit and does not require fake BLE
+01:00 +428: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/voltage_status_ui_test.dart: unknown voltage is waiting for a sample and is not invented
+01:00 +429: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: device name enforces UTF8 length and closes safely after valid save
+01:00 +430: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: device scroll and advanced expansion restore independently across tabs
+01:01 +431: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: gallery has no fabricated image when a thumbnail is unavailable
+01:01 +432: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +433: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +434: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +435: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +436: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +437: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +438: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +439: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +440: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +441: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +442: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +443: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +444: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +445: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +446: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +447: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +448: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +449: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +450: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +451: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +452: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +453: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:01 +454: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: geometry applies once and image settings update actual draft fields
+01:02 +455: D:/a/ESP-INK-for-Andriod/ESP-INK-for-Andriod/test/ui_test.dart: empty text cannot be added to the canvas
+01:02 +456: All tests passed!

@@ -1,0 +1,11 @@
+{
+  "input_files": 111,
+  "changed": [],
+  "ci_source_commit": "47272fa7adf295b420f7dde541eb4e8599aae044",
+  "android_and_windows_share_same_inputs": true,
+  "local_snapshot_files": 112,
+  "ignored_local_ide_files": [
+    "android/esp_ink_android.iml"
+  ],
+  "tracked_inputs_match_compile_commit": true
+}

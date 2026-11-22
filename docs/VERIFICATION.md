@@ -59,14 +59,20 @@ ESP-IDF5.2.2 Docker实际编译/链接成功，app445136B，静态D/IRAM102162B�
 本轮不构建新Android APK，已发布1.0.7 APK及旧源包保留。Windows实体蓝牙适配器、真实设备图库/传输/OTA、不同DPI/中文输入未实机验收；CI首帧启动不是这些功能的验收，没有刷写任何设备。
 
 
-## 1.0.9+10 OTA入口与异常保护（2026-11-22，验证中）
+## 1.0.9+10 OTA入口与异常保护（2026-11-22）
 
-本次用户仅报告OTA有问题，尚未补平台、错误/阶段和所选bin。已核对ESP_INK远端仍为B2.0.1/main3a1dd16，正常分片/CRC/END契约一致；没有证据断言用户本次根因或正常OTA必失败。
+用户仅报告OTA有问题，尚未补平台、错误/阶段和所选bin。已核对ESP_INK远端仍为B2.0.1/main3a1dd16，正常分片/CRC/END契约一致；没有证据断言用户本次根因或正常OTA必失败。设备固件未修改、未连接/刷写硬件。
 
-修复APP入口：图库高清读取不再导致OTA静默返回；选择文件阶段抑制生命周期resume刷新、状态poll和自动补读竞争，保留单一升级流程；文件length/read与_job等待后绑定原client/连接代次，换设备不发旧bin；接收/BEGIN不确定与END提交不确定分别呈现。镜像校验增加真实段边界/app_desc/尾部储位检查，提前拒bootloader；未校验checksum/hash值、签名、硬件或分区布局，最终设备仍裁决。OTA_END非法成功载荷标记unknown，禁止继续修改且无ABORT/自动重发。
+APP修复：图库高清读取不再使OTA静默返回；选文件阶段抑制resume刷新、状态轮询和自动补读，单一升级流程防重入；文件length/read及读图排空后均复核原client与连接代次，断线换设备不发旧bin。接收取消、BEGIN回执待确认、校验失败与END提交待确认分别提示。未知结果会阻止继续修改和再次打开picker；END非法成功载荷同样保留unknown，不ABORT、不自动重发。
 
-协议58项通过，含14项新增OTA回归；控制器新增18项通过，首轮测试适配问题及最终通过记录分开保留。未重新构建设备固件、未连接/刷写硬件，实体手机/Windows OTA、Flash、bootloader回滚未验。完成的APP整体测试和安装包构建结果追加下文。
+发送前加入ESP32-C3段边界、首段256字节app_desc及校验尾部空间检查，真实B2.0.1应用通过、同仓库bootloader等错误镜像拒绝。不验证镜像内部checksum/hash值、签名、硬件或分区布局；传输CRC32与设备最终镜像校验仍是独立步骤。使用及已知固件/文件提供器边界见 [OTA使用与排查](OTA使用与排查.md)。
 
-1.0.9最终Linux统一测试：456项全部通过，51秒；其中新增14项协议、18项控制器回归；`dart analyze lib test`：No issues found。日志位于 `verification-logs/1.0.9/flutter-tests.log` 与 `analyze.log`，112份编译/测试输入已留SHA快照。Android/Windows构建仍在进行中。
+Linux与Windows各456项全部通过；相对1.0.8新增14项协议、18项控制器回归，Linux51秒、Windows62秒。两端Dart分析均No issues found。真实协议客户端覆盖GAP/INCOMPLETE有限恢复、BEGIN超时、END异常/断线、取消/ABORT未知、重复升级保护、真实file_selector通道、生命周期及换连接场景。首轮测试适配问题与定向/全量通过日志分别保留；模拟不代表手机文件提供器或实体Flash行为。
 
-Android最终assembleRelease105.2秒通过：`releases/ESP-INK-1.0.9-android.apk`，105977193字节，SHA256=10deb05191490beced995bf23d48d3a18b00741b8eaa1c79f5741c10f18920d6；379条ZIP CRC、原包ID、1.0.9/code10、min24/target36、三ABI与APK v2原开发证书全部通过，112份输入未变化。Windows正在构建；Android真实BLE/系统文件提供器和设备OTA仍未实机。
+Android assembleRelease105.2秒成功：`releases/ESP-INK-1.0.9-android.apk`，105977193字节，SHA256=10deb05191490beced995bf23d48d3a18b00741b8eaa1c79f5741c10f18920d6。379条ZIP CRC、原包ID、1.0.9/code10、min24/target36、三ABI和APK v2原开发证书均通过，可覆盖旧版同签名应用。
+
+[Windows CI44977701454](https://github.com/robbie-ht/ESP-INK-for-Andriod/actions/runs/44977701454) 成功，实际编译提交47272fa7adf295b420f7dde541eb4e8599aae044、Flutter3.47.8/Dart3.13.7、VS2022/x64，Release编译138.7秒。完整ZIP `releases/windows/ESP-INK-1.0.9-windows-x64.zip`，61515942字节，SHA256=d3171cd9500b80bac958bde4df553e4a4d8d659c155dc004003f35ec942f3610。30文件、14个真实AMD64 PE32+、EXE版本1.0.9.10、两插件/三字体/10个CRT、内部逐文件SHA与ZIP CRC通过。CI从中文空格路径独立解压后启动ESP-INK窗口且进程保持存活。Linux下载后再次独立校验和实文件复制到 `build/windows-1.0.9/x64/runner/Release`；旧1.0.8目录及历史成品保留。许可证仅有Windows Git CRLF与Linux LF差异，归档内部仍逐字节SHA核对，源码文本单独仅归一CRLF比较。
+
+本地112份快照未变化；其中111份受版本控制的编译/测试相关输入与Windows CI编译提交逐字匹配，另1份本地Android IDE .iml未入库、不参与构建。全部原始日志和报告保存在 `verification-logs/1.0.9/`。v1.0.9标签指向实际Windows编译提交；最终main/源码包另外收录构建报告与文档，编译输入相同。源码独立解包及远端附件摘要核对另存本地 `releases/source-package.json`、`releases/github-v1.0.9/`，避免归档自引用。
+
+构建、协议/控制器模拟、包结构和Windows首帧启动均不替代Android/Windows实体BLE、手机系统文件提供器、设备Flash、断电回滚、45秒新固件确认实测。本轮未进行这些硬件验收。

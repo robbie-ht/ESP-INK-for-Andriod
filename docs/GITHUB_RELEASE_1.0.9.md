@@ -8,4 +8,4 @@
 - Windows10/11 x64：完整解压 `ESP-INK-1.0.9-windows-x64.zip`，运行 `ESP-INK.exe`，保留DLL和data。
 - 固件仍从独立 [ESP_INK仓库](https://github.com/robbie-ht/ESP_INK/releases/tag/B2.0.1) 下载，B2布局选 `moink_B2.0.1_app.bin`。本次不修改设备固件，不刷写硬件。
 
-编译与验证结果以随附报告及源码docs/VERIFICATION.md为准。实际用户的失败阶段/错误/bin尚待补充，不能把入口修复认定为该次根因；协议和构建测试也不代表实体OTA已经实测。若提交结果不确定，请先重连核对版本，暂勿重复升级；新固件须运行约45秒确认。
+Linux/Windows各456项测试及静态检查通过；Android实际构建105.2秒，Windows实际构建138.7秒。Windows完整30文件、14个x64 PE、依赖/字体/CRC/SHA及中文空格解压路径的窗口启动通过。v1.0.9标签对应实际编译提交47272fa；最终源码包补充构建报告，编译输入相同。验证记录见源码docs/VERIFICATION.md。实际用户的失败阶段/错误/bin尚待补充，不能把入口修复认定为该次根因；协议和构建测试也不代表实体OTA已经实测。若提交结果不确定，请先重连核对版本，暂勿重复升级；新固件须运行约45秒确认。

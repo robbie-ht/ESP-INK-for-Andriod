@@ -1,0 +1,165 @@
+{
+  "verified_utc": "2026-11-22T02:55:04.118727+00:00",
+  "archive": "/home/descfly/桌面/ESP32/APP/releases/windows/ESP-INK-1.0.9-windows-x64.zip",
+  "bytes": 61515942,
+  "sha256": "d3171cd9500b80bac958bde4df553e4a4d8d659c155dc004003f35ec942f3610",
+  "version": "1.0.9+10",
+  "source_commit": "47272fa7adf295b420f7dde541eb4e8599aae044",
+  "files": 30,
+  "manifest_files": 29,
+  "crc_ok": true,
+  "all_file_hashes_match": true,
+  "symlinks": 0,
+  "pe_amd64": {
+    "ESP-INK.exe": {
+      "machine": "0x8664",
+      "format": "PE32+",
+      "sections": 6,
+      "bytes": 114688
+    },
+    "concrt140.dll": {
+      "machine": "0x8664",
+      "format": "PE32+",
+      "sections": 6,
+      "bytes": 301024
+    },
+    "file_selector_windows_plugin.dll": {
+      "machine": "0x8664",
+      "format": "PE32+",
+      "sections": 6,
+      "bytes": 111616
+    },
+    "flutter_windows.dll": {
+      "machine": "0x8664",
+      "format": "PE32+",
+      "sections": 7,
+      "bytes": 21289472
+    },
+    "msvcp140.dll": {
+      "machine": "0x8664",
+      "format": "PE32+",
+      "sections": 6,
+      "bytes": 546312
+    },
+    "msvcp140_1.dll": {
+      "machine": "0x8664",
+      "format": "PE32+",
+      "sections": 6,
+      "bytes": 26088
+    },
+    "msvcp140_2.dll": {
+      "machine": "0x8664",
+      "format": "PE32+",
+      "sections": 6,
+      "bytes": 270304
+    },
+    "msvcp140_atomic_wait.dll": {
+      "machine": "0x8664",
+      "format": "PE32+",
+      "sections": 6,
+      "bytes": 39424
+    },
+    "msvcp140_codecvt_ids.dll": {
+      "machine": "0x8664",
+      "format": "PE32+",
+      "sections": 6,
+      "bytes": 21984
+    },
+    "universal_ble_plugin.dll": {
+      "machine": "0x8664",
+      "format": "PE32+",
+      "sections": 6,
+      "bytes": 966144
+    },
+    "vccorlib140.dll": {
+      "machine": "0x8664",
+      "format": "PE32+",
+      "sections": 6,
+      "bytes": 343008
+    },
+    "vcruntime140.dll": {
+      "machine": "0x8664",
+      "format": "PE32+",
+      "sections": 8,
+      "bytes": 113632
+    },
+    "vcruntime140_1.dll": {
+      "machine": "0x8664",
+      "format": "PE32+",
+      "sections": 6,
+      "bytes": 38368
+    },
+    "vcruntime140_threads.dll": {
+      "machine": "0x8664",
+      "format": "PE32+",
+      "sections": 6,
+      "bytes": 29168
+    }
+  },
+  "actual_exe_fixed_version": [
+    1,
+    0,
+    9,
+    10
+  ],
+  "crt_files": [
+    "concrt140.dll",
+    "msvcp140.dll",
+    "msvcp140_1.dll",
+    "msvcp140_2.dll",
+    "msvcp140_atomic_wait.dll",
+    "msvcp140_codecvt_ids.dll",
+    "vccorlib140.dll",
+    "vcruntime140.dll",
+    "vcruntime140_1.dll",
+    "vcruntime140_threads.dll"
+  ],
+  "source_fonts_match": [
+    "NotoSansSC-Regular.otf",
+    "NotoSerifSC-Regular.otf",
+    "NotoSansMonoSC-Regular.otf"
+  ],
+  "source_license_text_matches_after_crlf_normalization": true,
+  "source_license_sha256": "849f4ea9c214fa4ac3593b770c699f387534b11ce671264c1b10d85bdcb5997b",
+  "bundled_license_sha256": "2d92b7b894e6ec96f24e884b5e0a5ebe4031003039d9dd9d1d2cea4c31bda99d",
+  "actual_release_directory": "/home/descfly/桌面/ESP32/APP/build/windows-1.0.9/x64/runner/Release",
+  "historical_release_directory": "/home/descfly/桌面/ESP32/APP/build/windows/x64/runner/Release",
+  "historical_release_preserved": true,
+  "historical_release_hashes": {
+    "BUILD-INFO.json": "0be6c12c5ad3fbd632adb9c2ed4b19c3d8c1ede8b2ecc0f88a581714261d1bb2",
+    "ESP-INK.exe": "6b656dcf8d8bac6aad6ea1842d3c9ef49b00a52b122bb798441c7320ecd4e04d",
+    "SHA256SUMS": "2b57bd3724ea68a007c6373e1200beabdf8bd53be7cb5edfc7d69780d1ed8692",
+    "concrt140.dll": "215a66742134aca227fecbcdb34b3fada492b9d72e6d4f54fd9a62fc808c298d",
+    "data/app.so": "6f271ae6dbe3ce2625b92717f6b1ad8fde29528ab9f7f8c626a22b6f546f6352",
+    "data/flutter_assets/AssetManifest.bin": "fb98d311de6bd16533bfae83328d1891258666758fb6caaa46f3f917d7694604",
+    "data/flutter_assets/FontManifest.json": "23b1e53a3a38b147d8d58c5379417c336dfb023fd8ff1bc1138e6e4a9132048e",
+    "data/flutter_assets/NOTICES.Z": "b0263c4d3910a4536c644f81b35ea84ac9d0297f91461074b27a4e0b32606a12",
+    "data/flutter_assets/NativeAssetsManifest.json": "9548a31e4a048135c1d94f919328bfb62ae2c7bb3cab96557c7941daa97776cb",
+    "data/flutter_assets/assets/fonts/NotoSansMonoSC-Regular.otf": "d6809072df0214bced118f00273aaeab73e93ebecadc4f9b96980d1bcc521340",
+    "data/flutter_assets/assets/fonts/NotoSansSC-Regular.otf": "cd52815538ff9070c873fa2b96fe4cbfb6a99a8522b1a21fbec88ab2df307f4e",
+    "data/flutter_assets/assets/fonts/NotoSerifSC-Regular.otf": "ed37c14fd57db66652833723c53a7337ce00cc90fa4a572218fe8cf15c26f25b",
+    "data/flutter_assets/fonts/MaterialIcons-Regular.otf": "52a06ec8bb3b13483a77181193c9be0cc7d125884270d059d8791b6fbf8a103d",
+    "data/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "67c44fe9183b002e79dde7f6977e2988661c9a3e4a3c5fce968787efdbed823c",
+    "data/flutter_assets/shaders/ink_sparkle.frag": "1fe8436a743884cb65078fe8c7b38e18f5365f2a2961270916f426fd13c604af",
+    "data/flutter_assets/shaders/stretch_effect.frag": "bc7599dbbbaab310efe41520574138d21fb18a88c8fe4495ed79315309336f6f",
+    "data/icudtl.dat": "325a86063d26334c2eabe1743cea073b612540fbf3d8fc2ef0b5708e3763a8c7",
+    "file_selector_windows_plugin.dll": "f2143e4b7c27421f47037f14f5e84d5ea044ebc233824e4bcb2a9ea93b09f282",
+    "flutter_windows.dll": "eca1f8c9b1537bd585bbbcc62362df9ca7e69faa7d4e895688108af63ccea157",
+    "licenses/LICENSE-Noto.txt": "2d92b7b894e6ec96f24e884b5e0a5ebe4031003039d9dd9d1d2cea4c31bda99d",
+    "msvcp140.dll": "8b3e7b3bd95147c47272b300c566f98607525b620afe6b289a887759d5519edf",
+    "msvcp140_1.dll": "124c9a76223e26b1e52b4f9184af4a4033ff3625ffb5f3afee9fd8ba566b7eba",
+    "msvcp140_2.dll": "074e1f295edcd0745a0e63ffcfe6b56cb5b6a394c68a7daa990b35bc31e3774b",
+    "msvcp140_atomic_wait.dll": "b77d6ae431d189e743fa108966c6646bfa46de50bf7a1da6207d396459da3b3a",
+    "msvcp140_codecvt_ids.dll": "03c306a2d0c5754750e723c6704e35bc4510427365bd2d5a8120ccfcedb7d70b",
+    "universal_ble_plugin.dll": "c85380d3fabe8bc97785017e1c18d1a32beb2e4b2ea9a26559e3966ff4b97a36",
+    "vccorlib140.dll": "74d9db82c959836391c363ddbb7a847393b9f5edad9211d6dea5608032b2a1a2",
+    "vcruntime140.dll": "3dd51ceefab6c79e5c22b72bf2c11da7d28f390fc4b7852cc71656a61f51f261",
+    "vcruntime140_1.dll": "3667158e396e409345578d93e82167594e45626941daa8766ac17e062c4f214f",
+    "vcruntime140_threads.dll": "fd04f51314a88c768ee80ccabc1d65a6e79be2c7c2f4f6e4d9e81726ebd815bf"
+  },
+  "ci_build_report": "/home/descfly/桌面/ESP32/APP/releases/windows/ESP-INK-1.0.9-windows-x64.build.json",
+  "ci_build_report_sha256": "292082ba77bb3b64f99e4cf22902ae81d64dbe659d54ae4de4daf7c9e0e7e1f2",
+  "ci_startup": "window_created_and_process_alive",
+  "ci_startup_path_test": "ZIP extraction under a Unicode directory containing a space",
+  "scope": "Local ZIP/CRC/SHA/PE/version/source-font/copy verification; startup is CI report evidence. No local Windows execution, BLE or hardware acceptance."
+}

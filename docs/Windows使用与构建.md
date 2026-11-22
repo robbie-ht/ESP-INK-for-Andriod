@@ -50,3 +50,5 @@ Linux 可以分析、运行 Flutter 测试、打源码包；不能直接生成 W
 ## 依赖与许可证
 
 Windows BLE 使用固定 `universal_ble 3.4.0`（BSD-3-Clause），桌面文件选择使用 `file_selector_windows`。Flutter 的 NOTICES 以及 Noto 字体许可证随完整包提供，具体锁定版本见 `pubspec.lock`。
+
+1.0.9实际CI44977701454：456项/静态检查、138.7秒Release、30文件/14AMD64 PE32+、解压逐文件SHA及中文空格路径窗口启动通过。本地完整编译产物保存在 `build/windows-1.0.9/x64/runner/Release`，旧1.0.8产物保留。详细记录与硬件边界见 [VERIFICATION](VERIFICATION.md)。
