@@ -25,7 +25,7 @@ import tempfile
 
 
 ROOT_FILES = (
-    ".gitignore", ".metadata", "README.md", "analysis_options.yaml",
+    ".gitignore", ".metadata", "AGENTS.md", "README.md", "analysis_options.yaml",
     "pubspec.yaml", "pubspec.lock",
 )
 SOURCE_DIRS = ("android", "windows", ".github", "lib", "test", "assets", "tool", "docs", "web", "firmware")

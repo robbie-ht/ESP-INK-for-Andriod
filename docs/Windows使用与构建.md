@@ -39,6 +39,8 @@ Flutter3.47.8 的 Windows 命令按主机架构构建，未提供 `--target-plat
 
 ## GitHub Actions
 
+Windows构建完成后仍须等待同版本Android APK验证通过，再按[双平台发布规则](RELEASING.md)一起发布；单独的Windows Actions artifact不等于正式发版。
+
 `.github/workflows/windows-release.yml` 使用 Windows runner、固定 action commit 和精确 Flutter 版本，锁文件解析后执行分析、全部测试、Release 编译和打包。Actions artifact 包含完整 ZIP、摘要和构建报告，日志单独保存。工作流只有仓库读取权限；正式 GitHub Release 由发布操作单独上传。
 
 Linux 可以分析、运行 Flutter 测试、打源码包；不能直接生成 Windows Release。不得把仅有 `windows/` 目录、CI 配置或者 Linux 单测通过写成 Windows 构建成功。

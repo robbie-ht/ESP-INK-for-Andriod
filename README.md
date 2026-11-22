@@ -6,6 +6,10 @@
 
 配合 **ESP_INK B2.0.1**，支持物理刷屏期间继续读取图库缩略图和高清，读图进度不覆盖刷屏状态；存并显示时严格验证追加身份并保留旧高清缓存。旧 B2.0.0 继续兼容。模式选择、C1/C2、自动效果、删图缓存保留及 MTU517 限长修复继续保留。见 [交付说明](docs/交付说明.md)和[刷屏期间读取图库](docs/刷屏期间读取图库.md)。
 
+## 发布规则
+
+每次APP更新，Android和Windows使用同一版本一起构建、验证，并在同一个Release同时发布；任一平台未通过，不先发布另一端。附件先进入草稿，齐全并核对后再公开。详见[双平台发布规则](docs/RELEASING.md)。
+
 ## 下载与仓库
 
 - [1.0.9 OTA 修复版](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/tag/v1.0.9)：[Android APK](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.9/ESP-INK-1.0.9-android.apk)、[Windows x64 ZIP](https://github.com/robbie-ht/ESP-INK-for-Andriod/releases/download/v1.0.9/ESP-INK-1.0.9-windows-x64.zip)。发布状态和验证范围见文档。
